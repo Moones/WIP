@@ -62,26 +62,28 @@ function Main(tick)
 		wolf2 = nil
 		collectgarbage("collect")
 	end
-	if IsKeyDown(selectwolf1) and wolf1 then
-		if IsKeyDown(unaggro) then
-			if SleepCheck("wolf1") then
-				wolf1:Attack(me)
-				Sleep(500, "wolf1")
+	if not client.chat then
+		if IsKeyDown(selectwolf1) and wolf1 then
+			if IsKeyDown(unaggro) then
+				if SleepCheck("wolf1") then
+					wolf1:Attack(me)
+					Sleep(500, "wolf1")
+				end
+			else
+				SelectUnit(wolf1)
 			end
-		else
-			SelectUnit(wolf1)
 		end
+		if IsKeyDown(selectwolf2) and wolf2 then
+			if IsKeyDown(unaggro) then
+				if SleepCheck("wolf2") then
+					wolf2:Attack(me)
+					Sleep(500, "wolf2")
+				end
+			else
+				SelectUnit(wolf2)
+			end
+		end	
 	end
-	if IsKeyDown(selectwolf2) and wolf2 then
-		if IsKeyDown(unaggro) then
-			if SleepCheck("wolf2") then
-				wolf2:Attack(me)
-				Sleep(500, "wolf2")
-			end
-		else
-			SelectUnit(wolf2)
-		end
-	end	
 end
 
 function Load()
