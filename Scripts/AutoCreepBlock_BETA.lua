@@ -90,13 +90,13 @@ function Main(tick)
 				startingpoint2 = Vector(2787,5765,141)
 				endingpoint = Vector(-6223,4550,256)
 				starttime = 0.35
-				enddistance = 4600
+				enddistance = 3500
 			elseif lane[2] == "bot" then
 				startingpoint = Vector(6254,3435,256)
 				startingpoint2 = Vector(6250,3331,256)
 				endingpoint = Vector(6135,-3301,256)
 				starttime = 0.35
-				enddistance = 4600
+				enddistance = 6500
 			end
 		end
 		-- print(me.position)
