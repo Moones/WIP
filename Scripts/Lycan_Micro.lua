@@ -29,7 +29,7 @@ function Main(tick)
 		if wolves[1] and not wolf1 then
 			wolf1 = wolves[1]
 			wolftext1.visible = true
-			wolftext1.entity = wolves[1]
+			wolftext1.entity = wolves[1] or wolf1
 			if wolves[1].healthbarOffset ~= -1 then
 				wolftext1.entityPosition = Vector(0,0,wolves[1].healthbarOffset)
 			else
@@ -42,7 +42,7 @@ function Main(tick)
 		if wolves[2] and not wolf2 then
 			wolf2 = wolves[2]
 			wolftext2.visible = true
-			wolftext2.entity = wolves[2]
+			wolftext2.entity = wolves[2] or wolf2
 			if wolves[2].healthbarOffset ~= -1 then
 				wolftext2.entityPosition = Vector(0,0,wolves[2].healthbarOffset)
 			else
@@ -86,14 +86,27 @@ function Main(tick)
 		end	
 	end
 	local towers = entityList:GetEntities({classId=CDOTA_BaseNPC_Tower,alive=true,team=me:GetEnemyTeam()})
-	for i,v in ipairs(towers) do
-		if v:DoesHaveModifier("modifier_backdoor_protection_active") then
-			if not backdoortowers[v.handle] then
-				backdoortowers[v.handle] = drawMgr:CreateText(-50,-25,-1,"Backdoor Active",F14)
+	local barracks = entityList:GetEntities({classId=CDOTA_BaseNPC_Barracks,alive=true,team=me:GetEnemyTeam()})
+	local others = entityList:GetEntities({classId=CDOTA_BaseNPC_Building,alive=true,team=me:GetEnemyTeam()})
+	local buildings = {}
+	for k,v in pairs(towers) do buildings[#buildings + 1] = v end
+	for k,v in pairs(barracks) do buildings[#buildings + 1] = v end
+	for k,v in pairs(others) do buildings[#buildings + 1] = v end
+	for i,v in ipairs(buildings) do
+		if v.alive then
+			if v:DoesHaveModifier("modifier_backdoor_protection_active") then
+				if not backdoortowers[v.handle] then
+					backdoortowers[v.handle] = drawMgr:CreateText(-50,-25,-1,"Backdoor Active",F14)
+				end
+				backdoortowers[v.handle].visible = true
+				backdoortowers[v.handle].entity = v
+				backdoortowers[v.handle].entityPosition = Vector(0,0,v.healthbarOffset)
+			else
+				if backdoortowers[v.handle] then
+					backdoortowers[v.handle].visible = false
+					backdoortowers[v.handle] = nil
+				end
 			end
-			backdoortowers[v.handle].visible = true
-			backdoortowers[v.handle].entity = v
-			backdoortowers[v.handle].entityPosition = Vector(0,0,v.healthbarOffset)
 		else
 			if backdoortowers[v.handle] then
 				backdoortowers[v.handle].visible = false
