@@ -18,6 +18,7 @@ local wolf1, wolf2
 local wolftext1 = drawMgr:CreateText(-10,-25,-1,"1",F14) wolftext1.visible = false
 local wolftext2 = drawMgr:CreateText(-10,-25,-1,"2",F14) wolftext2.visible = false
 local sleep = 0
+local backdoortowers = {}
 
 function Main(tick)
 	if not PlayingGame() or tick < sleep then return end
@@ -84,6 +85,23 @@ function Main(tick)
 			end
 		end	
 	end
+	local towers = entityList:GetEntities({classId=CDOTA_BaseNPC_Tower,alive=true,team=me:GetEnemyTeam()})
+	for i,v in ipairs(towers) do
+		if v:DoesHaveModifier("modifier_backdoor_protection_active") then
+			if not backdoortowers[v.handle] then
+				backdoortowers[v.handle] = drawMgr:CreateText(-50,-25,-1,"Backdoor Active",F14)
+			end
+			backdoortowers[v.handle].visible = true
+			backdoortowers[v.handle].entity = v
+			backdoortowers[v.handle].entityPosition = Vector(0,0,v.healthbarOffset)
+		else
+			if backdoortowers[v.handle] then
+				backdoortowers[v.handle].visible = false
+				backdoortowers[v.handle] = nil
+			end
+		end
+	end
+			
 end
 
 function Load()
@@ -93,6 +111,7 @@ function Load()
 			script:Disable()
 		else
 			wolf1, wolf2 = nil, nil
+			backdoortowers = {}
 			reg = true
 			script:RegisterEvent(EVENT_TICK, Main)
 			script:UnregisterEvent(Load)
