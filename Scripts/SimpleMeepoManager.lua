@@ -30,7 +30,7 @@ function Main(tick)
 	if not PlayingGame() or tick < sleep then return end
 	sleep = tick + 100
 	local me = entityList:GetMyHero()
-	local meepos = entityList:GetEntities({type=LuaEntity.TYPE_MEEPO, team=me.team, alive=true})
+	local meepos = entityList:GetEntities({type=LuaEntity.TYPE_MEEPO, team=me.team})
 	local meepoUlt = me:GetAbility(4)
 	for number,meepo in ipairs(meepos) do
 		if me.alive then
@@ -46,7 +46,7 @@ function Main(tick)
 			meeposigns[meepo.handle].visible = true
 			meeposigns[meepo.handle].entity = meepo
 			meeposigns[meepo.handle].entityPosition = Vector(0,0,meepo.healthbarOffset)
-		else
+		elseif meeposigns[meepo.handle] then
 			meeposigns[meepo.handle].visible = false
 		end
 	end		
@@ -56,8 +56,9 @@ function Key()
 	if client.chat or client.console then return end
 	local me = entityList:GetMyHero()
 	local meepos = entityList:GetEntities({type=LuaEntity.TYPE_MEEPO, team=me.team, alive=true})
-	local allies = entityList:GetEntities({type={LuaEntity.TYPE_HERO or LuaEntity.TYPE_MEEPO or LuaEntity.TYPE_CREEP}, team=me.team, alive=true})
 	local meepoUlt = me:GetAbility(4)
+	local fountain = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]	
+	local closest = nil
 	for number,meepo in ipairs(meepos) do
 		if me.alive then
 			meepoUlt = meepo:GetAbility(4)
@@ -81,26 +82,40 @@ function Key()
 				end
 			elseif IsKeyDown(unaggro) then
 				for i,v in ipairs(meepos) do
-					if GetDistance2D(meepo, v) < 600 and v.handle ~= meepo.handle then	
-						print(v.name)
-						if IsKeyDown(meepo1) and meeponumber == 1 then	
-							meepo:Attack(v)
-							return true
-						elseif IsKeyDown(meepo2) and meeponumber == 2 then
-							meepo:Attack(v)
-							return true
-						elseif IsKeyDown(meepo3) and meeponumber == 3 then
-							meepo:Attack(v)
-							return true
-						elseif IsKeyDown(meepo4) and meeponumber == 4 then
-							meepo:Attack(v)
-							return true
-						elseif IsKeyDown(meepo5) and meeponumber == 5 then
-							meepo:Attack(v)
-							return true
+					if GetDistance2D(meepo, v) < 1000 then
+						table.sort(meepos, function (a,b) return GetDistance2D(a, meepo) < GetDistance2D(b, meepo) end)
+						if meepo.handle ~= meepos[1].handle then
+							closest = meepos[1]
+						else
+							closest = meepos[2]
+						end
+						if closest then
+							local moveback = Vector((fountain.position.x - closest.position.x) * 250 / GetDistance2D(fountain,closest) + closest.position.x,(fountain.position.y - closest.position.y) * 250 / GetDistance2D(fountain,closest) + closest.position.y,fountain.position.z)
+							if IsKeyDown(meepo1) and meeponumber == 1 then	
+								meepo:Attack(closest)
+								meepo:Move(moveback)
+								return true
+							elseif IsKeyDown(meepo2) and meeponumber == 2 then
+								meepo:Attack(closest)
+								meepo:Move(moveback)
+								return true
+							elseif IsKeyDown(meepo3) and meeponumber == 3 then
+								meepo:Attack(closest)
+								meepo:Move(moveback)
+								return true
+							elseif IsKeyDown(meepo4) and meeponumber == 4 then
+								meepo:Attack(closest)
+								meepo:Move(moveback)
+								return true
+							elseif IsKeyDown(meepo5) and meeponumber == 5 then
+								meepo:Attack(closest)
+								meepo:Move(moveback)
+								return true
+							end
 						end
 					end
 				end
+				return true
 			end
 		end
 	end
