@@ -8,7 +8,7 @@ config:SetParameter("Meepo3", 51, config.TYPE_HOTKEY)
 config:SetParameter("Meepo4", 52, config.TYPE_HOTKEY)
 config:SetParameter("Meepo5", 53, config.TYPE_HOTKEY)
 config:SetParameter("Select", 18, config.TYPE_HOTKEY)
-config:SetParameter("UnAggro", 16, config.TYPE_HOTKEY) -- 16 is Key Code for Shift, Holding UnAggro Key + SelectWolf key will make wolf to unaggro himself instantly.
+config:SetParameter("UnAggro", 16, config.TYPE_HOTKEY) -- 16 is Key Code for Shift, Holding UnAggro Key + Meepo key will make Meepo to unaggro himself instantly.
 config:Load()	
 
 meepo1 = config.Meepo1
