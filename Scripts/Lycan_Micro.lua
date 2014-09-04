@@ -24,7 +24,7 @@ function Main(tick)
 	if not PlayingGame() or tick < sleep then return end
 	sleep = tick + 100
 	local me = entityList:GetMyHero()
-	local wolves = entityList:GetEntities({classId=291, controllable=true, team=me.team, alive=true})
+	local wolves = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Neutral, controllable=true, team=me.team, alive=true})
 	if #wolves > 0 then
 		if wolves[1] and not wolf1 then
 			wolf1 = wolves[1]
