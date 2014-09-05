@@ -46,7 +46,7 @@ function Main(tick)
 		else		
 			UpdateMyHero(me)		
 			if IsKeyDown(movetomouse) and not client.chat then				
-				local traps = entityList:GetEntities({type=LuaEntity.TYPE_NPC,alive=true,team=me.team})
+				local traps = entityList:GetEntities({classId=CDOTA_BaseNPC_Additive,alive=true,team=me.team})
 				local closestTrap = nil
 				for i,v in ipairs(traps) do
 					if (v:GetAbility(1) and v:GetAbility(1).name == "templar_assassin_self_trap" and v:GetAbility(1).state == LuaEntityAbility.STATE_READY) then
@@ -61,7 +61,7 @@ function Main(tick)
 					end
 				end
 				local trap = me:GetAbility(5)
-				if not me:DoesHaveModifier("modifier_templar_assassin_meld") and (not victim or GetDistance2D(me, victim) > (myhero.attackRange + myhero.attackPoint*10*victim.movespeed)) or (not noorbwalkidle and not attacking) or (not attacking and (victim and (victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE and victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE1) or (victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE))) then
+				if not me:DoesHaveModifier("modifier_templar_assassin_meld") and (not victim or GetDistance2D(me, victim) > (myhero.attackRange + 50)) or (not noorbwalkidle and not attacking) or (not attacking and (victim and (victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE and victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE1) or (victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE))) then
 					if tick > sleep then
 						local blink = me:FindItem("item_blink")
 						if blink and blink.cd == 0 and (victim and GetDistance2D(me,victim) > myhero.attackRange+200) then
@@ -91,13 +91,14 @@ function Main(tick)
 					end
 				end
 				if victim then
-					if me:DoesHaveModifier("modifier_templar_assassin_meld") and SleepCheck("meld") then
+					
+					if me:DoesHaveModifier("modifier_templar_assassin_meld") and SleepCheck("meld") and me:CanAttack() and not victim:IsAttackImmune() then
 						entityList:GetMyPlayer():Attack(victim)
 						attacking = true
 						Sleep(myhero.attackRate*1000, "meld")
 					end
 					local meld = me:GetAbility(2)
-					if victim.hero and meld and meld.state == LuaEntityAbility.STATE_READY and GetDistance2D(me, victim) <= myhero.attackRange-25 and not isAttacking(me) and SleepCheck("meld2") then
+					if victim.hero and meld and meld.state == LuaEntityAbility.STATE_READY and GetDistance2D(me, victim) <= myhero.attackRange-25 and not isAttacking(me) and SleepCheck("meld2") and me:CanAttack() and not victim:IsAttackImmune() then
 						me:SafeCastAbility(meld)
 						entityList:GetMyPlayer():Attack(victim)
 						attacking = true
@@ -121,7 +122,7 @@ function OrbWalk(me)
 		victim = targetFind:GetLowestEHP(myhero.attackRange + myhero.attackPoint*10*me.movespeed, phys)
 	end
 	if (victim and victim.alive and victim.health > 0 and GetDistance2D(me, victim) <= myhero.attackRange) and me.alive then			
-		if (GetTick() >= myAttackTickTable.attackRateTick) then
+		if (GetTick() >= myAttackTickTable.attackRateTick) and me:CanAttack() and not victim:IsAttackImmune() then
 			myhero:Hit(victim)
 			myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000 + (math.max((GetDistance2D(me, victim) - myhero.attackRange), 0)/me.movespeed)*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, victim))) - 0.69, 0))/(myhero.turnRate*(1/0.03))*1000						
 			attacking = true	
