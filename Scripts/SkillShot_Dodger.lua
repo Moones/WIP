@@ -17,7 +17,7 @@ require("libs.Utils")
 require("libs.VectorOp")
 require("libs.SkillShot")
 
-local reg = false local spell = nil local distance = nil local radius = nil local start, vec = nil, nil local ArrowHandle = nil local Arrow = nil
+local reg = false local spell = nil local distance = nil local radius = nil local start, vec = nil, nil local ArrowHandle = nil
 
 local SkillShotList = {
 	{ 
@@ -90,10 +90,11 @@ function Main(tick)
 					-- end
 				-- end
 			-- end
-			if ArrowHandle then 
-				Arrow = entityList:GetEntity(ArrowHandle)
-				ArrowHandle = nil
-			end
+			-- if ArrowHandle then 
+				-- Arrow = entityList:GetEntity(ArrowHandle)
+				-- ArrowHandle = nil
+			-- end
+			local Arrow = entityList:GetEntity(ArrowHandle)
 			if Arrow and Arrow.alive then
 				if spell and skillshot.spellName == "mirana_arrow" then
 					if not start then
@@ -114,7 +115,7 @@ function Main(tick)
 					end
 				end
 			elseif start then	
-				start,vec = nil,nil
+				start,vec,ArrowHandle = nil,nil,nil
 			end
 		end
 	end
@@ -220,7 +221,6 @@ function Load()
 			radius = nil
 			start, vec = nil, nil
 			ArrowHandle = nil
-			Arrow = nil
 			script:RegisterEvent(EVENT_TICK, Main)
 			script:RegisterEvent(EVENT_ENTITY_UPDATE, EntityUpdate)
 			script:RegisterEvent(EVENT_KEY, Key)
@@ -234,7 +234,6 @@ function Close()
 	spell = nil
 	radius = nil
 	start, vec = nil, nil
-	Arrow = nil
 	ArrowHandle = nil
 	if reg then
 		script:UnregisterEvent(Main)
