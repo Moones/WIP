@@ -113,8 +113,38 @@ function Main(tick)
 				backdoortowers[v.handle] = nil
 			end
 		end
+	end			
+end
+
+function Key(msg,code) 
+	if client.chat or not PlayingGame() then return end
+	local me = entityList:GetMyHero()
+	if not client.chat then
+		if IsKeyDown(selectwolf1) and wolf1 then
+			if IsKeyDown(unaggro) then
+				if SleepCheck("wolf1") then
+					wolf1:Attack(me)
+					Sleep(500, "wolf1")
+					return true
+				end
+			else
+				SelectUnit(wolf1)
+				return true
+			end
+		end
+		if IsKeyDown(selectwolf2) and wolf2 then
+			if IsKeyDown(unaggro) then
+				if SleepCheck("wolf2") then
+					wolf2:Attack(me)
+					Sleep(500, "wolf2")
+					return true
+				end
+			else
+				SelectUnit(wolf2)
+				return true
+			end
+		end	
 	end
-			
 end
 
 function Load()
@@ -127,6 +157,7 @@ function Load()
 			backdoortowers = {}
 			reg = true
 			script:RegisterEvent(EVENT_TICK, Main)
+			script:RegisterEvent(EVENT_KEY, Key)
 			script:UnregisterEvent(Load)
 		end
 	end	
@@ -137,6 +168,7 @@ function Close()
 	collectgarbage("collect")
 	if reg then
 		script:UnregisterEvent(Main)
+		script:UnregisterEvent(Key)
 		script:RegisterEvent(EVENT_TICK, Load)	
 		reg = false
 	end
