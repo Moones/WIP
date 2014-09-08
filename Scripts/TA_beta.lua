@@ -5,6 +5,7 @@ require("libs.TargetFind")
 
 local config = ScriptConfig.new()
 config:SetParameter("Move", 32, config.TYPE_HOTKEY)
+config:SetParameter("PsiHarras", "V", config.TYPE_HOTKEY)
 config:SetParameter("Hotkey", "N", config.TYPE_HOTKEY)
 config:SetParameter("ActiveFromStart", true)
 config:SetParameter("ShowSign", true)
@@ -12,6 +13,7 @@ config:SetParameter("DontOrbwalkWhenIdle", true)
 config:Load()
 	
 movetomouse = config.Move
+psiharras = config.PsiHarras
 hotkey = config.Hotkey
 active = config.ActiveFromStart
 showsign = config.ShowSign
@@ -21,16 +23,18 @@ local myAttackTickTable = {}
 
 local sleep = 0 myAttackTickTable.attackRateTick = 0 myAttackTickTable.attackRateTick2 = 0 myAttackTickTable.attackPointTick = nil
 
-local myhero = nil local reg = false local myId = nil local victim = nil local psivictim = nil local attacking = false local combo = false local psi = false
+local myhero = nil local reg = false local myId = nil local victim = nil local psivictim = nil local attacking = false local combo = false local psi = false local harras = false
 
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor) 
-local statusText = drawMgr:CreateText(10*monitor,600*monitor,-1,"Templar Assassin Script: ON, Hotkey: " .. string.char(hotkey),F14) statusText.visible = false
+local statusText = drawMgr:CreateText(10*monitor,600*monitor,-1,"Templar Assassin Script: ON, Hotkey: " .. string.char(hotkey) .. ", PsiHarras: OFF",F14) statusText.visible = false
 
 function Key(msg, code)
 	if msg ~= KEY_UP or client.chat or client.console then return end
 	if code == hotkey then 
 		active = not active
+	elseif code == psiharras then
+		harras = not harras
 	end
 end
 
@@ -39,7 +43,7 @@ function Main(tick)
 	local me = entityList:GetMyHero() if not me then return end	
 	local ID = me.classId if ID ~= myId then Close() end
 	statusText.visible = true
-	statusText.text = "Templar Assassin Script: "..IsActive()..", Hotkey: " .. string.char(hotkey)
+	statusText.text = "Templar Assassin Script: "..IsActive()..", Hotkey: " .. string.char(hotkey) .. ", PsiHarras: "..IsActive(true)
 	if active and not me:IsChanneling() then
 		if not myhero then
 			myhero = Hero(me)
@@ -98,7 +102,7 @@ function Main(tick)
 				local trap = me:GetAbility(5)
 				if not me:DoesHaveModifier("modifier_templar_assassin_meld") and ((not victim or GetDistance2D(me, victim) > (myhero.attackRange + 50)) and (not psivictim or GetDistance2D(me, psivictim) > (myhero.attackRange + 50))) or (not noorbwalkidle and not attacking) or (not attacking and (victim and (victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE and victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE1) or (victim and victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE))) then
 					if tick > sleep then
-						if blink and blink.cd == 0 and (victim and (victim.courier or victim.hero) and GetDistance2D(me,victim) > myhero.attackRange+200 and GetDistance2D(me,victim) < 1500) then
+						if not harras and blink and blink.cd == 0 and (victim and (victim.courier or victim.hero) and GetDistance2D(me,victim) > myhero.attackRange+200 and GetDistance2D(me,victim) < 1500) then
 							local bpos = (victim.position - me.position) * 1100 / GetDistance2D(me,victim) + me.position
 							local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, victim))) - 0.69, 0)/(0.5*(1/0.03)))*1000 + client.latency
 							if GetDistance2D(me, victim) <= 1100 then
@@ -132,7 +136,7 @@ function Main(tick)
 						attacking = true
 						Sleep(myhero.attackRate*1000, "meld")
 					end
-					if not psivictim and (victim.classId ~= CDOTA_BaseNPC_Tower and victim.classId ~= CDOTA_BaseNPC_Barracks and victim.classId ~= CDOTA_BaseNPC_Building) and meld and meld.state == LuaEntityAbility.STATE_READY and GetDistance2D(me, victim) <= myhero.attackRange-25 and not isAttacking(me) and SleepCheck("meld2") and me:CanAttack() and not victim:IsAttackImmune() and victim.health > ((dmg)*(1-victim.dmgResist)+1) then
+					if (victim.classId ~= CDOTA_BaseNPC_Tower and victim.classId ~= CDOTA_BaseNPC_Barracks and victim.classId ~= CDOTA_BaseNPC_Building) and meld and meld.state == LuaEntityAbility.STATE_READY and GetDistance2D(me, victim) <= myhero.attackRange-25 and not isAttacking(me) and SleepCheck("meld2") and me:CanAttack() and not victim:IsAttackImmune() and victim.health > ((dmg)*(1-victim.dmgResist)+1) then
 						me:SafeCastAbility(meld)
 						entityList:GetMyPlayer():Attack(victim)
 						attacking = true
@@ -162,7 +166,7 @@ function OrbWalk(me)
 			enemies[i] = enemies[i+1]
 		end
 	end	
-	if (victim and GetDistance2D(me,victim) > (myhero.attackRange + 25)) and enemies[2] and GetDistance2D(enemies[2], me) < (myhero.attackRange + 1200) then
+	if ((victim and GetDistance2D(me,victim) > (myhero.attackRange + 25)) and enemies[2] and GetDistance2D(enemies[2], me) < (myhero.attackRange + 1200)) or harras then
 		victim = targetFind:GetLowestEHP(1200 + myhero.attackRange, phys)
 	end	
 	local psiUnits = {}
@@ -190,22 +194,23 @@ function OrbWalk(me)
 	for k,v in pairs(summons) do if GetDistance2D(me, v) < myhero.attackRange+500 then psiUnits[#psiUnits + 1] = v end end
 	for k,v in pairs(golems) do if GetDistance2D(me, v) < myhero.attackRange+500 then psiUnits[#psiUnits + 1] = v end end
 	table.sort( farm, function (a,b) return GetDistance2D(a,me) < GetDistance2D(b,me) end )
-	if not victim or GetDistance2D(me, victim) > myhero.attackRange+500 or not victim.alive then
+	if (not victim or GetDistance2D(me, victim) > myhero.attackRange+500 or not victim.alive) and not harras then
 		if farm[1] and GetDistance2D(client.mousePosition, farm[1]) < 300 then
 			victim = farm[1]
 		end
 	end
 	if victim and GetDistance2D(victim,me) > myhero.attackRange then
 		for i, v in ipairs(psiUnits) do
-			if v.health > 0 and v.alive and (v.team == me:GetEnemyTeam() or (v.team == me.team and v.health < v.maxHealth*0.4)) and GetDistance2D(me,v) <= myhero.attackRange+150 then
+			if v.health > 0 and v.alive and (v.team == me:GetEnemyTeam() or (v.team == me.team and v.health < v.maxHealth*0.5)) and GetDistance2D(me,v) <= myhero.attackRange+150 and (not psivictim or GetDistance2D(psivictim,me) > myhero.attackRange+50) then
 				if AngleBelow(me,v,victim,5.5) then
 					psivictim = v
 					psi = true
+					Sleep(myhero.attackRate*1000+client.latency+math.max(GetDistance2D(me,psivictim)-myhero.attackRange,0)/me.movespeed,"psi")
 				end
 			end
 		end
 	end
-	if psivictim and (GetDistance2D(psivictim,me) > myhero.attackRange+50 or not (victim and AngleBelow(me,psivictim,victim,5.5)) or not psivictim.alive or not psivictim.visible) then
+	if SleepCheck("psi") and psivictim and (GetDistance2D(psivictim,me) > myhero.attackRange+50 or not AngleBelow(me,psivictim,victim,5.5) or not psivictim.alive or not psivictim.visible) then
 		psivictim = nil
 		psi = false
 	end
@@ -319,6 +324,8 @@ class 'Hero'
 			else
 				entityList:GetMyPlayer():Attack(target)
 			end
+		else
+			entityList:GetMyPlayer():Attack(target)
 		end
 	end
 
@@ -379,11 +386,19 @@ function isAttacking(ent)
 	return false
 end
 
-function IsActive()
-	if active then
-		return "ON"
+function IsActive(har)
+	if har then
+		if harras then
+			return "ON"
+		else
+			return "OFF"
+		end
 	else
-		return "OFF"
+		if active then
+			return "ON"
+		else
+			return "OFF"
+		end
 	end
 end
 
