@@ -21,7 +21,7 @@ local myAttackTickTable = {} local creepTable = {}
 
 local sleep = 0 myAttackTickTable.attackRateTick = 0 myAttackTickTable.attackRateTick2 = 0 myAttackTickTable.attackPointTick = nil
 
-local myhero = nil local reg = false local myId = nil local victim = nil local psivictim = nil local attacking = false local combo = false local psi = false local harras = false local lasthit = false local lhcreep = nil local lhcreepclass = nil local lh = nil local lhtime = 0 local psilh = nil
+local myhero = nil local reg = false local myId = nil local victim = nil local psivictim = nil local attacking = false local combo = false local harras = false local lasthit = false local lhcreep = nil local lhcreepclass = nil local lh = nil local lhtime = 0 local psilh = nil
 
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor) 
@@ -99,7 +99,7 @@ function Main(tick)
 					end
 				end
 				local trap = me:GetAbility(5)
-				if not me:DoesHaveModifier("modifier_templar_assassin_meld") and (((not victim or GetDistance2D(me, victim) > (myhero.attackRange + 50)) and (not psivictim or GetDistance2D(me, psivictim) > (myhero.attackRange + 50))) or (not noorbwalkidle and not attacking) or (not attacking and (victim and (victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE and victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE1) or (victim and victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE)))) then
+				if not lhcreep and not me:DoesHaveModifier("modifier_templar_assassin_meld") and (((not victim or GetDistance2D(me, victim) > (myhero.attackRange + 50)) and (not psivictim or GetDistance2D(me, psivictim) > (myhero.attackRange + 50))) or (not noorbwalkidle and not attacking) or (not attacking and (victim and (victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE and victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE1) or (victim and victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE)))) then
 					if tick > sleep then
 						if not harras and blink and blink.cd == 0 and (victim and (victim.courier or victim.hero) and GetDistance2D(me,victim) > myhero.attackRange+200 and GetDistance2D(me,victim) < 1500) then
 							local bpos = (victim.position - me.position) * 1100 / GetDistance2D(me,victim) + me.position
@@ -196,10 +196,9 @@ function OrbWalk(me)
 	local psirange = psi:GetSpecialData("attack_spill_range",psi.level)
 	if victim then
 		for i, v in pairs(creepTable) do
-			if GetDistance2D(me,victim) <= psirange and GetDistance2D(me,victim) > GetDistance2D(me,v.creepEntity) and not v.nopsi and v.creepEntity.health > 0 and v.creepEntity.alive and (v.creepEntity.team == me:GetEnemyTeam() or (v.creepEntity.team == me.team and v.creepEntity.health < v.creepEntity.maxHealth*0.5)) and GetDistance2D(me,v.creepEntity) <= myhero.attackRange+150 and (not psivictim or GetDistance2D(psivictim,me) > myhero.attackRange+50) then
+			if psi and psi.level > 0 and GetDistance2D(v.creepEntity,victim) <= psirange and GetDistance2D(me,victim) > GetDistance2D(me,v.creepEntity) and not v.nopsi and v.creepEntity.health > 0 and v.creepEntity.alive and (v.creepEntity.team == me:GetEnemyTeam() or (v.creepEntity.team == me.team and v.creepEntity.health < v.creepEntity.maxHealth*0.5)) and GetDistance2D(me,v.creepEntity) <= myhero.attackRange+150 and (not psivictim or GetDistance2D(psivictim,me) > myhero.attackRange+50) then
 				if AngleBelow(me,v.creepEntity,victim,3.2) then
 					psivictim = v.creepEntity
-					psi = true
 					Sleep(client.latency + myhero.attackPoint*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, psivictim))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + ((GetDistance2D(me, psivictim)-math.max((GetDistance2D(me, psivictim) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000 + (math.max((GetDistance2D(me, psivictim) - myhero.attackRange), 0)/me.movespeed)*1000,"psi")
 				end
 			end
@@ -207,21 +206,23 @@ function OrbWalk(me)
 	end
 	if SleepCheck("psi") and psivictim and (not victim or GetDistance2D(psivictim,me) > myhero.attackRange+50 or not (victim and AngleBelow(me,psivictim,victim,3.2)) or not psivictim.alive or not psivictim.visible or (victim and GetDistance2D(me,victim) > psirange) or (victim and GetDistance2D(me,victim) < GetDistance2D(me,psivictim))) then
 		psivictim = nil
-		psi = false
 	end
 	if courier and GetDistance2D(me, courier) < myhero.attackRange+1200 then
 		victim = courier
 	end
 	local meld = me:GetAbility(2)	
-	if ((victim and victim.alive and victim.health > 0 and GetDistance2D(me, victim) <= myhero.attackRange) or (psivictim and psivictim.alive and psivictim.health > 0 and GetDistance2D(me, psivictim) <= myhero.attackRange)) and me.alive and (not meld or meld.state ~= LuaEntityAbility.STATE_READY or (victim and victim.health <= ((dmg)*(1-victim.dmgResist)+1)) or psivictim or (victim and (victim.classId == CDOTA_BaseNPC_Tower or victim.classId == CDOTA_BaseNPC_Barracks or victim.classId == CDOTA_BaseNPC_Building))) then			
-		if (GetTick() >= myAttackTickTable.attackRateTick) and me:CanAttack() and not (victim and victim:IsAttackImmune()) then
+	if lhcreep or ((victim and victim.alive and victim.health > 0 and GetDistance2D(me, victim) <= myhero.attackRange) or (psivictim and psivictim.alive and psivictim.health > 0 and GetDistance2D(me, psivictim) <= myhero.attackRange)) and me.alive and (not meld or meld.state ~= LuaEntityAbility.STATE_READY or (victim and victim.health <= ((dmg)*(1-victim.dmgResist)+1)) or psivictim or (victim and (victim.classId == CDOTA_BaseNPC_Tower or victim.classId == CDOTA_BaseNPC_Barracks or victim.classId == CDOTA_BaseNPC_Building))) then			
+		if (GetTick() >= myAttackTickTable.attackRateTick) and me:CanAttack() then
 			if psivictim then
 				myhero:Hit(psivictim)
 				myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000 + (math.max((GetDistance2D(me, psivictim) - myhero.attackRange), 0)/me.movespeed)*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, psivictim))) - 0.69, 0))/(myhero.turnRate*(1/0.03))*1000	
 			elseif victim then
 				myhero:Hit(victim)
 				myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000 + (math.max((GetDistance2D(me, victim) - myhero.attackRange), 0)/me.movespeed)*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, victim))) - 0.69, 0))/(myhero.turnRate*(1/0.03))*1000	
-			end					
+			elseif lhcreep then
+				myhero:Hit(lhcreep)
+				myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000 + (math.max((GetDistance2D(me, lhcreep) - myhero.attackRange), 0)/me.movespeed)*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, lhcreep))) - 0.69, 0))/(myhero.turnRate*(1/0.03))*1000	
+			end						
 			attacking = true
 		end
 	end
@@ -369,7 +370,7 @@ class 'Hero'
 	end
 	
 	function Hero:StopAttack(target,lhcreepclass)
-		if target.alive and ((target.team == self.heroEntity.team and not lh) or target.team ~= self.heroEntity.team) then
+		if target.alive and ((target.team == self.heroEntity.team and not lh) or target.team ~= self.heroEntity.team) and GetDistance2D(entityList:GetMyHero(),target) <= self.attackRange then
 			local me = entityList:GetMyHero()
 			local Dmg2 = myhero:GetDamage(lhcreepclass)
 			local meld = me:GetAbility(2)	
@@ -387,7 +388,10 @@ class 'Hero'
 					elseif victim then
 						myhero:Hit(victim)
 						myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000 + (math.max((GetDistance2D(me, victim) - myhero.attackRange), 0)/me.movespeed)*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, victim))) - 0.69, 0))/(myhero.turnRate*(1/0.03))*1000	
-					end					
+					else
+						myhero:Hit(target)
+						myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000 + (math.max((GetDistance2D(me, target) - myhero.attackRange), 0)/me.movespeed)*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, target))) - 0.69, 0))/(myhero.turnRate*(1/0.03))*1000	
+					end						
 					myAttackTickTable.attackRateTick2 = GetTick() + self.attackPoint*1000
 				end
 			end
@@ -742,7 +746,6 @@ function Load()
 			reg = true
 			myId = me.classId
 			combo = false
-			psi = false
 			victim = nil
 			psivictim = nil
 			lhcreepclass = nil
@@ -763,7 +766,6 @@ function Close()
 	myhero = nil
 	myId = nil
 	combo = false
-	psi = false
 	victim = nil
 	psivictim = nil
 	lhcreepclass = nil
