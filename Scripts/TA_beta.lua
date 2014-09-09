@@ -176,7 +176,7 @@ function OrbWalk(me)
 	for i,v in pairs(creepTable) do if (v.creepEntity.team ~= me.team or v.creepEntity.classId == CDOTA_BaseNPC_Creep_Neutral) then farm[#farm+1] = v.creepEntity end if v.creepEntity.classId == CDOTA_BaseNPC_Creep_Lane and GetDistance2D(me,v.creepEntity) < 800 then closecreeps[#closecreeps+1] = v.creepEntity end end
 	for i,v in pairs(farm) do if not v.alive then farm[i] = nil end end
 	for i,v in pairs(closecreeps) do if not v.alive or GetDistance2D(me,v) > 800 then closecreeps[i] = nil end end
-	if #closecreeps > 0 and dmg < 100 then
+	if #closecreeps > 0 and dmg < 150 then
 		harras = true 
 	else
 		harras = false
