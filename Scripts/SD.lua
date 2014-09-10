@@ -210,8 +210,8 @@ local config = ScriptConfig.new()
 config:Load()
 
 for z, skillshot in pairs(SkillShotList) do
-	if config and config:Load() and config:GetParameter(skillshot.spellName) == nil then
-		print(skillshot.spellName, config:GetParameter(skillshot.spellName))
+	if config and config:Load() and config:GetParameter(skillshot.spellName,true) == nil then
+		print(skillshot.spellName, config:GetParameter(skillshot.spellName,true))
 		config:SetParameter(skillshot.spellName, true)
 	end
 end
@@ -228,7 +228,7 @@ function Main(tick)
 			if not v:IsIllusion() and v.classId == enemyList[m] then
 				for z, skillshot in ipairs(SkillShotList) do
 					--print(skillshot.spellName:gsub('"',""))
-					if config:GetParameter(skillshot.spellName) then
+					if config:GetParameter(skillshot.spellName,true) then
 						local spell = v:FindSpell(skillshot.spellName)
 						if spell and (spell.abilityPhase or math.ceil(spell.cd) ==  math.ceil(spell:GetCooldown(spell.level))) then
 							local radius = spell:GetSpecialData(skillshot.radius)
