@@ -173,7 +173,7 @@ function OrbWalk(me)
 	--find out if it is illusion or not
 	for i=1,#enemies do
 		if enemies[i]:IsIllusion() then
-			enemies[i] = enemies[i+1]
+			enemies[i] = nil
 		end
 	end	
 	--if we got more enemies around and victim is far choose lowest HP target instead
