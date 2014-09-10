@@ -695,17 +695,17 @@ function GetCreeps(me)
 	local summons = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep,alive=true,team=me:GetEnemyTeam(),visible=true})
 	local golems = entityList:GetEntities({classId=CDOTA_BaseNPC_Warlock_Golem,alive=true,team=me:GetEnemyTeam(),visible=true})
 	local wards = entityList:GetEntities({classId=CDOTA_BaseNPC_Venomancer_PlagueWard,alive=true,visible=true})
-	for k,v in ipairs(creeps) do if GetDistance2D(me, v) < myhero.attackRange+800 and v.spawned then entities[#entities + 1] = v end end
-	for k,v in ipairs(siege) do if GetDistance2D(me, v) < myhero.attackRange+800 and v.spawned then entities[#entities + 1] = v end end
-	for k,v in ipairs(neutrals) do if GetDistance2D(me, v) < myhero.attackRange+800 and v.spawned then entities[#entities + 1] = v end end
-	for k,v in ipairs(towers) do if GetDistance2D(me, v) < myhero.attackRange+800 then entities[#entities + 1] = v end end
-	for k,v in ipairs(barracks) do if GetDistance2D(me, v) < myhero.attackRange+800 then entities[#entities + 1] = v end end
-	for k,v in ipairs(others) do if GetDistance2D(me, v) < myhero.attackRange+800 then entities[#entities + 1] = v end end
-	for k,v in ipairs(heroes) do if v.handle ~= me.handle and GetDistance2D(me, v) < myhero.attackRange+800 then entities[#entities + 1] = v end end
-	for k,v in ipairs(spirits) do if GetDistance2D(me, v) < myhero.attackRange+800 then entities[#entities + 1] = v end end
-	for k,v in ipairs(summons) do if GetDistance2D(me, v) < myhero.attackRange+800 then entities[#entities + 1] = v end end
-	for k,v in ipairs(golems) do if GetDistance2D(me, v) < myhero.attackRange+800 then entities[#entities + 1] = v end end
-	for k,v in ipairs(wards) do if GetDistance2D(me, v) < myhero.attackRange+800 then entities[#entities + 1] = v end end
+	for k,v in pairs(creeps) do if GetDistance2D(me, v) < myhero.attackRange+800 and v.spawned then entities[#entities + 1] = v end end
+	for k,v in pairs(siege) do if GetDistance2D(me, v) < myhero.attackRange+800 and v.spawned then entities[#entities + 1] = v end end
+	for k,v in pairs(neutrals) do if GetDistance2D(me, v) < myhero.attackRange+800 and v.spawned then entities[#entities + 1] = v end end
+	for k,v in pairs(towers) do if GetDistance2D(me, v) < myhero.attackRange+800 then entities[#entities + 1] = v end end
+	for k,v in pairs(barracks) do if GetDistance2D(me, v) < myhero.attackRange+800 then entities[#entities + 1] = v end end
+	for k,v in pairs(others) do if GetDistance2D(me, v) < myhero.attackRange+800 then entities[#entities + 1] = v end end
+	for k,v in pairs(heroes) do if v.handle ~= me.handle and GetDistance2D(me, v) < myhero.attackRange+800 then entities[#entities + 1] = v end end
+	for k,v in pairs(spirits) do if GetDistance2D(me, v) < myhero.attackRange+800 then entities[#entities + 1] = v end end
+	for k,v in pairs(summons) do if GetDistance2D(me, v) < myhero.attackRange+800 then entities[#entities + 1] = v end end
+	for k,v in pairs(golems) do if GetDistance2D(me, v) < myhero.attackRange+800 then entities[#entities + 1] = v end end
+	for k,v in pairs(wards) do if GetDistance2D(me, v) < myhero.attackRange+800 then entities[#entities + 1] = v end end
 	for _, dEntity in ipairs(entities) do
 		if dEntity.alive and GetDistance2D(me, dEntity) < myhero.attackRange+800 and not creepTable[dEntity.handle] and not dEntity:IsInvul() and not dEntity:IsAttackImmune() then
 			creepTable[dEntity.handle] = Creep(dEntity)
