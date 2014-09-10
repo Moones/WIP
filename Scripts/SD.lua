@@ -17,12 +17,49 @@ require("libs.Utils")
 require("libs.VectorOp")
 require("libs.SkillShot")
 require("libs.ScriptConfig")
+--ScriptConfig:SetParameters(table): Allows to add multiple parameters with the the form { {p1,dV1,t1}, {p2,dV2,t2}, ... }.
+-- config:SetParameter("rattletrap_hookshot", true)
+-- config:SetParameter("meepo_earthbind", true)
+-- config:SetParameter("weaver_the_swarm", true)
+-- config:SetParameter("shredder_chakram", true)
+-- config:SetParameter("queenofpain_sonic_wave", true)
+-- config:SetParameter("spectre_spectral_dagger", true)
+-- config:SetParameter("lina_dragon_slave", true)
+-- config:SetParameter("beastmaster_wild_axes", true)
+-- config:SetParameter("jakiro_dual_breath", true)
+-- config:SetParameter("earthshaker_fissure", true)
+-- config:SetParameter("vengefulspirit_wave_of_terror", true)
+-- config:SetParameter("slark_pounce", true)
+-- config:SetParameter("shredder_timber_chain", true)
+-- config:SetParameter("venomancer_venomous_gale", true)
+-- config:SetParameter("magnataur_shockwave", true)
+-- config:SetParameter("batrider_flamebreak", true)
+-- config:SetParameter("invoker_deafening_blast", true)
+-- config:SetParameter("invoker_tornado", true)
+-- config:SetParameter("invoker_chaos_meteor", true)
+-- config:SetParameter("nyx_assassin_impale", true)
+-- config:SetParameter("mirana_arrow", true)
+-- config:SetParameter("jakiro_ice_path", true)
+-- config:SetParameter("earth_spirit_boulder_smash", true)
+-- config:SetParameter("magnataur_skewer", true)
+-- config:SetParameter("elder_titan_earth_splitter", true)
+-- config:SetParameter("jakiro_macropyre", true)
+-- config:SetParameter("puck_illusory_orb", true)
+-- config:SetParameter("windrunner_powershot", true)
+-- config:SetParameter("tusk_ice_shards", true)
+-- config:SetParameter("pudge_meat_hook", true)
+-- config:SetParameter("death_prophet_carrion_swarm", true)
+-- config:SetParameter("lion_impale", true)
+-- config:SetParameter("tiny_avalanche", true)
+-- config:SetParameter("shadow_demon_shadow_poison", true)
+-- config:Load()
 
 local reg = false local start, vec = nil, nil
 
 local SkillShotList = {
 	{ 
 		spellName = "pudge_meat_hook";
+		heroId = CDOTA_Unit_Hero_Pudge;
 		distance = "hook_distance";
 		radius = "hook_width";
 		block = true;
@@ -30,11 +67,13 @@ local SkillShotList = {
 	};	
 	{ 
 		spellName = "windrunner_powershot";
+		heroId = CDOTA_Unit_Hero_Windrunner;
 		distance = "arrow_range";
 		radius = "arrow_width";
 	};	 
 	{
 		spellName = "mirana_arrow";
+		heroId = CDOTA_Unit_Hero_Mirana;
 		distance = "arrow_range";
 		radius = "arrow_width";
 		speed = "arrow_speed";
@@ -43,26 +82,31 @@ local SkillShotList = {
 	};
 	{
 		spellName = "nyx_assassin_impale";
+		heroId = CDOTA_Unit_Hero_Nyx_Assassin;
 		distance = "length";
 		radius = "width";
 	};
 	{ 
 		spellName = "lion_impale";
+		heroId = CDOTA_Unit_Hero_Lion;
 		distance = "length";
 		radius = "width";
 	};
 	{ 
 		spellName = "death_prophet_carrion_swarm";
+		heroId = CDOTA_Unit_Hero_DeathProphet;
 		distance = "range";
 		radius = "end_radius";
 	};
 	{ 
 		spellName = "magnataur_shockwave";
+		heroId = CDOTA_Unit_Hero_Magnataur;
 		distance = "shock_distance";
 		radius = "shock_width";
 	};
 	{ 
 		spellName = "rattletrap_hookshot";
+		heroId = CDOTA_Unit_Hero_Rattletrap;
 		distance = "tooltip_range";
 		radius = "latch_radius";
 		block = true;
@@ -70,164 +114,191 @@ local SkillShotList = {
 	};
 	{ 
 		spellName = "earthshaker_fissure";
+		heroId = CDOTA_Unit_Hero_Earthshaker;
 		distance = "fissure_range";
 		radius = "fissure_radius";
 	};
 	{ 
 		spellName = "queenofpain_sonic_wave";
+		heroId = CDOTA_Unit_Hero_QueenOfPain;
 		distance = "distance";
 		radius = "final_aoe";
 	};
 	{ 
 		spellName = "tusk_ice_shards";
+		heroId = CDOTA_Unit_Hero_Tusk;
 		distance = 1500;
 		radius = "shard_width";
 	};
 	{ 
 		spellName = "puck_illusory_orb";
+		heroId = CDOTA_Unit_Hero_Puck;
 		distance = "max_distance";
 		radius = "radius";
 	};
 	{ 
 		spellName = "lina_dragon_slave";
+		heroId = CDOTA_Unit_Hero_Lina;
 		distance = "dragon_slave_distance";
 		radius = "dragon_slave_width_initial";
 	};
 	{ 
 		spellName = "jakiro_ice_path";
+		heroId = CDOTA_Unit_Hero_Jakiro;
 		distance = 1100;
 		radius = "path_radius";
 	};
 	{ 
 		spellName = "tiny_avalanche";
+		heroId = CDOTA_Unit_Hero_Tiny;
 		distance = 600;
 		radius = "radius";
 	};
 	{ 
 		spellName = "invoker_chaos_meteor";
+		heroId = CDOTA_Unit_Hero_Invoker;
 		distance = "travel_distance";
 		radius = "area_of_effect";
 	};
 	{ 
 		spellName = "invoker_deafening_blast";
+		heroId = CDOTA_Unit_Hero_Invoker;
 		distance = "travel_distance";
 		radius = "radius_end";
 	};
 	{ 
 		spellName = "invoker_tornado";
+		heroId = CDOTA_Unit_Hero_Invoker;
 		distance = "travel_distance";
 		radius = "area_of_effect";
 	};
 	{ 
 		spellName = "shadow_demon_shadow_poison";
+		heroId = CDOTA_Unit_Hero_ShadowDemon;
 		distance = 1500;
 		radius = "radius";
 	};
 	{ 
 		spellName = "magnataur_skewer";
+		heroId = CDOTA_Unit_Hero_Magnataur;
 		distance = "range";
 		radius = "skewer_radius";
 	};
 	{ 
 		spellName = "meepo_earthbind";
+		heroId = CDOTA_Unit_Hero_Meepo;
 		distance = "tooltip_range";
 		radius = "radius";
 	};
 	{ 
 		spellName = "spectre_spectral_dagger";
+		heroId = CDOTA_Unit_Hero_Spectre;
 		distance = 2000;
 		radius = "dagger_radius";
 	};
 	{ 
 		spellName = "shredder_timber_chain";
+		heroId = CDOTA_Unit_Hero_Shredder;
 		distance = "range";
 		radius = "damage_radius";
 	};
 	{ 
 		spellName = "shredder_chakram";
+		heroId = CDOTA_Unit_Hero_Shredder;
 		distance = 1200;
 		radius = "radius";
 	};
 	{ 
 		spellName = "weaver_the_swarm";
+		heroId = CDOTA_Unit_Hero_Weaver;
 		distance = 3000;
 		radius = "spawn_radius";
 	};
 	{ 
 		spellName = "jakiro_dual_breath";
+		heroId = CDOTA_Unit_Hero_Jakiro;
 		distance = "range";
 		radius = "end_radius";
 	};
 	{ 
 		spellName = "venomancer_venomous_gale";
+		heroId = CDOTA_Unit_Hero_Venomancer;
 		distance = 800;
 		radius = "radius";
 	};
 	{ 
 		spellName = "vengefulspirit_wave_of_terror";
+		heroId = CDOTA_Unit_Hero_VengefulSpirit;
 		distance = 1400;
 		radius = "wave_width";
 	};
 	{ 
 		spellName = "jakiro_macropyre";
+		heroId = CDOTA_Unit_Hero_Jakiro;
 		distance = "cast_range";
 		radius = "path_radius";
 		agadistance = "cast_range_scepter";	
 	};
 	{ 
 		spellName = "elder_titan_earth_splitter";
+		heroId = CDOTA_Unit_Hero_ElderTitan;
 		distance = "crack_distance";
 		radius = "crack_width";
 	};
 	{ 
 		spellName = "beastmaster_wild_axes";
+		heroId = CDOTA_Unit_Hero_Beastmaster;
 		distance = "range";
 		radius = "spread";
 	};
 	{ 
 		spellName = "slark_pounce";
+		heroId = CDOTA_Unit_Hero_Slark;
 		distance = "pounce_distance";
 		radius = "pounce_radius";
 	};
 	{ 
 		spellName = "earth_spirit_boulder_smash";
+		heroId = CDOTA_Unit_Hero_EarthSpirit;
 		distance = "rock_distance";
 		radius = "radius";
 	};
 	{ 
 		spellName = "earth_spirit_rolling_boulder";
+		heroId = CDOTA_Unit_Hero_EarthSpirit;
 		distance = "rock_distance";
 		radius = "radius";
 	};
 	{ 
 		spellName = "batrider_flamebreak";
+		heroId = CDOTA_Unit_Hero_Batrider;
 		distance = 1500;
 		radius = "explosion_radius";
 	};
 }
-
-local config = ScriptConfig.new()
-config:Load()
-
-for z, skillshot in pairs(SkillShotList) do
-	if config and config:Load() and config:GetParameter(skillshot.spellName,true) == nil then
-		print(skillshot.spellName, config:GetParameter(skillshot.spellName,true))
-		config:SetParameter(skillshot.spellName, true)
-	end
+local settings = {}
+for z, skillshot in ipairs(SkillShotList) do
+	table.insert(settings,{skillshot.spellName,true})
 end
+local config = ScriptConfig.new()
+config:SetParameters(settings)
+config:Load()
 	
-local enemyList = {CDOTA_Unit_Hero_Tusk, CDOTA_Unit_Hero_Rubick, CDOTA_Unit_Hero_Mirana, CDOTA_Unit_Hero_Pudge, CDOTA_Unit_Hero_Windrunner, CDOTA_Unit_Hero_Batrider, CDOTA_Unit_Hero_Shredder, CDOTA_Unit_Hero_EarthSpirit, CDOTA_Unit_Hero_Slark, CDOTA_Unit_Hero_Beastmaster, CDOTA_Unit_Hero_ElderTitan, CDOTA_Unit_Hero_Jakiro, CDOTA_Unit_Hero_VengefulSpirit, CDOTA_Unit_Hero_Venomancer, CDOTA_Unit_Hero_Weaver, CDOTA_Unit_Hero_Spectre, CDOTA_Unit_Hero_Meepo, CDOTA_Unit_Hero_Magnataur, CDOTA_Unit_Hero_Tiny, CDOTA_Unit_Hero_Puck, CDOTA_Unit_Hero_Invoker, CDOTA_Unit_Hero_Lina, CDOTA_Unit_Hero_Lion, CDOTA_Unit_Hero_Nyx_Assassin, CDOTA_Unit_Hero_QueenOfPain, CDOTA_Unit_Hero_Earthshaker, CDOTA_Unit_Hero_DeathProphet}
-		
 function Main(tick)
 	if not PlayingGame() or client.console or not SleepCheck() then return end
 	local me = entityList:GetMyHero()
 	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team=me:GetEnemyTeam(),visible=true,alive=true})	
 	--default spell
 	for i,v in ipairs(enemies) do
-		for m = 0, #enemyList do
-			if not v:IsIllusion() and v.classId == enemyList[m] then
-				for z, skillshot in ipairs(SkillShotList) do
+		if not v:IsIllusion() then
+			for z, skillshot in ipairs(SkillShotList) do
+				if v.classId == skillshot.heroId or v.classId == CDOTA_Unit_Hero_Rubick then
 					--print(skillshot.spellName:gsub('"',""))
+					-- if config:GetParameter(skillshot.spellName,true) == nil then
+						-- print(skillshot.spellName, config:GetParameter(skillshot.spellName,true))
+						-- config:SetParameter(skillshot.spellName, true)
+					-- end
+					-- config:Load()
 					if config:GetParameter(skillshot.spellName,true) then
 						local spell = v:FindSpell(skillshot.spellName)
 						if spell and (spell.abilityPhase or math.ceil(spell.cd) ==  math.ceil(spell:GetCooldown(spell.level))) then
