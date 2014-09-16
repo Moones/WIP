@@ -27,7 +27,7 @@ local myhero = nil local reg = false local myId = nil local victim = nil local m
 
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor) 
-local statusText = drawMgr:CreateText(10*monitor,600*monitor,-1,"Templar Assassin Script: ON, Hotkey: " .. string.char(hotkey) .. ", Lasthits: ON",F14) statusText.visible = false
+local statusText = drawMgr:CreateText(10*monitor,600*monitor,-1,'Templar Assassin Script: ON "' .. string.char(hotkey) .. '", Lasthitting/Farming: ON "' .. string.char(lhkey) .. '"',F14) statusText.visible = false
 
 armorTypeModifiers = { Normal = {Unarmored = 1.00, Light = 1.00, Medium = 1.50, Heavy = 1.25, Fortified = 0.70, Hero = 0.75}, Pierce = {Unarmored = 1.50, Light = 2.00, Medium = 0.75, Heavy = 0.75, Fortified = 0.35, Hero = 0.50},	Siege = {Unarmored = 1.00, Light = 1.00, Medium = 0.50, Heavy = 1.25, Fortified = 1.50, Hero = 0.75}, Chaos = {Unarmored = 1.00, Light = 1.00, Medium = 1.00, Heavy = 1.00, Fortified = 0.40, Hero = 1.00},	Hero = {Unarmored = 1.00, Light = 1.00, Medium = 1.00, Heavy = 1.00, Fortified = 0.50, Hero = 1.00}, Magic = {Unarmored = 1.00, Light = 1.00, Medium = 1.00, Heavy = 1.00, Fortified = 1.00, Hero = 0.75} }
 
@@ -45,7 +45,7 @@ function Main(tick)
 	local me = entityList:GetMyHero() if not me then return end	
 	local ID = me.classId if ID ~= myId then Close() end
 	statusText.visible = true
-	statusText.text = "Templar Assassin Script: "..IsActive()..", Hotkey: " .. string.char(hotkey) .. ", Lasthits: " .. IsActive(true)
+	statusText.text = 'Templar Assassin Script: '..IsActive()..' "' .. string.char(hotkey) .. '", Lasthitting/Farming: ' .. IsActive(true) .. ' "' .. string.char(lhkey) .. '"'
 	if active and not me:IsChanneling() then
 		if not myhero then
 			myhero = Hero(me)
@@ -144,16 +144,25 @@ function Main(tick)
 					if tick > sleep then
 						--move to mouse position
 						if SleepCheck("move") then
-							if not moveposition or GetDistance2D(client.mousePosition, moveposition) > 5 then 
-								me:Move(client.mousePosition)
-								moveposition = client.mousePosition
+							if victim and (GetDistance2D(client.mousePosition, victim) <= 10 or entityList:GetMouseover() == victim) then
+								me:Move(victim.position)
+							else
+								if not moveposition or GetDistance2D(client.mousePosition, moveposition) > 100 then 
+									me:Move(client.mousePosition)
+									moveposition = client.mousePosition
+								end
 							end
 							sleep = tick + 30 + client.latency
 						end
 					end
 				end
 				--perfect meld strikes
-				if victim then				
+				if victim then	
+					if GetDistance2D(me,victim) <= myhero.attackRange then
+						if refraction and refraction.state == LuaEntityAbility.STATE_READY then
+							me:SafeCastAbility(refraction)
+						end
+					end
 					if me:DoesHaveModifier("modifier_templar_assassin_meld") and SleepCheck("meld") and me:CanAttack() and not victim:IsAttackImmune() then
 						entityList:GetMyPlayer():Attack(victim)
 						attacking = true
@@ -212,7 +221,7 @@ function OrbWalk(me)
 		harras = false
 	end
 	--if we dont have victim and there are creeps around then farm them
-	if farm and #farm > 0 and not harras and not lhcreep and not lh and not lasthitting then
+	if farm and #farm > 0 and not harras and not lhcreep and not lh and lasthitting then
 		table.sort( farm, function (a,b) return a and b and (GetDistance2D(a,me) < GetDistance2D(b,me)) end )
 		if (not victim or GetDistance2D(me, victim) > myhero.attackRange+500 or not victim.alive) then
 			if farm[1] and GetDistance2D(client.mousePosition, farm[1]) < 800 and not farm[1]:IsAttackImmune() then
@@ -388,9 +397,9 @@ class 'Hero'
 	function Hero:GetDamage(target)
 		local dmg
 		dmg = self.heroEntity.dmgMin + self.heroEntity.dmgBonus
-		if target.armorType == nil then
+		if target.armorType == nil and target.creepEntity == nil then
 			dmg = (math.floor(dmg * armorTypeModifiers["Hero"]["Hero"] * (1 - target.dmgResist)))	
-		else 
+		elseif target.armorType then 
 			dmg = (math.floor(dmg * armorTypeModifiers["Hero"][target.armorType] * (1 - target.creepEntity.dmgResist)))		
 		end		
 		return dmg
