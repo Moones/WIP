@@ -890,6 +890,7 @@ function Load()
 			script:Disable()
 		else
 			statusText.visible = false
+			chaseText.visible = false
 			myhero = nil
 			reg = true
 			myId = me.classId
@@ -913,6 +914,7 @@ end
 
 function Close()
 	statusText.visible = false
+	chaseText.visible = false
 	myhero = nil
 	myId = nil
 	victim = nil
@@ -922,6 +924,10 @@ function Close()
 	lh = false
 	lasthitting = false
 	creepTable = {}
+	moveposition = nil
+	autochase = false 
+	chasevictim = nil
+	invisibletime = nil
 	if reg then
 		script:UnregisterEvent(Main)
 		script:UnregisterEvent(Key)
