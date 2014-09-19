@@ -7,6 +7,7 @@ local config = ScriptConfig.new()
 config:SetParameter("Move", 32, config.TYPE_HOTKEY)
 config:SetParameter("Hotkey", "N", config.TYPE_HOTKEY)
 config:SetParameter("LasthitToggleKey", "V", config.TYPE_HOTKEY)
+config:SetParameter("AutoChase", "B", config.TYPE_HOTKEY)
 config:SetParameter("ActiveFromStart", true)
 config:SetParameter("ShowSign", true)
 config:SetParameter("DontOrbwalkWhenIdle", true)
@@ -18,12 +19,14 @@ active = config.ActiveFromStart
 showsign = config.ShowSign
 noorbwalkidle = config.DontOrbwalkWhenIdle
 lhkey = config.LasthitToggleKey
+autochasekey = config.AutoChase
 
 local myAttackTickTable = {} local creepTable = {}
 
 local sleep = 0 myAttackTickTable.attackRateTick = 0 myAttackTickTable.attackRateTick2 = 0 myAttackTickTable.attackPointTick = nil
 
 local myhero = nil local reg = false local myId = nil local victim = nil local moveposition = nil local psivictim = nil local attacking = false local harras = false local lhcreep = nil local lhcreepclass = nil local lh = nil local lhtime = 0 local lasthitting = false
+local autochase = false local chasevictim = nil
 
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor) 
@@ -37,6 +40,8 @@ function Key(msg, code)
 		active = not active
 	elseif code == lhkey then
 		lasthitting = not lasthitting 
+	elseif code == autochasekey then
+		autochase = not autochase 
 	end
 end
 
@@ -144,12 +149,15 @@ function Main(tick)
 					if tick > sleep then
 						--move to mouse position
 						if SleepCheck("move") then
-							if victim and (GetDistance2D(client.mousePosition, victim) <= 10 or entityList:GetMouseover() == victim) then
-								me:Move(victim.position)
+							if victim and (GetDistance2D(client.mousePosition, victim) <= 10 or entityList:GetMouseover() == victim or autochase) then
+								if victim.visible then
+									me:Move(victim.position)
+								else
+									me:Move(Vector(victim.position.x + (victim.movespeed * (meld:FindCastPoint() + client.latency/1000) + 100) * math.cos(victim.rotR), victim.position.y + (victim.movespeed * (meld:FindCastPoint() + client.latency/1000) + 100) * math.sin(victim.rotR), victim.position.z))
+								end
 							else
-								if not moveposition or GetDistance2D(client.mousePosition, moveposition) > 100 then 
+								if GetDistance2D(me, client.mousePosition) > 50 then 
 									me:Move(client.mousePosition)
-									moveposition = client.mousePosition
 								end
 							end
 							sleep = tick + 30 + client.latency
@@ -194,7 +202,10 @@ function Main(tick)
 end
 
 function OrbWalk(me)
-	victim = targetFind:GetClosestToMouse(500)	
+	victim = targetFind:GetClosestToMouse(700)	
+	if autochase and victim and (not chasevictim or not chasevictim.alive or GetDistance2D(chasevictim,me) > (1200 + myhero.attackRange)) then
+		chasevictim = victim
+	end	
 	local dmg = me.dmgMin + me.dmgBonus	
 	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team = me:GetEnemyTeam(),alive=true})
 	local courier = entityList:GetEntities({classId=CDOTA_Unit_Courier,team=me:GetEnemyTeam(),alive=true,visible=true})[1]
@@ -254,6 +265,7 @@ function OrbWalk(me)
 	if courier and GetDistance2D(me, courier) < myhero.attackRange+1200 then
 		victim = courier
 	end
+	if chasevictim and autochase then victim = chasevictim end
 	--attacking our desired target
 	local meld = me:GetAbility(2)	
 	if not me:DoesHaveModifier("modifier_templar_assassin_meld") and lhcreep or ((victim and victim.alive and victim.health > 0 and GetDistance2D(me, victim) <= myhero.attackRange) or (psivictim and (victim and AngleBelow(me,psivictim,victim,5)) and psivictim.alive and psivictim.health > 0 and GetDistance2D(me, psivictim) <= myhero.attackRange)) and me.alive and (not meld or meld.state ~= LuaEntityAbility.STATE_READY or (victim and victim.health <= ((dmg)*(1-victim.dmgResist)+1)) or psivictim or (victim and (victim.classId == CDOTA_BaseNPC_Tower or victim.classId == CDOTA_BaseNPC_Barracks or victim.classId == CDOTA_BaseNPC_Building))) then			
@@ -408,7 +420,7 @@ class 'Hero'
 	function Hero:Hit(target)
 		if target.team ~= self.heroEntity.team then
 			local meld = self.heroEntity:GetAbility(2)
-			if (not lhcreep or (lhcreep.classId == CDOTA_BaseNPC_Creep_Siege and lhcreep.team ~= self.heroEntity.team)) and not psivictim and (target.classId ~= CDOTA_BaseNPC_Tower and target.classId ~= CDOTA_BaseNPC_Barracks and target.classId ~= CDOTA_BaseNPC_Building) and meld and meld.state == LuaEntityAbility.STATE_READY and GetDistance2D(self.heroEntity, target) <= self.attackRange-25 then
+			if target.visible and (not lhcreep or (lhcreep.classId == CDOTA_BaseNPC_Creep_Siege and lhcreep.team ~= self.heroEntity.team)) and not psivictim and (target.classId ~= CDOTA_BaseNPC_Tower and target.classId ~= CDOTA_BaseNPC_Barracks and target.classId ~= CDOTA_BaseNPC_Building) and meld and meld.state == LuaEntityAbility.STATE_READY and GetDistance2D(self.heroEntity, target) <= self.attackRange-25 then
 				self.heroEntity:SafeCastAbility(meld)
 			else
 				entityList:GetMyPlayer():Attack(target)
@@ -422,7 +434,7 @@ class 'Hero'
 	function Hero:StopAttack(target,lhcreepclass)
 		if target.alive and (GetDistance2D(entityList:GetMyHero(),target) <= self.attackRange or (psivictim and psivictim.alive and GetDistance2D(entityList:GetMyHero(),psivictim) <= self.attackRange)) then
 			local me = entityList:GetMyHero()
-			local Dmg2 = myhero:GetDamage(lhcreepclass)
+			local Dmg2 = self:GetDamage(lhcreepclass)
 			local meld = me:GetAbility(2)	
 			local meldDmg = meld:GetSpecialData("bonus_damage", meld.level)
 			if target.classId == CDOTA_BaseNPC_Creep_Siege and meld and meld.level > 0 and meld.state == LuaEntityAbility.STATE_READY then			
@@ -433,8 +445,8 @@ class 'Hero'
 			if (lhtime and (lhtime) > (GetTick() + client.latency + self.attackPoint*1000 + ((GetDistance2D(self.heroEntity, target)-math.max((GetDistance2D(self.heroEntity, target) - self.attackRange), 0))/self.projectileSpeed)*1000)) and (lhcreep.health > Dmg2) then
 				if GetTick() > myAttackTickTable.attackRateTick2 then
 					entityList:GetMyPlayer():Stop()
-					myhero:Hit(target)
-					myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000 + (math.max((GetDistance2D(me, target) - myhero.attackRange), 0)/me.movespeed)*1000							
+					self:Hit(target)
+					myAttackTickTable.attackRateTick = GetTick() + self.attackRate*1000 + (math.max((GetDistance2D(me, target) - self.attackRange), 0)/me.movespeed)*1000							
 					myAttackTickTable.attackRateTick2 = GetTick() + self.attackPoint*500
 				end
 			end
@@ -523,9 +535,13 @@ class 'Creep'
 			self.nolh = true
 		elseif self.creepEntity.classId == CDOTA_BaseNPC_Creep then
 			self.attackRange = creepEntity.attackRange
+			self.attackType = "Normal"
+			self.armorType = "Unarmored"
 		elseif self.creepEntity.classId == CDOTA_BaseNPC_Warlock_Golem then
 			self.attackRange = creepEntity.attackRange
 			self.nolh = true
+			self.attackType = "Chaos"
+			self.armorType = "Fortified"
 		end
 		self.attackRate = self:GetAttackRate()
 		self.attackPoint = self:GetAttackPoint()
@@ -549,7 +565,7 @@ class 'Creep'
 			for i = 1, 8 do
 				for _, nextAttackTickTable in ipairs(sortedTable) do					
 					local hploss = (self.HP.previous - self.HP.current)
-					if nextAttackTickTable[2] > GetTick() and nextAttackTickTable[1].creepEntity.alive then
+					if nextAttackTickTable[2] > GetTick() and nextAttackTickTable[1].creepEntity.alive and nextAttackTickTable[1].attackType and self.armorType then
 						totalDamage = totalDamage + (math.floor((nextAttackTickTable[1].creepEntity.dmgMin + nextAttackTickTable[1].creepEntity.dmgBonus) * armorTypeModifiers[nextAttackTickTable[1].attackType][self.armorType] * (1 - self.creepEntity.dmgResist)))						
 						if (self.creepEntity.health - totalDamage) < health then
 							return (nextAttackTickTable[2]*i) + (nextAttackTickTable[4]/i)
@@ -838,6 +854,8 @@ function Load()
 			lasthitting = false
 			creepTable = {}
 			moveposition = nil
+			autochase = false 
+			chasevictim = nil
 			script:RegisterEvent(EVENT_TICK, Main)
 			script:RegisterEvent(EVENT_KEY, Key)
 			script:UnregisterEvent(Load)
