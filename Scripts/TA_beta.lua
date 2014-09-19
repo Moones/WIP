@@ -32,6 +32,7 @@ local autochase = false local chasevictim = nil local invisibletime = nil
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor) 
 local statusText = drawMgr:CreateText(10*monitor,600*monitor,-1,'Templar Assassin Script: ON "' .. string.char(hotkey) .. '", Lasthitting/Farming: ON "' .. string.char(lhkey) .. '"',F14) statusText.visible = false
+local chaseText = drawMgr:CreateText(-80*monitor,-20*monitor,-1,'ManualChase',F14) chaseText.visible = false
 
 armorTypeModifiers = { Normal = {Unarmored = 1.00, Light = 1.00, Medium = 1.50, Heavy = 1.25, Fortified = 0.70, Hero = 0.75}, Pierce = {Unarmored = 1.50, Light = 2.00, Medium = 0.75, Heavy = 0.75, Fortified = 0.35, Hero = 0.50},	Siege = {Unarmored = 1.00, Light = 1.00, Medium = 0.50, Heavy = 1.25, Fortified = 1.50, Hero = 0.75}, Chaos = {Unarmored = 1.00, Light = 1.00, Medium = 1.00, Heavy = 1.00, Fortified = 0.40, Hero = 1.00},	Hero = {Unarmored = 1.00, Light = 1.00, Medium = 1.00, Heavy = 1.00, Fortified = 0.50, Hero = 1.00}, Magic = {Unarmored = 1.00, Light = 1.00, Medium = 1.00, Heavy = 1.00, Fortified = 1.00, Hero = 0.75} }
 
@@ -52,6 +53,18 @@ function Main(tick)
 	local me = entityList:GetMyHero() if not me then return end	
 	local ID = me.classId if ID ~= myId then Close() end
 	statusText.visible = true
+	if victim then
+		chaseText.entity = me
+		chaseText.entityPosition = Vector(0,0,me.healthbarOffset)
+		if autochase then
+			chaseText.text = "Auto-Chasing: "..client:Localize(victim.name)
+		else
+			chaseText.text = "Manual-Chasing: "..client:Localize(victim.name)
+		end
+		chaseText.visible = true
+	else
+		chaseText.visible = false
+	end
 	statusText.text = 'Templar Assassin Script: '..IsActive()..' "' .. string.char(hotkey) .. '", Lasthitting/Farming: ' .. IsActive(true) .. ' "' .. string.char(lhkey) .. '"'
 	if active and not me:IsChanneling() then
 		if not myhero then
@@ -730,7 +743,6 @@ function UpdateMyHero(me)
 	end	
 	if isAttacking(me) then
 		if myAttackTickTable.attackRateTick == 0 then
-			print("asd")
 			myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
 		end
 	end
