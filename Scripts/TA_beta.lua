@@ -53,7 +53,7 @@ function Main(tick)
 	local me = entityList:GetMyHero() if not me then return end	
 	local ID = me.classId if ID ~= myId then Close() end
 	statusText.visible = true
-	if victim then
+	if victim and not lasthitting then
 		chaseText.entity = me
 		chaseText.entityPosition = Vector(0,0,me.healthbarOffset)
 		if autochase then
@@ -254,13 +254,19 @@ function OrbWalk(me)
 	--find out if it is illusion or not
 	for i=1,#enemies do
 		if enemies[i]:IsIllusion() then
-			enemies[i] = nil
+			if enemies[i+1 then
+				enemies[i] = enemies[i+1]
+			else
+				enemies[i] = enemies[i-1]
+			end
 		end
 	end	
 	--if we got more enemies around and victim is far choose lowest HP target instead
-	if ((victim and GetDistance2D(me,victim) > (myhero.attackRange + 25)) or harras) and enemies[2] and GetDistance2D(enemies[2], me) < (myhero.attackRange + 1200) and not lhcreep then
+	if ((victim and GetDistance2D(me,victim) > (myhero.attackRange + 25)) or harras) and #enemies > 1 and enemies[2] and GetDistance2D(enemies[2], me) < (myhero.attackRange + 1200) and not lhcreep then
 		victim = targetFind:GetLowestEHP(1200 + myhero.attackRange, phys)
-		lasthitting = false
+		if not harras then
+			lasthitting = false
+		end
 	end	
 	if autochase and victim and (not chasevictim or not chasevictim.alive or GetDistance2D(chasevictim,me) > (1200 + myhero.attackRange)) then
 		chasevictim = victim
