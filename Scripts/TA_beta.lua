@@ -353,7 +353,7 @@ function GetLasthit(me)
 				if creepClass.creepEntity.team ~= me.team and (nocrittimeToHealth and (nocrittimeToHealth) < (GetTick() + client.latency + myhero.attackPoint*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + ((GetDistance2D(me, creepClass.creepEntity)-math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
 					lh = true
 				end
-				if Dmg > creepClass.creepEntity.health or (timeToHealth and timeToHealth <= (GetTick() + client.latency + myhero.attackPoint*1000 + ((GetDistance2D(me, creepClass.creepEntity)-25-math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
+				if Dmg > creepClass.creepEntity.health or (timeToHealth and timeToHealth <= (GetTick() + client.latency + myhero.attackPoint*1000 + ((GetDistance2D(me, creepClass.creepEntity)-math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
 					lhcreep = creepClass.creepEntity
 					lhcreepclass = creepClass
 					lhtime = timeToHealth
@@ -664,7 +664,7 @@ class 'Creep'
 				local nextAttackTick = 0
 				for k,z in ipairs(entityList:GetProjectiles({source=creepClass.creepEntity,target=self.creepEntity})) do
 					if not self.nextAttackTicks[creepClass.creepEntity.handle] then
-						nextAttackTick = creepClass.attackPoint*1000
+						nextAttackTick = creepClass.attackPoint*1000 + client.latency
 						timeToDamageHit = (GetDistance2D(z.position, self.creepEntity)/z.speed)*1000 + GetTick()
 						self.nextAttackTicks[creepClass.creepEntity.handle] = {creepClass, timeToDamageHit, GetTick() + nextAttackTick, nextAttackTick,true}						
 					end
@@ -672,11 +672,11 @@ class 'Creep'
 				if math.abs(FindAngleR(creepClass.creepEntity) - math.rad(FindAngleBetween(creepClass.creepEntity, self.creepEntity))) < 0.014 then
 					if not self.nextAttackTicks[creepClass.creepEntity.handle] then
 						if GetDistance2D(creepClass.creepEntity, self.creepEntity) <= 153 and creepClass.attackRange then
-							nextAttackTick = creepClass.attackPoint*1000
-							timeToDamageHit = (math.max(GetDistance2D(creepClass.creepEntity, self.creepEntity) - creepClass.attackRange,0)/creepClass.creepEntity.movespeed)*1000 + (((creepClass.projectileSpeed) and ((GetDistance2D(creepClass.creepEntity, self.creepEntity)/creepClass.projectileSpeed)*1000)) or 0) + GetTick() + creepClass.attackPoint*1000
+							nextAttackTick = creepClass.attackPoint*1000 + client.latency
+							timeToDamageHit = (math.max(GetDistance2D(creepClass.creepEntity, self.creepEntity) - creepClass.attackRange,0)/creepClass.creepEntity.movespeed)*1000 + (((creepClass.projectileSpeed) and ((GetDistance2D(creepClass.creepEntity, self.creepEntity)/creepClass.projectileSpeed)*1000)) or 0) + GetTick() + creepClass.attackPoint*1000 + client.latency
 							self.nextAttackTicks[creepClass.creepEntity.handle] = {creepClass, timeToDamageHit, GetTick() + nextAttackTick, nextAttackTick,false}		
 						elseif not creepClass.isRanged and GetDistance2D(creepClass.creepEntity, self.creepEntity) > 153 and not isAttacking(creepClass.creepEntity) and creepClass.attackRange then 
-							nextAttackTick = creepClass.attackRate*1000 + (math.max(GetDistance2D(creepClass.creepEntity, self.creepEntity) - creepClass.attackRange,0)/creepClass.creepEntity.movespeed)*1000
+							nextAttackTick = creepClass.attackRate*1000 + (math.max(GetDistance2D(creepClass.creepEntity, self.creepEntity) - creepClass.attackRange,0)/creepClass.creepEntity.movespeed)*1000 + client.latency
 							timeToDamageHit = (math.max(GetDistance2D(creepClass.creepEntity, self.creepEntity) - creepClass.attackRange,0)/creepClass.creepEntity.movespeed)*1000 + GetTick() + creepClass.attackPoint*1000
 							self.nextAttackTicks[creepClass.creepEntity.handle] = {creepClass, timeToDamageHit, GetTick() + nextAttackTick, nextAttackTick,false}
 						end
