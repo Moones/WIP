@@ -161,7 +161,7 @@ function Main(tick)
 						Sleep(blink:FindCastPoint() + client.latency/1000 + turn, "move")
 					end
 					--activate close trap or put another
-					if victim and victim.hero and GetDistance2D(me,victim) <= trap.castRange+375 and CanBeSlowed(victim) then
+					if not lasthitting and victim and victim.hero and GetDistance2D(me,victim) <= trap.castRange+375 and CanBeSlowed(victim) then
 						local trapslow = victim:FindModifier("modifier_templar_assassin_trap_slow")
 						if (victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE and (not trapslow or trapslow.remainingTime <= 0.3)) and ((closestTrap and GetDistance2D(closestTrap, victim) <= 400) or trap.state == LuaEntityAbility.STATE_READY) then
 							if closestTrap then
@@ -209,7 +209,7 @@ function Main(tick)
 				end
 				--perfect meld strikes
 				if victim and victim.visible then	
-					if GetDistance2D(me,victim) <= myhero.attackRange then
+					if GetDistance2D(me,victim) <= myhero.attackRange-50 then
 						if refraction and refraction.state == LuaEntityAbility.STATE_READY then
 							me:SafeCastAbility(refraction)
 						end
@@ -249,6 +249,16 @@ function OrbWalk(me)
 	local dmg = me.dmgMin + me.dmgBonus	
 	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team = me:GetEnemyTeam(),alive=true})
 	local courier = entityList:GetEntities({classId=CDOTA_Unit_Courier,team=me:GetEnemyTeam(),alive=true,visible=true})[1]
+	local farm = {}
+	local closecreeps = {}
+	for i,v in pairs(creepTable) do if ((v.creepEntity.team ~= me.team and v.creepEntity.type ~= LuaEntityNPC.TYPE_HERO) or v.creepEntity.classId == CDOTA_BaseNPC_Creep_Neutral) then farm[#farm+1] = v.creepEntity end if v.creepEntity.team == me:GetEnemyTeam() and v.creepEntity.classId == CDOTA_BaseNPC_Creep_Lane and GetDistance2D(me,v.creepEntity) < 800 then closecreeps[#closecreeps+1] = v.creepEntity end end
+	for i,v in pairs(farm) do if not v.alive then farm[i] = nil end end
+	for i,v in pairs(closecreeps) do if not v.alive or GetDistance2D(me,v) > 800 then closecreeps[i] = nil end end
+	if #closecreeps > 0 and dmg < 150 and not lh then
+		harras = true 
+	else
+		harras = false
+	end
 	--get closest enemy
 	table.sort( enemies, function (a,b) return GetDistance2D(a,me) < GetDistance2D(b,me) end )
 	--find out if it is illusion or not
@@ -271,16 +281,6 @@ function OrbWalk(me)
 	if autochase and victim and (not chasevictim or not chasevictim.alive or GetDistance2D(chasevictim,me) > (1200 + myhero.attackRange)) then
 		chasevictim = victim
 	end	
-	local farm = {}
-	local closecreeps = {}
-	for i,v in pairs(creepTable) do if ((v.creepEntity.team ~= me.team and v.creepEntity.type ~= LuaEntityNPC.TYPE_HERO) or v.creepEntity.classId == CDOTA_BaseNPC_Creep_Neutral) then farm[#farm+1] = v.creepEntity end if v.creepEntity.team == me:GetEnemyTeam() and v.creepEntity.classId == CDOTA_BaseNPC_Creep_Lane and GetDistance2D(me,v.creepEntity) < 800 then closecreeps[#closecreeps+1] = v.creepEntity end end
-	for i,v in pairs(farm) do if not v.alive then farm[i] = nil end end
-	for i,v in pairs(closecreeps) do if not v.alive or GetDistance2D(me,v) > 800 then closecreeps[i] = nil end end
-	if #closecreeps > 0 and dmg < 150 and not lh then
-		harras = true 
-	else
-		harras = false
-	end
 	--if we dont have victim and there are creeps around then farm them
 	if farm and #farm > 0 and not harras and not lhcreep and not lh and lasthitting then
 		table.sort( farm, function (a,b) return a and b and (GetDistance2D(a,me) < GetDistance2D(b,me)) end )
@@ -471,7 +471,7 @@ class 'Hero'
 	function Hero:Hit(target)
 		if target.team ~= self.heroEntity.team then
 			local meld = self.heroEntity:GetAbility(2)
-			if target.visible and (not lhcreep or (lhcreep.classId == CDOTA_BaseNPC_Creep_Siege and lhcreep.team ~= self.heroEntity.team)) and not psivictim and (target.classId ~= CDOTA_BaseNPC_Tower and target.classId ~= CDOTA_BaseNPC_Barracks and target.classId ~= CDOTA_BaseNPC_Building) and meld and meld.state == LuaEntityAbility.STATE_READY and GetDistance2D(self.heroEntity, target) <= self.attackRange-25 then
+			if target.visible and (not lhcreep or (lhcreep.classId == CDOTA_BaseNPC_Creep_Siege and lhcreep.team ~= self.heroEntity.team)) and not psivictim and (target.classId ~= CDOTA_BaseNPC_Tower and target.classId ~= CDOTA_BaseNPC_Barracks and target.classId ~= CDOTA_BaseNPC_Building) and meld and meld.state == LuaEntityAbility.STATE_READY and GetDistance2D(self.heroEntity, target) <= self.attackRange-50 then
 				self.heroEntity:SafeCastAbility(meld)
 			else
 				entityList:GetMyPlayer():Attack(target)
