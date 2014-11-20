@@ -41,7 +41,7 @@ require("libs.HeroInfo")
         ------------
 	
              - This library tracks animations duration of all heroes.
-             - Tracks attack animations as well as spell animations.
+		     - Tracks attack animations as well as spell animations.
 			 
         Usage:
         ------
@@ -50,6 +50,39 @@ require("libs.HeroInfo")
              - Animations.getAttackDuration(hero) - If specified hero is attacking then returns how much time left since his current attack animation started.
              - Animations.isAttacking(hero) - Returns true if specified hero is currently attacking.
              - Animations.CanMove(hero) - If specified hero already finished his attack and is in his backswing animation then true is returned.
+			 - Animations.maxCount - Returns how much times per second is library checking. Can be used for sleeps in EVENT_FRAME function.
+			 
+        Example:
+        --------
+        
+             - Simple OrbWalker:
+			 
+                 require("libs.Animations")
+                 require("libs.Utils")
+				 
+                 local attack = 0
+                 local move = 0
+				 
+                 function Tick(tick)
+                     if PlayingGame() then
+                         local me = entityList:GetMyHero()
+                         if IsKeyDown(49) then
+                             if not Animations.CanMove(me) then
+                                 for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true,team = me:GetEnemyTeam()})) do
+                                     if tick > attack then
+                                         me:Attack(v)
+                                         attack = tick + Animations.maxCount/1.5
+                                     end
+                                 end
+                             elseif tick > move then
+                                 me:Move(client.mousePosition)
+                                 move = tick + Animations.maxCount/1.5
+                             end
+                         end
+                     end
+                 end
+
+                 script:RegisterEvent(EVENT_FRAME,Tick)
 			 
 	   
         Changelog:
