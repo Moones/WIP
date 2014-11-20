@@ -1,41 +1,41 @@
 require("libs.Utils")
 require("libs.HeroInfo")
 --[[
-					       '''''''''''                               
-				     ''''```````````'''''''''''.                   
-			   ''''`````````````````````..../.                   
-		  '''``````````````````````.../////.                   
-	''''``````````````````````...////////.                   
-''wwwwwwwwww````````````....///////////.                   
- weeeeeeeeeewwwwwwwwww..//////////////.                    
- weeeeeeeeeeeeeeeeeeeew///////////////.                    
-  weeeeeeeeeeeeeeeeeeew///////////////.                    
-	 weeeeeeeeeeeeeeeeeew///////////////.                    
-   weeeeeeeeeeeeeeeeeeew//////////////.                    
-	  weeeeeeeeeeeeeeeeeew/////////////.                     
-		 weeeeeeeeeeeeeeeeew/////////////.                     
-		 weeeeeeeeeeeeeeeeew/////////////.                     
-		  weeeeeeeeeeeeeeeew/////////////.                     
-		   weeeeeeeeeeeeeeeew////////////.                     
-		   weeeeeeeeeeeeeeeew///////////.                      
-		    weeeeeeeeeeeeeeew//////////.                       
-		     weeeeeeeeeeeeeew////////..                        
-			   weeeeeeeeeeeeeeew//////.                          
-			    wweeeeeeeeeeeeew/////.                           
-			      wwwweeeeeeeeew////.                            		         *           
-				        wwwweeeeew//..	   					               *       *              
-						        wwwwew/.				      * *     **    **     *    
-							          ww.				        *      **    *     **          
-											                     *      **   * *****    * **   
-											                       *      ****** ** * *     ***
-												                        *** *********           *
+			 '''''''''''                               
+	             ''''```````````'''''''''''.                   
+		 ''''`````````````````````..../.                   
+	      '''``````````````````````.../////.                   
+	  ''''``````````````````````...////////.                   
+        ''wwwwwwwwww````````````....///////////.                   
+         weeeeeeeeeewwwwwwwwww..//////////////.                    
+         weeeeeeeeeeeeeeeeeeeew///////////////.                    
+          weeeeeeeeeeeeeeeeeeew///////////////.                    
+	   weeeeeeeeeeeeeeeeeew///////////////.                    
+           weeeeeeeeeeeeeeeeeeew//////////////.                    
+	    weeeeeeeeeeeeeeeeeew/////////////.                     
+             weeeeeeeeeeeeeeeeew/////////////.                     
+	     weeeeeeeeeeeeeeeeew/////////////.                     
+	      weeeeeeeeeeeeeeeew/////////////.                     
+	       weeeeeeeeeeeeeeeew////////////.                     
+	       weeeeeeeeeeeeeeeew///////////.                      
+		weeeeeeeeeeeeeeew//////////.                       
+		 weeeeeeeeeeeeeew////////..                        
+		 weeeeeeeeeeeeeeew//////.                          
+		  wweeeeeeeeeeeeew/////.                           
+	            wwwweeeeeeeeew////.                              *           
+			wwwweeeeew//..	   		  *       *              
+			    wwwwew/.		* *     **    **      *    
+				ww.		*      **    *     **          
+						 *      **   * *****    * **   
+						   *      ****** ** * *     ***
+						      *** *********           *
 	+-------------------------------------------------+   * *  *            
 	|                                                 |    *  *** **        
 	|       ANIMATIONS LIBRARY - Made by Moones       |    *   *    **      
 	|       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^       |    *    *     **    
 	+-------------------------------------------------+    *   **      **   
 															   *       
-    =+=+=+=+=+=+=+=+=+ VERSION 1.0 +=+=+=+=+=+=+=+=+=+=
+        =+=+=+=+=+=+=+=+=+ VERSION 1.0 +=+=+=+=+=+=+=+=+=+=
 	 
 	Description:
 	------------
