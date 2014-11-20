@@ -40,13 +40,22 @@ require("libs.HeroInfo")
         Description:
         ------------
 	
-		- This library tracks animations duration of all heroes.
-		- Tracks attack animations as well as spell animations.
+             - This library tracks animations duration of all heroes.
+		     - Tracks attack animations as well as spell animations.
+			 
+        Usage:
+        ------
+		
+             - Animations.getDuration(ability) - If specified ability is animating then returns how much time left since ability started its animation.
+             - Animations.getAttackDuration(hero) - If specified hero is attacking then returns how much time left since his current attack animation started.
+             - Animations.isAttacking(hero) - Returns true if specified hero is currently attacking.
+             - Animations.CanMove(hero) - If specified hero already finished his attack and is in his backswing animation then true is returned.
+			 
 	   
         Changelog:
         ----------
 	
-		- 20. 11. 2014 - Version 1.0 First Release
+             - 20. 11. 2014 - Version 1.0 First Release
 ]]--
 
 Animations = {}
