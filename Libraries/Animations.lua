@@ -41,7 +41,7 @@ require("libs.HeroInfo")
         ------------
 	
              - This library tracks animations duration of all heroes.
-		     - Tracks attack animations as well as spell animations.
+             - Tracks attack animations as well as spell animations.
 			 
         Usage:
         ------
