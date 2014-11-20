@@ -37,14 +37,14 @@ require("libs.HeroInfo")
                                                                             *       
         =+=+=+=+=+=+=+=+=+ VERSION 1.0 +=+=+=+=+=+=+=+=+=+=
 	 
-	Description:
-	------------
+        Description:
+        ------------
 	
 		- This library tracks animations duration of all heroes.
 		- Tracks attack animations as well as spell animations.
 	   
-	Changelog:
-	----------
+        Changelog:
+        ----------
 	
 		- 20. 11. 2014 - Version 1.0 First Release
 ]]--
