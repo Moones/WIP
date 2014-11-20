@@ -41,7 +41,7 @@ require("libs.HeroInfo")
         ------------
 	
              - This library tracks animations duration of all heroes.
-		     - Tracks attack animations as well as spell animations.
+             - Tracks attack animations as well as spell animations.
 			 
         Usage:
         ------
@@ -50,7 +50,7 @@ require("libs.HeroInfo")
              - Animations.getAttackDuration(hero) - If specified hero is attacking then returns how much time left since his current attack animation started.
              - Animations.isAttacking(hero) - Returns true if specified hero is currently attacking.
              - Animations.CanMove(hero) - If specified hero already finished his attack and is in his backswing animation then true is returned.
-			 - Animations.maxCount - Returns how much times per second is library checking. Can be used for sleeps in EVENT_FRAME function.
+             - Animations.maxCount - Returns how much times per second is library checking. Can be used for sleeps in EVENT_FRAME function.
 			 
         Example:
         --------
