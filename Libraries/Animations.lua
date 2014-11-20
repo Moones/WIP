@@ -133,33 +133,17 @@ function Hero:__init(entity)
 	if not heroInfo[name] then
 		return nil
 	end
-	self.projectileSpeed = heroInfo[name].projectileSpeed
 	self.baseAttackRate = heroInfo[name].attackRate
 	self.baseAttackPoint = heroInfo[name].attackPoint
-	self.baseTurnRate = heroInfo[name].turnRate
 	self.baseBackswing = heroInfo[name].attackBackswing
 end
 
-function Hero:Update()
-	self:GetModifiers()		
+function Hero:Update()	
 	self.attackSpeed = self:GetAttackSpeed()
 	self.attackRate = self:GetAttackRate()
 	self.attackPoint = self:GetAttackPoint()
 	self.attackRange = self:GetAttackRange()
-	self.turnRate = self:GetTurnRate()
 	self.attackBackswing = self:GetBackswing()
-end
-
-function Hero:GetTurnRate()
-	turnRateModifiers = {modifier_batrider_sticky_napalm = .70}
-	if self.modifierList then
-		for modifierName, modifierPercent in pairs(turnRateModifiers) do
-			if self.modifierList[modifierName] then
-				return (1 - modifierPercent) * self.baseTurnRate
-			end
-		end
-	end
-	return self.baseTurnRate
 end
 
 function Hero:GetAttackRange()
@@ -197,23 +181,6 @@ end
 
 function Hero:GetBackswing()
 	return self.baseBackswing / (1 + (self.entity.attackSpeed) / 100)
-end
-
-function Hero:GetModifiers()
-	local modifierCount = self.entity.modifierCount
-	if modifierCount == 0 then
-			self.modifierList = nil
-			return
-	end
-	self.modifierList = {}
-	if self.entity.modifiers then
-		for i,v in ipairs(self.entity.modifiers) do
-			local name = v.name
-			if name then
-				self.modifierList[name] = true
-			end
-		end
-	end
 end
 	
 scriptEngine:RegisterLibEvent(EVENT_FRAME,Animations.trackingTick)
