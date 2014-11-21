@@ -69,7 +69,7 @@ require("libs.HeroInfo")
                          if IsKeyDown(49) then
                              if not Animations.CanMove(me) then
                                  for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true,team = me:GetEnemyTeam()})) do
-                                     if tick > attack then
+                                     if tick > attack GetDistance2D(me, v) <= me.attackRange then
                                          me:Attack(v)
                                          attack = tick + Animations.maxCount/1.5
                                      end
@@ -184,26 +184,7 @@ function Hero:Update()
 	self.attackSpeed = self:GetAttackSpeed()
 	self.attackRate = self:GetAttackRate()
 	self.attackPoint = self:GetAttackPoint()
-	self.attackRange = self:GetAttackRange()
 	self.attackBackswing = self:GetBackswing()
-end
-
-function Hero:GetAttackRange()
-	local bonus = 0
-	if self.entity.classId == CDOTA_Unit_Hero_TemplarAssassin then
-		local psy = self.entity:GetAbility(3)
-		local psyrange = psy:GetSpecialData("bonus_attack_range",psy.level)		
-		if psy and psy.level > 0 then		
-			bonus = psyrange	
-		end
-	elseif self.entity.classId == CDOTA_Unit_Hero_Sniper then
-			local aim = self.entity:GetAbility(3)
-			aimrange = {100,200,300,400}			
-			if aim and aim.level > 0 then			
-				bonus = aimrange[aim.level]				
-			end			
-		end
-	return self.entity.attackRange + bonus + 25
 end
 
 function Hero:GetAttackSpeed()
