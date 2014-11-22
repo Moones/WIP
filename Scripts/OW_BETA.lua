@@ -40,7 +40,7 @@ require("libs.Animations")
         |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^           |    *    *     **    
         +-------------------------------------------------+    *   **      **   
                                                                             *       
-        =+=+=+=+=+=+=+=+=+ VERSION 2.0 +=+=+=+=+=+=+=+=+=+=
+        =+=+=+=+=+=+=+=+=+ VERSION 2.1 +=+=+=+=+=+=+=+=+=+=
 	 
         Description:
         ------------
@@ -52,6 +52,10 @@ require("libs.Animations")
 	   
         Changelog:
         ----------
+		
+			 Update 2.1:
+			 Fixed FPS drop
+			 Fixed bug in Animations lib
 		
              Update 2.0:
 			 Now requires Animations library.
@@ -90,7 +94,9 @@ aakey = config.AutoAttackKey
 
 sleep = 0
 
-local reg = false local HUD = nil local myhero = nil local victim = nil local myId = nil local attack = 0 local move = 0
+local reg = false local HUD = nil local myhero = nil local victim = nil local myId = nil local attack = 0 local move = 0 
+local attack1 = 0 local move1 = 0
+local onlybearorb = false
 
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor) 
@@ -146,6 +152,16 @@ function ssCheck()
 	end
 end
 
+function bearCheck()
+	if PlayingGame() then
+		if not onlybearorb then
+			onlybearorb = true
+		else
+			onlybearorb = false
+		end
+	end
+end
+
 function Key(msg, code)
 	if msg ~= KEY_UP or client.chat or client.console then return end
 	if code == menu and HUD then 
@@ -185,29 +201,47 @@ function Main(tick)
 	
 	if string.byte("A") <= menu and menu <= string.byte("Z") then
 		statusText.text = "Orb Walker: Press " .. string.char(menu) .. " to open Menu"
-	else
+	else 
 		statusText.text = "Orb Walker: Press " .. menu .. " to open Menu"
 	end
-
+ 
 	if active then
 		if not myhero then	
 			myhero = MyHero(me)
 		else			
-			myhero.attackRange = myhero:GetAttackRange()		
+			myhero.attackRange = myhero:GetAttackRange()
+			local bear = nil
+			if me.classId == CDOTA_Unit_Hero_LoneDruid then
+				bear = entityList:GetEntities({classId=CDOTA_Unit_SpiritBear,visible=true,alive=true,team=me.team})[1]
+			end
 			if IsKeyDown(movetomouse) and not client.chat then	
-				if not victim then
-					local creeps = entityList:GetEntities(function (v) return (v.courier or v.classId == CDOTA_BaseNPC_Creep_Neutral or CDOTA_BaseNPC_Tower or CDOTA_BaseNPC_Venomancer_PlagueWard or CDOTA_BaseNPC_Warlock_Golem or v.classId == CDOTA_BaseNPC_Creep_Lane or CDOTA_BaseNPC_Creep_Siege or v.classId == CDOTA_Unit_VisageFamiliar or v.classId == CDOTA_Unit_Undying_Zombie or v.classId == CDOTA_Unit_SpiritBear or v.classId == CDOTA_Unit_Broodmother_Spiderling or v.classId == CDOTA_Unit_Hero_Beastmaster_Boar or v.classId == CDOTA_BaseNPC_Creep or v.classId == CDOTA_BaseNPC_Invoker_Forged_Spirit) and v.team ~= me.team and v.alive and v.health~=0 and me:GetDistance2D(v) <= myhero.attackRange + 50 end)
-					table.sort(creeps, function (a,b) return GetDistance2D(a,me) < GetDistance2D(b,me) end)
-					victim = targetFind:GetClosestToMouse(100) or targetFind:GetLowestEHP(myhero.attackRange + 50, phys) or creeps[1]
+				if (not victim or GetDistance2D(me,victim) > myhero.attackRange*2 or not victim.alive) and SleepCheck("victim") then
+					local creeps = entityList:GetEntities(function (v) return (v.courier or (v.creep and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Neutral and v.spawned) or v.classId == CDOTA_BaseNPC_Tower or v.classId == CDOTA_BaseNPC_Venomancer_PlagueWard or v.classId == CDOTA_BaseNPC_Warlock_Golem or (v.classId == CDOTA_BaseNPC_Creep_Lane and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Siege and v.spawned) or v.classId == CDOTA_Unit_VisageFamiliar or v.classId == CDOTA_Unit_Undying_Zombie or v.classId == CDOTA_Unit_SpiritBear or v.classId == CDOTA_Unit_Broodmother_Spiderling or v.classId == CDOTA_Unit_Hero_Beastmaster_Boar or v.classId == CDOTA_BaseNPC_Invoker_Forged_Spirit or v.classId == CDOTA_BaseNPC_Creep) and v.team ~= me.team and v.alive and v.health > 0 and me:GetDistance2D(v) <= myhero.attackRange*2 + 50 end)
+					table.sort(creeps, function (a,b) return a.health < b.health end)
+					victim = targetFind:GetClosestToMouse(me,300) or targetFind:GetLowestEHP(myhero.attackRange*2 + 50, phys) or creeps[1]
+					Sleep(250,"victim")
 				end
-				if not Animations.CanMove(me) and victim and GetDistance(me,victim) <= myhero.attackRange + 50 then
-					if tick > attack then
-						myhero:Hit(victim)
-						attack = tick + Animations.maxCount/1.5
+				if ((me.classId == CDOTA_Unit_Hero_LoneDruid and not onlybearorb) or me.classId ~= CDOTA_Unit_Hero_LoneDruid) then
+					if not Animations.CanMove(me) and victim and GetDistance2D(me,victim) <= myhero.attackRange*2 + 50 then
+						if tick > attack then
+							myhero:Hit(victim)
+							attack = tick + 100
+						end
+					elseif tick > move then
+						me:Move(client.mousePosition)
+						move = tick + 100
 					end
-				elseif tick > move then
-					me:Move(client.mousePosition)
-					move = tick + Animations.maxCount/1.5
+				end
+				if bear and bear.alive then
+					if not Animations.CanMove(bear) and victim and bear:CanAttack() and GetDistance2D(bear,victim) <= bear.attackRange*2 + 50 then
+						if tick > attack1 then
+							bear:Attack(victim)
+							attack1 = tick + 100
+						end
+					elseif tick > move1 then
+						bear:Move(client.mousePosition)
+						move1 = tick + 100
+					end
 				end
 			else
 				victim = nil
@@ -230,21 +264,19 @@ function MyHero:GetAttackRange()
 	local bonus = 0
 	if self.heroEntity.classId == CDOTA_Unit_Hero_TemplarAssassin then	
 		local psy = self.heroEntity:GetAbility(3)
-		psyrange = {60,120,180,240}		
-		if psy and psy.level > 0 then		
-			bonus = psyrange[psy.level]			
+		if psy and psy.level > 0 then
+			bonus = psy:GetSpecialData("bonus_attack_range",psy.level)			
 		end
 	elseif self.heroEntity.classId == CDOTA_Unit_Hero_Sniper then	
 		local aim = self.heroEntity:GetAbility(3)
-		aimrange = {100,200,300,400}		
 		if aim and aim.level > 0 then		
-			bonus = aimrange[aim.level]			
+			bonus = aim:GetSpecialData("bonus_attack_range",aim.level)		
 		end		
 	elseif self.heroEntity.classId == CDOTA_Unit_Hero_Enchantress then
 		if enablemodifiers then
 			local impetus = self.heroEntity:GetAbility(4)
 			if impetus.level > 0 and self.heroEntity:AghanimState() then
-				bonus = 190
+				bonus = impetus:GetSpecialData("bonus_attack_range_scepter",impetus.level)
 			end
 		end
 	end
@@ -252,54 +284,54 @@ function MyHero:GetAttackRange()
 end
 
 function MyHero:Hit(target)
-	if target.team ~= self.heroEntity.team then
-		if enablemodifiers and not target:IsMagicImmune() then
+	if target and target.team ~= self.heroEntity.team then
+		if target and enablemodifiers and not target:IsMagicImmune() then
 			if self.heroEntity.classId == CDOTA_Unit_Hero_Clinkz then
 				local searinga = self.heroEntity:GetAbility(2)
 				if searinga.level > 0 and self.heroEntity.mana > 10 then
 					self.heroEntity:SafeCastAbility(searinga, target)
-				else entityList:GetMyPlayer():Attack(target) end
+				else self.heroEntity:Attack(target) end
 			elseif self.heroEntity.classId == CDOTA_Unit_Hero_DrowRanger then
 				local frost = self.heroEntity:GetAbility(1)
 				if frost.level > 0 and self.heroEntity.mana > 12 then
 					self.heroEntity:SafeCastAbility(frost, target)
-				else entityList:GetMyPlayer():Attack(target) end
+				else self.heroEntity:Attack(target) end
 			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Viper then
 				local poison = self.heroEntity:GetAbility(1)
 				if poison.level > 0 and self.heroEntity.mana > 21 then
 					self.heroEntity:SafeCastAbility(poison, target)
-				else entityList:GetMyPlayer():Attack(target) end
+				else self.heroEntity:Attack(target) end  
 			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Huskar then
 				local burning = self.heroEntity:GetAbility(2)
 				if burning.level > 0 and self.heroEntity.health > 15 then
 					self.heroEntity:SafeCastAbility(burning, target)
-				else entityList:GetMyPlayer():Attack(target) end
+				else self.heroEntity:Attack(target) end
 			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Silencer then
 				local glaives = self.heroEntity:GetAbility(2)
 				if glaives.level > 0 and self.heroEntity.mana > 15 then
 					self.heroEntity:SafeCastAbility(glaives, target)
-				else entityList:GetMyPlayer():Attack(target) end
+				else self.heroEntity:Attack(target) end
 			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Jakiro then
 				local liquid = self.heroEntity:GetAbility(3)
 				if liquid.level > 0 and liquid.state == LuaEntityAbilty.STATE_READY then
 					self.heroEntity:SafeCastAbility(liquid, target)
-				else entityList:GetMyPlayer():Attack(target) end
+				else self.heroEntity:Attack(target) end
 			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Obsidian_Destroyer then
 				local arcane = self.heroEntity:GetAbility(1)
 				if arcane.level > 0 and self.heroEntity.mana > 100 then
 					self.heroEntity:SafeCastAbility(arcane, target)
-				else entityList:GetMyPlayer():Attack(target) end
+				else self.heroEntity:Attack(target) end
 			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Enchantress then
 				local impetus = self.heroEntity:GetAbility(4)
 				local impemana = {55,60,65}
 				if impetus.level > 0 and self.heroEntity.mana > impemana[impetus.level] then
 					self.heroEntity:SafeCastAbility(impetus, target)
-				else entityList:GetMyPlayer():Attack(target) end
+				else self.heroEntity:Attack(target) end
 			else
-				entityList:GetMyPlayer():Attack(target)
+				self.heroEntity:Attack(target)
 			end
 		else
-			entityList:GetMyPlayer():Attack(target)
+			self.heroEntity:Attack(target)
 		end
 	end
 end
@@ -336,6 +368,9 @@ function CreateHUD()
 			HUD:AddCheckbox(5*monitor,135*monitor,35*monitor,20*monitor,"ATTACK MODIFIERS - ToggleKey "..modifhotkey,modCheck,enablemodifiers)
 		end
 		HUD:AddCheckbox(5*monitor,155*monitor,35*monitor,20*monitor,"Show Sign",ssCheck,showSign)
+		if entityList:GetMyHero().classId == CDOTA_Unit_Hero_LoneDruid then
+			HUD:AddCheckbox(5*monitor,175*monitor,35*monitor,20*monitor,"ONLY BEAR ORBWALK",bearCheck,onlybearorb)
+		end
 		HUD:AddButton(5*monitor,250*monitor,110*monitor,40*monitor, 0x60615FFF,"Save Settings",SaveSettings)
 	end
 end
