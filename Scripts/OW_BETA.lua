@@ -94,8 +94,7 @@ aakey = config.AutoAttackKey
 
 sleep = 0
 
-local reg = false local HUD = nil local myhero = nil local victim = nil local myId = nil local attack = 0 local move = 0 
-local attack1 = 0 local move1 = 0
+local reg = false local HUD = nil local myhero = nil local victim = nil local myId = nil local attack1,attack2,move1,move2 = 0,0,0,0
 local onlybearorb = false
 
 local monitor = client.screenSize.x/1600
@@ -197,7 +196,7 @@ function Main(tick)
 		end
 	elseif HUD and HUD:IsClosed() and showSign then
 		statusText.visible = true
-	end
+	end 
 	
 	if string.byte("A") <= menu and menu <= string.byte("Z") then
 		statusText.text = "Orb Walker: Press " .. string.char(menu) .. " to open Menu"
@@ -214,6 +213,7 @@ function Main(tick)
 			if me.classId == CDOTA_Unit_Hero_LoneDruid then
 				bear = entityList:GetEntities({classId=CDOTA_Unit_SpiritBear,visible=true,alive=true,team=me.team})[1]
 			end
+			--print(IsKeyDown(movetomouse), client.chat)
 			if IsKeyDown(movetomouse) and not client.chat then	
 				if (not victim or GetDistance2D(me,victim) > myhero.attackRange*2 or not victim.alive) and SleepCheck("victim") then
 					local creeps = entityList:GetEntities(function (v) return (v.courier or (v.creep and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Neutral and v.spawned) or v.classId == CDOTA_BaseNPC_Tower or v.classId == CDOTA_BaseNPC_Barracks or v.classId == CDOTA_BaseNPC_Building or v.classId == CDOTA_BaseNPC_Venomancer_PlagueWard or v.classId == CDOTA_BaseNPC_Warlock_Golem or (v.classId == CDOTA_BaseNPC_Creep_Lane and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Siege and v.spawned) or v.classId == CDOTA_Unit_VisageFamiliar or v.classId == CDOTA_Unit_Undying_Zombie or v.classId == CDOTA_Unit_SpiritBear or v.classId == CDOTA_Unit_Broodmother_Spiderling or v.classId == CDOTA_Unit_Hero_Beastmaster_Boar or v.classId == CDOTA_BaseNPC_Invoker_Forged_Spirit or v.classId == CDOTA_BaseNPC_Creep) and v.team ~= me.team and v.alive and v.health > 0 and me:GetDistance2D(v) <= myhero.attackRange*2 + 50 end)
@@ -223,24 +223,31 @@ function Main(tick)
 				end
 				if ((me.classId == CDOTA_Unit_Hero_LoneDruid and not onlybearorb) or me.classId ~= CDOTA_Unit_Hero_LoneDruid) then
 					if not Animations.CanMove(me) and victim and GetDistance2D(me,victim) <= myhero.attackRange*2 + 50 then
-						if tick > attack then
+						if tick > attack1 then
 							myhero:Hit(victim)
-							attack = tick + 100
+							attack1 = tick + math.max((100/Animations.maxCount)*client.latency, 100)
 						end
-					elseif tick > move then
+					end
+					if not (not Animations.CanMove(me) and victim and GetDistance2D(me,victim) <= myhero.attackRange*2 + 50) and tick > move1 then
 						me:Move(client.mousePosition)
-						move = tick + 100
+						move1 = tick + math.max((100/Animations.maxCount)*client.latency, 100)
 					end
 				end
 				if bear and bear.alive then
+					if (not victim or GetDistance2D(bear,victim) > bear.attackRange*2 or not victim.alive) and SleepCheck("victimb") then
+						local creeps = entityList:GetEntities(function (v) return (v.courier or (v.creep and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Neutral and v.spawned) or v.classId == CDOTA_BaseNPC_Tower or v.classId == CDOTA_BaseNPC_Barracks or v.classId == CDOTA_BaseNPC_Building or v.classId == CDOTA_BaseNPC_Venomancer_PlagueWard or v.classId == CDOTA_BaseNPC_Warlock_Golem or (v.classId == CDOTA_BaseNPC_Creep_Lane and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Siege and v.spawned) or v.classId == CDOTA_Unit_VisageFamiliar or v.classId == CDOTA_Unit_Undying_Zombie or v.classId == CDOTA_Unit_SpiritBear or v.classId == CDOTA_Unit_Broodmother_Spiderling or v.classId == CDOTA_Unit_Hero_Beastmaster_Boar or v.classId == CDOTA_BaseNPC_Invoker_Forged_Spirit or v.classId == CDOTA_BaseNPC_Creep) and v.team ~= me.team and v.alive and v.health > 0 and bear:GetDistance2D(v) <= bear.attackRange*2 + 50 end)
+						table.sort(creeps, function (a,b) return a.health < b.health end)
+						victim = targetFind:GetClosestToMouse(bear,300) or targetFind:GetLowestEHP(bear.attackRange*2 + 50, phys) or creeps[1]
+						Sleep(250,"victimb")
+					end
 					if not Animations.CanMove(bear) and victim and bear:CanAttack() and GetDistance2D(bear,victim) <= bear.attackRange*2 + 50 then
-						if tick > attack1 then
+						if tick > attack2 then
 							bear:Attack(victim)
-							attack1 = tick + 100
+							attack2 = tick + math.max((100/Animations.maxCount)*client.latency, 100)
 						end
-					elseif tick > move1 then
+					elseif not (not Animations.CanMove(bear) and victim and bear:CanAttack() and GetDistance2D(bear,victim) <= bear.attackRange*2 + 50 ) and tick > move2 then
 						bear:Move(client.mousePosition)
-						move1 = tick + 100
+						move2 = tick + math.max((100/Animations.maxCount)*client.latency, 100)
 					end
 				end
 			else
