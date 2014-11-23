@@ -225,12 +225,12 @@ function Main(tick)
 					if not Animations.CanMove(me) and victim and GetDistance2D(me,victim) <= myhero.attackRange*2 + 50 then
 						if tick > attack1 then
 							myhero:Hit(victim)
-							attack1 = tick + math.max((100/Animations.maxCount)*client.latency, 100)
+							attack1 = tick + Animations.table[me.handle].attackTime
 						end
 					end
 					if not (not Animations.CanMove(me) and victim and GetDistance2D(me,victim) <= myhero.attackRange*2 + 50) and tick > move1 then
 						me:Move(client.mousePosition)
-						move1 = tick + math.max((100/Animations.maxCount)*client.latency, 100)
+						move1 = tick + Animations.table[me.handle].moveTime
 					end
 				end
 				if bear and bear.alive then
@@ -243,11 +243,11 @@ function Main(tick)
 					if not Animations.CanMove(bear) and victim and bear:CanAttack() and GetDistance2D(bear,victim) <= bear.attackRange*2 + 50 then
 						if tick > attack2 then
 							bear:Attack(victim)
-							attack2 = tick + math.max((100/Animations.maxCount)*client.latency, 100)
+							attack2 = tick + Animations.table[bear.handle].attackTime*1000
 						end
 					elseif not (not Animations.CanMove(bear) and victim and bear:CanAttack() and GetDistance2D(bear,victim) <= bear.attackRange*2 + 50 ) and tick > move2 then
 						bear:Move(client.mousePosition)
-						move2 = tick + math.max((100/Animations.maxCount)*client.latency, 100)
+						move2 = tick + Animations.table[bear.handle].moveTime*1000
 					end
 				end
 			else
