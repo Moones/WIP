@@ -15,8 +15,8 @@ require("libs.Utils")
 		 
         Usage:
         ------
-		
-	     SpellDamage.GetDamage(spell)     - Returns full damage of given spell. 
+        
+         SpellDamage.GetDamage(spell)     - Returns full damage of given spell. 
          SpellDamage.GetTickDamage(spell) - Returns damage of one tick. (Only for spells with damage ticks)
 		 
         Changelog:
