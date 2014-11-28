@@ -29,8 +29,8 @@ Lasthit.armorTypeModifiers = { Normal = {Unarmored = 1.00, Light = 1.00, Medium 
 Lasthit.sleepTick = 0
 
 function Lasthit.Tick(tick)
-	if not PlayingGame() or client.paused then return end
-	if Animations.maxCount and Animations.maxCount > 0 and tick > Lasthit.sleepTick  then
+	if not PlayingGame() or client.paused or Animations.maxCount <= 0 then return end
+	if Animations.maxCount and tick > Lasthit.sleepTick  then
 		Lasthit.mapCreeps()
 		Lasthit.sleepTick = tick + 2000
 	end
@@ -308,7 +308,7 @@ function Creep:__init(creepEntity)
 		self.creepType = "Tower"
 		self.attackType = "Siege"
 		self.armorType = "Fortified"
-	elseif self.creepEntity.classId == CDOTA_BaseNPC_Hero then
+	elseif self.creepEntity.type == LuaEntity.TYPE_HERO then
 		self.creepType = "Hero"
 		self.attackType = "Hero"
 		self.armorType = "Hero"
