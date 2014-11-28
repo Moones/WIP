@@ -268,7 +268,7 @@ function Animations.getDuration(ability)
 end
 
 function Animations.getAttackDuration(hero)
-	if hero and Animations.table[hero.handle] then return Animations.table[hero.handle].duration else return 0 end
+	if hero and Animations.table[hero.handle] and Animations.table[hero.handle].duration then return Animations.table[hero.handle].duration else return 0 end
 end
 
 function Animations.isAnimating(ability)
