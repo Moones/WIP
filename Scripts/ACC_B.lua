@@ -137,7 +137,7 @@ function Key(msg, code)
 end
 
 function Main(tick)
-	if not PlayingGame() then return end	
+	if not PlayingGame() or Animations.maxCount <= 0 then return end	
 	local me = entityList:GetMyHero() 
 	local ID = me.classId if ID ~= myId then Close() end
 		
