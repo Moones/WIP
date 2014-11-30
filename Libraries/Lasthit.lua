@@ -371,7 +371,7 @@ function Creep:MapDamageSources()
 				end
 			end
 			if GetDistance2D(creepClass.creepEntity.position, self.creepEntity) < creepClass.creepEntity.attackRange+50 and (math.max(math.abs(FindAngleR(creepClass.creepEntity) - math.rad(FindAngleBetween(creepClass.creepEntity, self.creepEntity))), 0)) < 0.010093 and Animations.isAttacking(creepClass.creepEntity) then
-				if (not self.nextAttackTicks[creepClass.creepEntity.handle] or client.gameTime > self.nextAttackTicks[creepClass.creepEntity.handle][3]) then
+				if (not self.nextAttackTicks[creepClass.creepEntity.handle] or client.gameTime > self.nextAttackTicks[creepClass.creepEntity.handle][3]) and Animations.getAttackDuration(creepClass.creepEntity) then
 					nextAttackTick = (creepClass.creepEntity.attackBaseTime / (1 + (self.creepEntity.attackSpeed - 100) / 100)) - (client.latency/1000) - Animations.getAttackDuration(creepClass.creepEntity)
 					timeToDamageHit = (Animations.table[creepClass.creepEntity.handle].startTime or client.gameTime) + (((creepClass.projectileSpeed) and (((GetDistance2D(creepClass.creepEntity, self.creepEntity)-100)/creepClass.projectileSpeed))) or 0) + (heroInfo[creepClass.creepEntity.name].attackPoint / (1 + (self.creepEntity.attackSpeed - 100) / 100)) - Animations.getAttackDuration(creepClass.creepEntity) + client.latency/1000
 					self.nextAttackTicks[creepClass.creepEntity.handle] = {creepClass, timeToDamageHit, nextAttackTick + (Animations.table[creepClass.creepEntity.handle].startTime or client.gameTime), nextAttackTick, self}		
