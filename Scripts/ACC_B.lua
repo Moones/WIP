@@ -158,7 +158,7 @@ function Main(tick)
 		statusText.visible = true
 	end
 	
-	if not myhero then
+	if not myhero then 
 		myhero = Hero(me)
 	else
 		myhero:Update()
@@ -166,13 +166,13 @@ function Main(tick)
 			local canmove = Animations.CanMove(me)
 			if IsKeyDown(movetomouse) and not client.chat then	
 				Lasthit.GetLasthit(me)
-				if Lasthit.table[me.handle] and Lasthit.table[me.handle].alive then
+				if Lasthit.table[me.handle] and Lasthit.table[me.handle].creep and Lasthit.table[me.handle].creep.alive then
 					if tick > stop then
-						StopAttack(me,Lasthit.table[me.handle],Lasthit.table[me.handle].class)
+						StopAttack(me)
 						stop = tick + 100
 					end
 					if tick > attack then
-						Hit(me,Lasthit.table[me.handle])
+						Hit(me)
 						attack = tick + 100
 					end
 				else
@@ -182,9 +182,9 @@ function Main(tick)
 					end
 				end
 			end
-			-- for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true,team=me:GetEnemyTeam()})) do
-				-- print((math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, v))), 0)))
-			-- end
+			--for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true,team=me:GetEnemyTeam()})) do
+				--print((math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, me))), 0)))
+			--end
 			if autounaggro then		
 				for i,v in ipairs(entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane})) do				
 					for k,z in ipairs(entityList:GetProjectiles({target=me})) do
@@ -331,7 +331,7 @@ function Load()
 			script:RegisterEvent(EVENT_KEY, Key)
 			script:UnregisterEvent(Load)
 		end
-	end	
+	end	 
 end  
 
 function Close()
