@@ -91,11 +91,11 @@ require("libs.HeroInfo")
              - 21. 11. 2014 - Version 1.0.2 Fixed bug with tick count.
 		
              - 21. 11. 2014 - Version 1.0.1 Now CanMove returning false when hero is casting an ability.
-	
+	 
              - 21. 11. 2014 - Version 1.0 First Release
 ]]--
 
-Animations = {}
+Animations = {} 
 
 Animations.table = {}
 Animations.attacksTable = {}
