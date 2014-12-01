@@ -65,7 +65,7 @@ function Lasthit.GetLasthit(hero)
 				Lasthit.table[hero.handle].timeToDie = creepClass:GetTimeToHealth(0)
 				local myattackTime = (client.gameTime + (heroInfo[hero.name].attackPoint / (1 + (hero.attackSpeed - 100) / 100)) + client.latency/1000 + (1/Animations.maxCount)*3 + hero:GetTurnTime(creepClass.creepEntity) + (math.max((GetDistance2D(hero, creepClass.creepEntity) - 50 - Lasthit.AttackRange(hero)), 0)/hero.movespeed))
 				if heroInfo[hero.name].projectileSpeed then
-					myattackTime = myattackTime + ((GetDistance2D(hero, creepClass.creepEntity)-math.max((GetDistance2D(hero, creepClass.creepEntity) - Lasthit.AttackRange(hero)), 0))/heroInfo[hero.name].projectileSpeed)
+					myattackTime = myattackTime + ((GetDistance2D(hero, creepClass.creepEntity)-math.max((GetDistance2D(hero, creepClass.creepEntity) - 50 - Lasthit.AttackRange(hero)), 0))/heroInfo[hero.name].projectileSpeed)
 				end				
 				if hero.team ~= creepClass.creepEntity.team then
 					if ((Lasthit.table[hero.handle].timeToDie and Lasthit.table[hero.handle].timeToDie > myattackTime) or not Lasthit.table[hero.handle].timeToDie) and (Dmg >= creepClass.creepEntity.health or (Lasthit.table[hero.handle].time and Lasthit.table[hero.handle].time <= myattackTime)) then
@@ -87,7 +87,7 @@ function StopAttack(hero)
 		Lasthit.table[hero.handle].timeToDie = Lasthit.table[hero.handle].class:GetTimeToHealth(0)
 		local myattackTime = (client.gameTime + (heroInfo[hero.name].attackPoint / (1 + (hero.attackSpeed - 100) / 100)) + client.latency/1000 + (1/Animations.maxCount)*3) + Animations.GetAttackTime(hero) + Animations.getAttackDuration(hero)
 		if heroInfo[hero.name].projectileSpeed then
-			myattackTime = myattackTime + ((GetDistance2D(hero, Lasthit.table[hero.handle].creep)-math.max((GetDistance2D(hero, Lasthit.table[hero.handle].creep) - Lasthit.AttackRange(hero)), 0))/heroInfo[hero.name].projectileSpeed)
+			myattackTime = myattackTime + ((GetDistance2D(hero, Lasthit.table[hero.handle].creep)-math.max((GetDistance2D(hero, Lasthit.table[hero.handle].creep) - 50 - Lasthit.AttackRange(hero)), 0))/heroInfo[hero.name].projectileSpeed)
 		end
 		if (not Lasthit.table[hero.handle].timeToDie or Lasthit.table[hero.handle].timeToDie > myattackTime) and (Lasthit.table[hero.handle].time and Lasthit.table[hero.handle].time > myattackTime) and (Lasthit.table[hero.handle].creep.health > Dmg) and Animations.isAttacking(hero) then
 			hero:Stop()
