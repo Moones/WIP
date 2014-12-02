@@ -95,7 +95,7 @@ SpellDamage.spellList = {
 	venomancer_poison_nova = { tickDamage = "damage"; tickDuration = "duration"; tickDamageScepter = "damage_scepter"; tickDurationScepter = "duration_scepter"; tickInterval = 1; startTime = 0; };
 	templar_assassin_meld = { damage = "bonus_damage"; };
 	viper_viper_strike = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; startTime = 1; };
-	luna_eclipse = { multiplier = "hit_count"; multiplierScepter = "hit_count_scepter"; };
+	luna_eclipse = { damageSpell = "luna_lucent_beam"; multiplier = "hit_count"; multiplierScepter = "hit_count_scepter"; };
 	dazzle_poison_touch = { startTime = "set_time"; tickInterval = 1; tickDuration = 10; };
 	rattletrap_battery_assault = { tickDuration = "duration"; tickInterval = "interval"; startTime = 0; };
 	rattletrap_hookshot = { damage = "damage"; };
@@ -123,6 +123,9 @@ SpellDamage.spellList = {
 	doom_bringer_lvl_death = { damage = "damage"; bonusDamage = "lvl_bonus_damage"; bonusMultiplier = "lvl_bonus_multiple"; };
 	doom_bringer_doom = { tickDamage = "damage"; tickDuration = "duration"; tickDamageScepter = "damage_scepter"; tickDurationScepter = "duration_scepter"; tickInterval = 1; startTime = 0; };
 	ancient_apparition_cold_feet = { tickDamage = "damage"; tickInterval = {0.8,0.8,0.9,0.9}; startTime = 0.8; };
-	--ancient_apparition_ice_blast = { 
+	ancient_apparition_ice_blast = { tickDuration = "frostbite_duration"; tickDamage = "dot_damage"; bonusDamagePercent = "kill_pct"; tickDurationScepter = "frostbite_duration_scepter"; startTime = 1; tickInterval = 1; };
+	spirit_breaker_charge_of_darkness = { damageSpell = "spirit_breaker_greater_bash"; damageSpellName = "damage"; };
+	spirit_breaker_nether_strike = { damage = "damage"; damageSpell = "spirit_breaker_greater_bash"; damageSpellName = "damage"; };
+	gyrocopter_rocket_barrage = { tickInterval = 0.1; startTime = 0.1; };
 	--too hard to finish
 }
