@@ -103,6 +103,7 @@ Animations.startTime = nil
 Animations.count = 0
 Animations.maxCount = 0
 Animations.sleep = 0
+Animations.entities = {}
 
 function Animations.trackingTick(tick)
 	if not PlayingGame() or client.paused then return end
@@ -110,9 +111,9 @@ function Animations.trackingTick(tick)
 	elseif (client.gameTime < 0 and Animations.startTime > 0) then Animations.startTime = client.gameTime Animations.maxCount = 0 Animations.table = {}
 	elseif (client.gameTime - Animations.startTime) >= 1 then Animations.startTime = nil Animations.maxCount = Animations.count Animations.count = 0
 	else Animations.count = Animations.count + 1 end
-	local entities = {}
 	local creeps, siege, towers, heroes, spirits, wards, wolves
 	if tick > Animations.sleep and Animations.maxCount > 0 then
+		Animations.entities = {}
 		Animations.sleep = 2000
 		creeps = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane,alive=true,visible=true})
 		siege = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Siege,alive=true,visible=true})
@@ -123,41 +124,41 @@ function Animations.trackingTick(tick)
 		wolves = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Neutral,alive=true,visible=true})	
 		for _, entity in pairs(creeps) do 
 			if entity.spawned and entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
-				entities[#entities + 1] = entity
+				Animations.entities[#Animations.entities + 1] = entity
 			end
 		end
 		for _, entity in pairs(siege) do
 			if entity.spawned and entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
-				entities[#entities + 1] = entity
+				Animations.entities[#Animations.entities + 1] = entity
 			end	
 		end
 		for _, entity in pairs(towers) do
 			if entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
-				entities[#entities + 1] = entity
+				Animations.entities[#Animations.entities + 1] = entity
 			end	
 		end
 		for _, entity in pairs(heroes) do
 			if entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
-				entities[#entities + 1] = entity
+				Animations.entities[#Animations.entities + 1] = entity
 			end
 		end
 		for _, entity in pairs(spirits) do
 			if entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
-				entities[#entities + 1] = entity
+				Animations.entities[#Animations.entities + 1] = entity
 			end	
 		end
 		for _, entity in pairs(wolves) do
 			if entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
-				entities[#entities + 1] = entity
+				Animations.entities[#Animations.entities + 1] = entity
 			end	
 		end
 		for _, entity in pairs(wards) do
 			if entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
-				entities[#entities + 1] = entity
+				Animations.entities[#Animations.entities + 1] = entity
 			end	
 		end
 	end
-	for i,v in ipairs(entities) do
+	for i,v in ipairs(Animations.entities) do
 		if (v.hero and not v:IsIllusion()) or not v.hero then
 			if not Animations.table[v.handle] then
 				Animations.table[v.handle] = {}
@@ -257,6 +258,7 @@ end
 function Animations.trackLoad()
 	Animations.count = 0
 	Animations.maxCount = 0
+	Animations.entities = {}
 end
 
 function Animations.getCount()
