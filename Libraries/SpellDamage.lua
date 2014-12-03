@@ -50,6 +50,9 @@ SpellDamage.attackModifiersList = {
 	weaver_geminate_attack = { multiplier = 2; cooldown = true; };
 	jakiro_liquid_fire = { tickDamage = "damage"; tickInterval = 1; startTime = 0.5; tickDuration = 5; };
 	spectre_desolate = { damage = "bonus_damage"; special = true; };
+	silencer_glaives_of_wisdom = { IntToDamage = "intellect_damage_pct"; special = true; };
+	obsidian_destroyer_arcane_orb = { manaPercentDamage = "mana_pool_damage_pct"; special = true; };
+	brewmaster_drunken_brawler = { damageMultiplier = "crit_multiplier"; }
 }
 
 --Spells not listed here returns damage from LuaEntityAbility:GetDamage()
@@ -126,6 +129,25 @@ SpellDamage.spellList = {
 	ancient_apparition_ice_blast = { tickDuration = "frostbite_duration"; tickDamage = "dot_damage"; bonusDamagePercent = "kill_pct"; tickDurationScepter = "frostbite_duration_scepter"; startTime = 1; tickInterval = 1; };
 	spirit_breaker_charge_of_darkness = { damageSpell = "spirit_breaker_greater_bash"; damageSpellName = "damage"; };
 	spirit_breaker_nether_strike = { damage = "damage"; damageSpell = "spirit_breaker_greater_bash"; damageSpellName = "damage"; };
-	gyrocopter_rocket_barrage = { tickInterval = 0.1; startTime = 0.1; };
+	gyrocopter_rocket_barrage = { tickInterval = 1; startTime = 0; tickDuration = 3; };
+	gyrocopter_homing_missile = { maxDamageRange = "max_distance"; minBonusDamage = "min_damage"; };
+	gyrocopter_call_down = { damage = "damage_first"; bonusDamage = "damage_second"; bonusDamageScepter = "damage_second_scepter"; };
+	alchemist_unstable_concoction = { minDamage = "min_damage"; maxDamage = "max_damage"; maxTime = "brew_time"; };
+	alchemist_unstable_concoction_throw = { minDamage = "min_damage"; maxDamage = "max_damage"; maxTime = "brew_time"; };
+	invoker_cold_snap = { damage = "damage_trigger"; bonusDamage = "freeze_damage"; tickInterval = "freeze_cooldown"; tickDuration = "duration"; spellLevel = "invoker_quas"; };
+	invoker_tornado = { damage = "base_damage"; bonusDamage = "wex_damage"; spellLevel = "invoker_wex"; };
+	invoker_emp = { damage = "mana_burned"; damageMultiplier = "damage_per_mana_pct"; };
+	invoker_chaos_meteor = { tickInterval = "damage_interval"; tickDamage = "main_damage"; bonusDamage = "burn_dps"; bonusDamageMultiplier = "burn_duration"; spellLevel = "invoker_exort"; };
+	invoker_sun_strike = { damage = "damage"; spellLevel = "invoker_exort"; };
+	invoker_forge_spirit = { damage = "spirit_damage"; spellLevel = "invoker_exort"; };
+	invoker_ice_wall = { tickDuration = "duration"; tickDamage = "damage_per_second"; tickInterval = 1; startTime = 1; damagespellLevel = "invoker_exort"; durationspellLevel = "invoker_quas"; };
+	invoker_deafening_blast = { damage = "damage"; spellDamage = "invoker_exort"; };
+	silencer_curse_of_the_silent = { tickDamage = "health_damage"; tickDuration = "tooltip_duration"; tickInterval = 1; startTime = 1; };
+	silencer_last_word = { damage = "damage"; };
+	silencer_global_silence = { damageScepter = SpellDamage.spellList[silencer_curse_of_the_silent]; }
+	obsidian_destroyer_sanity_eclipse = { damageMultiplier = "damage_multiplier"; differenceTreshold = "int_threshold"; damageMultiplierScepter = "damage_multiplier_scepter"; };
+	lycan_summon_wolves = { damage = "wolf_damage"; damageMultiplier = 2; };
+	brewmaster_thunder_clap = { damage = "damage"; };
+	
 	--too hard to finish
 }
