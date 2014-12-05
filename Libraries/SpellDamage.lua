@@ -54,20 +54,20 @@ SpellDamage.attackModifiersList = {
 	obsidian_destroyer_arcane_orb = { manaPercentDamage = "mana_pool_damage_pct"; special = true; };
 	brewmaster_drunken_brawler = { damageMultiplier = "crit_multiplier"; };
 	tusk_walrus_punch = { damageMultiplier = "crit_multiplier"; cooldown = true; };
+	kunkka_tidebringer = { damage = "damage_bonus"; };
 }
 
 --Spells not listed here returns damage from LuaEntityAbility:GetDamage()
 SpellDamage.spellList = {
 	antimage_mana_void = { damage = "mana_void_damage_per_mana"; };
-	axe_battle_hunger = { tickInterval = 1; startTime = 1; tickDuration = "duration"; };
+	axe_battle_hunger = { tickInterval = 1; startTime = 1; tickDuration = "duration"; tick = true; };
 	axe_culling_blade = { damage = "kill_threshold"; damageScepter = "kill_threshold_scepter"; };
 	bane_brain_sap = { damage = "fiend_grip_damage"; duration = "fiend_grip_duration"; tickInterval = "fiend_grip_tick_interval"; damageScepter = "fiend_grip_damage_scepter"; durationScepter = "fiend_grip_duration_scepter"; };
 	bloodseeker_blood_bath = { damage = "damage"; };
 	earthshaker_enchant_totem = { damageMultiplier = "totem_damage_percentage"; };
 	earthshaker_echo_slam = { damage = "echo_slam_echo_damage"; range = "echo_slam_echo_range"; };
-	juggernaut_blade_fury = { duration = 5; };
-	juggernaut_omni_slash = { damage = 200; multiplier = "omni_slash_jumps"; multiplierScepter = "omni_slash_jumps_scepter"; };
-	kunkka_tidebringer = { damage = "damage_bonus"; };
+	juggernaut_blade_fury = { duration = 5; tick = true; };
+	juggernaut_omni_slash = { damage = 200; damageMultiplier = "omni_slash_jumps"; multiplierScepter = "omni_slash_jumps_scepter"; };
 	lina_laguna_blade = { damage = "damage"; typeScepter = DAMAGE_TYPE_PURE; };
 	lion_finger_of_death = { damage = "damage"; damageScepter = "damage_scepter"; };
 	mirana_arrow = { maxDamageRange = "arrow_max_stunrange";  maxBonusDamage = "arrow_bonus_damage"; };
@@ -193,13 +193,75 @@ SpellDamage.spellList = {
 	legion_commander_overwhelming_odds = { damage = "damage"; bonusDamageUnit = "damage_per_unit"; bonusDamageHero = "damage_per_hero"; };
 	legion_commander_duel = { duration = "duration"; };
 	ember_spirit_searing_chains = { damage = "total_damage_tooltip"; };
-	ember_spirit_sleight_of_fist = { bonusDamage = "bonus_hero_damage"; damage = true; };
+	ember_spirit_sleight_of_fist = { bonusDamage = "bonus_hero_damage"; herodamage = true; };
 	ember_spirit_flame_guard = { tickDamage = "damage_per_second"; tickDuration = "duration"; tickInterval = 1; startTime = 0.2; };
 	ember_spirit_fire_remnant = { damage = "damage"; };
 	earth_spirit_boulder_smash = { damage = "rock_damage"; };
 	earth_spirit_rolling_boulder = { damage = "rock_damage"; };
 	earth_spirit_geomagnetic_grip = { damage = "rock_damage"; };
 	earth_spirit_petrify = { damage = "damage"; };
-	earth_spirit_magnetize = { 
-	--too hard to finish
+	earth_spirit_magnetize = {};
+	oracle_fortunes_end = { damage = "damage"; };
+	oracle_purifying_flames = { damage = "damage"; };	
+	--finished !?
 }
+
+function SpellDamage.CalculateDamage(ability)
+	local spell = SpellDamage.spellList[ability.name]
+	local owner = ability.owner
+	local dmg = ability:GetDamage()
+	if spell then
+		if spell.tick then
+			local tickDuration = ((ability:GetSpecialData(spell.tickDuration, ability.level)) or spell.tickDuration)
+			local tickInterval = ((ability:GetSpecialData(spell.tickInterval, ability.level)) or spell.tickInterval)
+			local tickDamage = ((ability:GetSpecialData(spell.tickDamage, ability.level)) or dmg)
+			local startTime = ((ability:GetSpecialData(spell.startTime, ability.level)) or spell.startTime)
+			local tickCount = ability:GetSpecialData(spell.tickCount, ability.level)
+			local damage = ability:GetSpecialData(spell.damage, ability.level)
+			local bonusDamage = ability:GetSpecialData(spell.bonusDamage, ability.level)
+			if owner:AghanimState() then
+				tickDuration = ((ability:GetSpecialData(spell.tickDurationScepter, ability.level)) or tickDuration)
+				tickDamage = ((ability:GetSpecialData(spell.tickDamageScepter, ability.level)) or tickDamage)
+			end
+			local finalDamage = (((tickDuration - startTime)/tickInterval) or tickCount)*tickDamage
+			if damage then
+				finalDamage = finalDamage + damage
+			end
+			if bonusDamage then
+				finalDamage = finalDamage + bonusDamage
+			end
+			return finalDamage
+		else
+			local damage = ((ability:GetSpecialData(spell.damage,ability.level)) or dmg or spell.damage)
+			local damageMultiplier = ((ability:GetSpecialData(spell.damageMultiplier, ability.level)) or spell.damageHealthMultiplier)
+			local bonusDamage = ((ability:GetSpecialData(spell.bonusDamage,ability.level)) or spell.bonusDamage)
+			local bonusDamageMultiplier = ((ability:GetSpecialData(spell.bonusDamageMultiplier, ability.level)) or spell.bonusDamageMultiplier)
+			if owner:AghanimState() then
+				damage = ((ability:GetSpecialData(spell.damageScepter, ability.level)) or damage)
+				bonusDamage = ((ability:GetSpecialData(spell.bonusDamageScepter, ability.level)) or bonusDamage)
+				damageMultiplier = ((ability:GetSpecialData(spell.damageMultiplier, ability.level)) or damageMultiplier)
+			end
+			if bonusDamageMultiplier then
+				if bonusDamageMultiplier > 100 then 
+					bonusDamageMultiplier = bonusDamageMultiplier/100
+				end
+				bonusDamage = bonusDamage*bonusDamageMultiplier
+			end
+			if damageMultiplier then
+				if damageMultiplier > 100 then 
+					damageMultiplier = damageMultiplier/100
+				elseif damageMultiplier < 1 then
+					damageMultiplier = damageMultiplier*100
+				end
+				damage = damage*damageMultiplier
+			end
+			if bonusDamage then
+				damage = damage + bonusDamage
+			end
+			return damage
+		end
+	elseif dmg then
+		return dmg
+	end
+	return nil
+end
