@@ -3,7 +3,7 @@ require("libs.Utils")
                              ___
                             ( ((
                              ) ))              
-  .::. SPELL DAMAGE LIBRARY / /( MADE BY MOONES      
+  .::.ABILITY DAMAGE LIBRARY/ /( MADE BY MOONES      
  'M .-;-.-.-.-.-.-.-.-.-.-/| ((:::::::::::::::::::::::::::::::::::::::::::::.._
 (O ( ( ( ( ( ( ( ( ( ( ( ( |  ))   -===========VERSION 1.0.0===========-      _.>
  `M `-;-`-`-`-`-`-`-`-`-`-\| ((::::::::::::::::::::::::::::::::::::::::::::::''
@@ -11,35 +11,34 @@ require("libs.Utils")
         Description:         ) ))
         ------------        (_((                           
 		 
-         - This library stores damage of all spells
+         - This library stores damage of all abilities
 		 
         Usage:
         ------
         
-         SpellDamage.GetDamage(spell)     - Returns full damage of given spell. 
-         SpellDamage.GetTickDamage(spell) - Returns damage of one tick. (Only for spells with damage ticks)
+         AbilityDamage.GetDamage(ability) - Returns full damage of given ability. 
 		 
         Changelog:
         ----------
 		
 ]]--
 
---Tables with all informations we need to determine actual spell damage
-local SpellDamage = {}
+--Tables with all informations we need to determine actual ability damage
+AbilityDamage = {}
 
-SpellDamage.modifiersSpellList = {	
-	modifier_alchemist_acid_spray = { npc = true; npcModifierName = "modifier_alchemist_acid_spray_thinker"; spellName = "alchemist_acid_spray"; spellDamage = "damage"; tickInterval = "tick_rate"; startTime = 0; duration = "duration"; };
+AbilityDamage.modifiersSpellList = {	
+	modifier_alchemist_acid_spray = { npc = true; npcModifierName = "modifier_alchemist_acid_spray_thinker"; spellName = "alchemist_acid_spray"; AbilityDamage = "damage"; tickInterval = "tick_rate"; startTime = 0; duration = "duration"; };
 	modifier_axe_battle_hunger = { spellName = "axe_battle_hunger"; tickInterval = 1; startTime = 1; duration = "duration"; };
-	modifier_batrider_firefly = { spellName = "batrider_firefly"; spellDamage = "damage_per_second"; tickInterval = "tick_interval"; startTime = 0.1; duration = "duration"; trackbySpellCD = true; bonusDmgModifier = "modifier_batrider_sticky_napalm"; bonusDmgModifierSpellname = "batrider_sticky_napalm"; bonusDmgModifierDamage = "damage";};
-	modifier_brewmaster_fire_permanent_immolation_aura = { spellName = "brewmaster_fire_permanent_immolation"; spellDamage = "damage"; spellOwner = CDOTA_Unit_Brewmaster_PrimalFire; tickInterval = 1; startTime = 1; };
-	modifier_broodmother_poison_sting_dps_debuff = { spellName = "broodmother_poison_sting"; spellDamage = "damage_per_second"; tickInterval = 1; startTime = 1; };	
-	modifier_cold_feet = { spellName = "ancient_apparition_cold_feet"; spellDamage = "damage"; tickInterval = {0.8,0.8,0.9,0.9}; startTime = 0.8; };
-	modifier_crystal_maiden_frostbite = { spellName = "crystal_maiden_frostbite"; spellDamage = "damage_per_second_tooltip"; tickInterval = 0.5; startTime = 0; duration = "duration"; };
-	modifier_cyclone = { spellDamage = 50; startTime = 2.5; };
+	modifier_batrider_firefly = { spellName = "batrider_firefly"; AbilityDamage = "damage_per_second"; tickInterval = "tick_interval"; startTime = 0.1; duration = "duration"; trackbySpellCD = true; bonusDmgModifier = "modifier_batrider_sticky_napalm"; bonusDmgModifierSpellname = "batrider_sticky_napalm"; bonusDmgModifierDamage = "damage";};
+	modifier_brewmaster_fire_permanent_immolation_aura = { spellName = "brewmaster_fire_permanent_immolation"; AbilityDamage = "damage"; spellOwner = CDOTA_Unit_Brewmaster_PrimalFire; tickInterval = 1; startTime = 1; };
+	modifier_broodmother_poison_sting_dps_debuff = { spellName = "broodmother_poison_sting"; AbilityDamage = "damage_per_second"; tickInterval = 1; startTime = 1; };	
+	modifier_cold_feet = { spellName = "ancient_apparition_cold_feet"; AbilityDamage = "damage"; tickInterval = {0.8,0.8,0.9,0.9}; startTime = 0.8; };
+	modifier_crystal_maiden_frostbite = { spellName = "crystal_maiden_frostbite"; AbilityDamage = "damage_per_second_tooltip"; tickInterval = 0.5; startTime = 0; duration = "duration"; };
+	modifier_cyclone = { AbilityDamage = 50; startTime = 2.5; };
 	--<<ONE DAY IM GONNA FINISH THIS>>
 }
 
-SpellDamage.attackModifiersList = {
+AbilityDamage.attackModifiersList = {
 	antimage_mana_break = { damage = "mana_per_hit"; multiplier = 0.6; };
 	venomancer_poison_sting = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; startTime = 0; };
 	viper_poison_attack = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; startTime = 1; };
@@ -57,8 +56,8 @@ SpellDamage.attackModifiersList = {
 	kunkka_tidebringer = { damage = "damage_bonus"; };
 }
 
---Spells not listed here returns damage from LuaEntityAbility:GetDamage()
-SpellDamage.spellList = {
+--Spells not listed here returns damage from LuaEntityAbility:GetDamage(ability.level)
+AbilityDamage.spellList = {
 	antimage_mana_void = { damage = "mana_void_damage_per_mana"; };
 	axe_battle_hunger = { tickInterval = 1; startTime = 1; tickDuration = "duration"; tick = true; };
 	axe_culling_blade = { damage = "kill_threshold"; damageScepter = "kill_threshold_scepter"; };
@@ -67,7 +66,7 @@ SpellDamage.spellList = {
 	earthshaker_enchant_totem = { damageMultiplier = "totem_damage_percentage"; };
 	earthshaker_echo_slam = { damage = "echo_slam_echo_damage"; range = "echo_slam_echo_range"; };
 	juggernaut_blade_fury = { duration = 5; tick = true; };
-	juggernaut_omni_slash = { damage = 200; damageMultiplier = "omni_slash_jumps"; multiplierScepter = "omni_slash_jumps_scepter"; };
+	juggernaut_omni_slash = { damage = 200; damageMultiplier = "omni_slash_jumps"; damageMultiplierScepter = "omni_slash_jumps_scepter"; };
 	lina_laguna_blade = { damage = "damage"; typeScepter = DAMAGE_TYPE_PURE; };
 	lion_finger_of_death = { damage = "damage"; damageScepter = "damage_scepter"; };
 	mirana_arrow = { maxDamageRange = "arrow_max_stunrange";  maxBonusDamage = "arrow_bonus_damage"; };
@@ -77,11 +76,11 @@ SpellDamage.spellList = {
 	pudge_dismember = { damage = "dismember_damage"; damageScepterMultiplierStrenght = "strength_damage_scepter"; };
 	shadow_shaman_ether_shock = { damage = "damage"; };
 	shadow_shaman_shackles = { damage = "total_damage"; };
-	shadow_shaman_mass_serpent_ward = { damage = "damage_min"; damageScepter = "damage_min_scepter"; multiplier = "ward_count"; };
+	shadow_shaman_mass_serpent_ward = { damage = "damage_min"; damageScepter = "damage_min_scepter"; damageMultiplier = "ward_count"; };
 	razor_plasma_field = { minDamage = "damage_min"; maxDamage = "damage_max"; range = "radius"; };
 	skeleton_king_hellfire_blast = { tickDuration = "blast_dot_duration"; tickDamage = "blast_dot_damage"; };
 	storm_spirit_static_remnant = { damage = "static_remnant_damage"; };
-	sandking_epicenter = { damage = "epicenter_damage"; multiplier = "epicenter_pulses";  multiplierScepter = "epicenter_pulses_scepter"; };
+	sandking_epicenter = { damage = "epicenter_damage"; damageMultiplier = "epicenter_pulses";  damageMultiplierScepter = "epicenter_pulses_scepter"; };
 	tiny_toss = { damage = "toss_damage"; };
 	zuus_static_field = { damage = "damage_health_pct"; };
 	zuus_thundergods_wrath = { damage = "damage"; damageScepter = "damage_scepter"; };
@@ -89,7 +88,7 @@ SpellDamage.spellList = {
 	lich_chain_frost = { damage = "damage"; damageScepter = "damage_scepter"; };
 	riki_blink_strike = { damage = "bonus_damage"; };
 	riki_backstab = { damage = "damage_multiplier"; };
-	enigma_malefice = { damage = "damage"; multiplier = 3; };
+	enigma_malefice = { damage = "damage"; damageMultiplier = 3; };
 	necrolyte_reapers_scythe = { damage = "damage_per_health"; damageScepter = "damage_per_health_scepter"; };
 	warlock_shadow_word = { tickDuration = "duration"; tickInterval = "tick_interval"; startTime = 1; };
 	beastmaster_primal_roar = { damage = "damage"; };
@@ -99,7 +98,7 @@ SpellDamage.spellList = {
 	venomancer_poison_nova = { tickDamage = "damage"; tickDuration = "duration"; tickDamageScepter = "damage_scepter"; tickDurationScepter = "duration_scepter"; tickInterval = 1; startTime = 0; };
 	templar_assassin_meld = { damage = "bonus_damage"; };
 	viper_viper_strike = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; startTime = 1; };
-	luna_eclipse = { damageSpell = "luna_lucent_beam"; multiplier = "hit_count"; multiplierScepter = "hit_count_scepter"; };
+	luna_eclipse = { damageSpell = "luna_lucent_beam"; damageMultiplier = "hit_count"; damageMultiplierScepter = "hit_count_scepter"; };
 	dazzle_poison_touch = { startTime = "set_time"; tickInterval = 1; tickDuration = 10; };
 	rattletrap_battery_assault = { tickDuration = "duration"; tickInterval = "interval"; startTime = 0; };
 	rattletrap_hookshot = { damage = "damage"; };
@@ -142,10 +141,10 @@ SpellDamage.spellList = {
 	invoker_sun_strike = { damage = "damage"; spellLevel = "invoker_exort"; };
 	invoker_forge_spirit = { damage = "spirit_damage"; spellLevel = "invoker_exort"; };
 	invoker_ice_wall = { tickDuration = "duration"; tickDamage = "damage_per_second"; tickInterval = 1; startTime = 1; damagespellLevel = "invoker_exort"; durationspellLevel = "invoker_quas"; };
-	invoker_deafening_blast = { damage = "damage"; spellDamage = "invoker_exort"; };
+	invoker_deafening_blast = { damage = "damage"; AbilityDamage = "invoker_exort"; };
 	silencer_curse_of_the_silent = { tickDamage = "health_damage"; tickDuration = "tooltip_duration"; tickInterval = 1; startTime = 1; };
 	silencer_last_word = { damage = "damage"; };
-	silencer_global_silence = { damageScepter = SpellDamage.spellList[silencer_curse_of_the_silent]; }
+	silencer_global_silence = { spellName = "silencer_curse_of_the_silent"; tickDamage = "health_damage"; tickDuration = "tooltip_duration"; tickInterval = 1; startTime = 1; };
 	obsidian_destroyer_sanity_eclipse = { damageMultiplier = "damage_multiplier"; differenceTreshold = "int_threshold"; damageMultiplierScepter = "damage_multiplier_scepter"; };
 	lycan_summon_wolves = { damage = "wolf_damage"; damageMultiplier = 2; };
 	brewmaster_thunder_clap = { damage = "damage"; };
@@ -158,7 +157,7 @@ SpellDamage.spellList = {
 	undying_soul_rip = { damagePerUnit = "damage_per_unit"; maxUnits = "max_units"; range = "radius"; };
 	rubick_fade_bolt = { damage = "damage"; };
 	disruptor_thunder_strike = { tickCount = "strikes"; };
-	disruptor_static_storm = { tickDuration = "duration"; tickDamage = "damage_max"; tickDurationScepter = "duration_scepter"; tickDamageScepter = {280,350,420} tickInterval = 1; startTime = 0.25; };
+	disruptor_static_storm = { tickDuration = "duration"; tickDamage = "damage_max"; tickDurationScepter = "duration_scepter"; tickDamageScepter = {280,350,420}; tickInterval = 1; startTime = 0.25; };
 	nyx_assassin_mana_burn = { damage = "float_multiplier"; manaBurn = true; };
 	nyx_assassin_vendetta = { damage = "bonus_damage"; modifier = true; };
 	keeper_of_the_light_illuminate = { tickDamage = "damage_per_second"; tickDuration = "max_channel_time"; tickInterval = 1; startTime = 1; };
@@ -206,22 +205,22 @@ SpellDamage.spellList = {
 	--finished !?
 }
 
-function SpellDamage.CalculateDamage(ability)
-	local spell = SpellDamage.spellList[ability.name]
+function AbilityDamage.CalculateDamage(ability)
+	local spell = AbilityDamage.spellList[ability.name]
 	local owner = ability.owner
-	local dmg = ability:GetDamage()
+	local dmg = ability:GetDamage(ability.level)
 	if spell then
 		if spell.tick then
-			local tickDuration = ((ability:GetSpecialData(spell.tickDuration, ability.level)) or spell.tickDuration)
-			local tickInterval = ((ability:GetSpecialData(spell.tickInterval, ability.level)) or spell.tickInterval)
-			local tickDamage = ((ability:GetSpecialData(spell.tickDamage, ability.level)) or dmg)
-			local startTime = ((ability:GetSpecialData(spell.startTime, ability.level)) or spell.startTime)
-			local tickCount = ability:GetSpecialData(spell.tickCount, ability.level)
-			local damage = ability:GetSpecialData(spell.damage, ability.level)
-			local bonusDamage = ability:GetSpecialData(spell.bonusDamage, ability.level)
+			local tickDuration = ((ability:GetSpecialData(""..spell.tickDuration, ability.level)) or spell.tickDuration)
+			local tickInterval = ((ability:GetSpecialData(""..spell.tickInterval, ability.level)) or spell.tickInterval)
+			local tickDamage = ((ability:GetSpecialData(""..spell.tickDamage, ability.level)) or dmg)
+			local startTime = ((ability:GetSpecialData(""..spell.startTime, ability.level)) or spell.startTime)
+			local tickCount = ability:GetSpecialData(""..spell.tickCount, ability.level)
+			local damage = ability:GetSpecialData(""..spell.damage, ability.level)
+			local bonusDamage = ability:GetSpecialData(""..spell.bonusDamage, ability.level)
 			if owner:AghanimState() then
-				tickDuration = ((ability:GetSpecialData(spell.tickDurationScepter, ability.level)) or tickDuration)
-				tickDamage = ((ability:GetSpecialData(spell.tickDamageScepter, ability.level)) or tickDamage)
+				tickDuration = ((ability:GetSpecialData(""..spell.tickDurationScepter, ability.level)) or tickDuration)
+				tickDamage = ((ability:GetSpecialData(""..spell.tickDamageScepter, ability.level)) or tickDamage)
 			end
 			local finalDamage = (((tickDuration - startTime)/tickInterval) or tickCount)*tickDamage
 			if damage then
@@ -232,14 +231,22 @@ function SpellDamage.CalculateDamage(ability)
 			end
 			return finalDamage
 		else
-			local damage = ((ability:GetSpecialData(spell.damage,ability.level)) or dmg or spell.damage)
-			local damageMultiplier = ((ability:GetSpecialData(spell.damageMultiplier, ability.level)) or spell.damageHealthMultiplier)
-			local bonusDamage = ((ability:GetSpecialData(spell.bonusDamage,ability.level)) or spell.bonusDamage)
-			local bonusDamageMultiplier = ((ability:GetSpecialData(spell.bonusDamageMultiplier, ability.level)) or spell.bonusDamageMultiplier)
+			local damage = (((spell.damage) and (ability:GetSpecialData(""..spell.damage,ability.level))) or dmg or spell.damage)
+			local damageMultiplier = (((spell.damageMultiplier) and (ability:GetSpecialData(""..spell.damageMultiplier, ability.level))) or spell.damageHealthMultiplier)
+			local bonusDamage = (((spell.bonusDamage) and (ability:GetSpecialData(""..spell.bonusDamage,ability.level))) or spell.bonusDamage)
+			local bonusDamageMultiplier = (((spell.bonusDamageMultiplier) and (ability:GetSpecialData(""..spell.bonusDamageMultiplier, ability.level))) or spell.bonusDamageMultiplier)
+			if spell.damageSpell then
+				local dmgSpell = owner:FindSpell(spell.damageSpell)
+				if damage and type(damage) == "number" then
+					damage = damage + (((spell.damageSpellName) and (dmgSpell:GetSpecialData(""..spell.damageSpellName,dmgSpell.level))) or dmgSpell:GetDamage(dmgSpell.level))
+				else
+					damage = (((spell.damageSpellName) and (dmgSpell:GetSpecialData(""..spell.damageSpellName,dmgSpell.level))) or dmgSpell:GetDamage(dmgSpell.level))
+				end
+			end		
 			if owner:AghanimState() then
-				damage = ((ability:GetSpecialData(spell.damageScepter, ability.level)) or damage)
-				bonusDamage = ((ability:GetSpecialData(spell.bonusDamageScepter, ability.level)) or bonusDamage)
-				damageMultiplier = ((ability:GetSpecialData(spell.damageMultiplier, ability.level)) or damageMultiplier)
+				damage = (((spell.damageScepter) and (ability:GetSpecialData(""..spell.damageScepter, ability.level))) or damage)
+				bonusDamage = (((spell.bonusDamageScepter) and (ability:GetSpecialData(""..spell.bonusDamageScepter, ability.level))) or bonusDamage)
+				damageMultiplier = (((spell.damageMultiplierScepter) and (ability:GetSpecialData(""..spell.damageMultiplierScepter, ability.level))) or damageMultiplier)
 			end
 			if bonusDamageMultiplier then
 				if bonusDamageMultiplier > 100 then 
@@ -262,6 +269,14 @@ function SpellDamage.CalculateDamage(ability)
 		end
 	elseif dmg then
 		return dmg
+	end
+	return nil
+end
+
+function AbilityDamage.GetDamage(ability)
+	local damage = AbilityDamage.CalculateDamage(ability)
+	if damage then 
+		return damage 
 	end
 	return nil
 end
