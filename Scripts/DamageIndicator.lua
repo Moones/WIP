@@ -20,6 +20,7 @@ require("libs.Utils")
      (_)  MOONES   (_)
 
         Description:        
+        Description:        
         ------------                                 
 		 
 		- This script shows how much HP will enemy have after casting all your spells/items.
@@ -136,6 +137,12 @@ function Tick(tick)
 					else 
 						if onespell[hand] and onespell[hand][1] == k then
 							onespell[hand] = nil
+						end
+					end
+					if me.classId == CDOTA_Unit_Hero_Zuus then
+						local staticF = me:GetAbility(3)
+						if staticF and staticF.level > 0 then
+							takenDmg = takenDmg + v:DamageTaken(((staticF:GetSpecialData("damage_health_pct",staticF.level)/100)*(v.health - totalDamage)),DAMAGE_MAGC,me)
 						end
 					end
 					totalDamage = totalDamage + takenDmg
