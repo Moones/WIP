@@ -18,8 +18,7 @@ require("libs.Utils")
     _,/'/'  ^^^  '\'\,_
    (_, |    BY     | ,_)
      (_)  MOONES   (_)
-
-        Description:        
+      
         Description:        
         ------------                                 
 		 
@@ -29,6 +28,8 @@ require("libs.Utils")
 		 
         Changelog:
         ----------
+		
+		v1.0 - Release
 		
 ]]--
 
@@ -47,12 +48,12 @@ else
 	sPos = ScreenPosition.new(1600, 900, client.screenRatio)
 end
 
-local showDamage = {} local killSpellsIcons = {} local killSpells = {} local killItemsIcons = {} local killItems = {} local sleeptick = 0 local onespell = {}
+local showDamage = {} local killSpellsIcons = {} local killSpells = {} local killItemsIcons = {} local killItems = {} local sleeptick = 0 local onespell = {} local attack_modifier = nil
 local monitor = client.screenSize.x/1600
 local F13 = drawMgr:CreateFont("F13","Tahoma",13*monitor,650*monitor)
 
 function Tick(tick)
-	if not PlayingGame() or client.console or tick < sleeptick then return end
+	if not PlayingGame() or client.console or tick < sleeptick then return end sleeptick = tick + 125
 	
 	local me = entityList:GetMyHero()
 	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO, team = me:GetEnemyTeam()})	
@@ -76,38 +77,41 @@ function Tick(tick)
 				ethMult = true
 			end
 			
-			for h,k in ipairs(items) do
-				local damage = AbilityDamage.GetDamage(k)
-				if k:CanBeCasted() and damage and damage > 0 then
-					local type = AbilityDamage.itemList[k.name].type
-					local takenDmg
-					if v.health ~= v.maxHealth then
-						takenDmg = math.ceil(v:DamageTaken(damage,type,me) - ((v.healthRegen)*(client.latency/1000)))
-					else
-						takenDmg = math.ceil(v:DamageTaken(damage,type,me))
-					end
-					if ethMult and type == DAMAGE_MAGC then
-						takenDmg = takenDmg*1.4
-					end
-					if (v.health - takenDmg) <= 0 then
-						if not onespell[hand] or onespell[hand][2] > 0 then
-							onespell[hand] = {k, 0, true}
+			if v.visible and v.alive then
+				for h,k in ipairs(items) do
+					local damage = AbilityDamage.GetDamage(k)
+					if k:CanBeCasted() and damage and damage > 0 then
+						local type = AbilityDamage.itemList[k.name].type
+						local takenDmg
+						if v.health ~= v.maxHealth then
+							takenDmg = math.ceil(v:DamageTaken(damage,type,me) - ((v.healthRegen)*(client.latency/1000)))
+						else
+							takenDmg = math.ceil(v:DamageTaken(damage,type,me))
 						end
-					elseif (v.health - totalDamage) > 0 then
-						killItems[hand][#killItems[hand]+1] = k.name
-						onespell[hand] = nil
-					else 
-						if onespell[hand] and onespell[hand][1] == k then
+						if ethMult and type == DAMAGE_MAGC then
+							takenDmg = takenDmg*1.4
+						end
+						if (v.health - takenDmg) <= 0 then
+							if not onespell[hand] or onespell[hand][2] > 0 then
+								onespell[hand] = {k, 0, true}
+							end
+						elseif (v.health - totalDamage) > 0 then
+							killItems[hand][#killItems[hand]+1] = k.name
 							onespell[hand] = nil
+						else 
+							if onespell[hand] and onespell[hand][1] == k then
+								onespell[hand] = nil
+							end
 						end
+						totalDamage = totalDamage + takenDmg
 					end
-					totalDamage = totalDamage + takenDmg
 				end
-			end
-			
-			for h,k in ipairs(abilities) do
-				local damage = AbilityDamage.GetDamage(k)
-				if k.level > 0 and (k:CanBeCasted() or k.abilityPhase) and damage and damage > 0 then
+				
+				for h,k in ipairs(abilities) do
+					local damage = AbilityDamage.GetDamage(k)
+					if k.name == "antimage_mana_void" then
+						damage = (v.maxMana - v.mana)*damage
+					end
 					local dmgType = k.dmgType
 					local type
 					if dmgType == 1 then
@@ -117,52 +121,91 @@ function Tick(tick)
 					elseif dmgType == 4 then
 						type = DAMAGE_PURE
 					end
+					if k.name == "abaddon_aphotic_shield" then type = DAMAGE_MAGC end
+					if k.name == "axe_culling_blade" then type = DAMAGE_PURE end
+					if k.name == "alchemist_unstable_concoction_throw" then type = DAMAGE_PHYS end
 					if k.name == "lina_laguna_blade" and me:AghanimState() then type = DAMAGE_PURE end	
 					local takenDmg
 					if v.health ~= v.maxHealth then
 						takenDmg = math.ceil(v:DamageTaken(damage,type,me) - ((v.healthRegen)*(k:FindCastPoint() + k:GetChannelTime(k.level) + client.latency/1000)))
 					else
-						takenDmg = math.ceil(v:DamageTaken(damage,type,me))
+						takenDmg = math.ceil(v:DamageTaken(damage,type,me) - ((v.healthRegen)*(k:GetChannelTime(k.level))))
 					end
 					if ethMult and type == DAMAGE_MAGC then
 						takenDmg = takenDmg*1.4
 					end
-					if (v.health - takenDmg) <= 0 then
-						if not onespell[hand] or onespell[hand][2] > h then
-							onespell[hand] = {k, h}
+					if AbilityDamage.attackModifiersList[k.name] then
+						if AbilityDamage.attackModifiersList[k.name].manaBurn then
+							attack_modifier = math.ceil(v:ManaBurnDamageTaken(damage,1,type,me))
+						else
+							attack_modifier = takenDmg
 						end
-					elseif (v.health - totalDamage) > 0 then
-						killSpells[hand][#killSpells[hand]+1] = k.name
-						onespell[hand] = nil
-					else 
-						if onespell[hand] and onespell[hand][1] == k then
-							onespell[hand] = nil
+					else
+						if k.level > 0 and (k:CanBeCasted() or k.abilityPhase) and damage and damage > 0 then
+							if (v.health - takenDmg) <= 0 then
+								if not onespell[hand] or (onespell[hand][2] > h or (k.name == "axe_culling_blade" and onespell[hand][1].name ~= "axe_culling_blade")) then
+									onespell[hand] = {k, h}
+								end
+							elseif (v.health - totalDamage) > 0 then
+								killSpells[hand][#killSpells[hand]+1] = k.name
+								onespell[hand] = nil
+							else 
+								if onespell[hand] and onespell[hand][1] == k then
+									onespell[hand] = nil
+								end
+							end
+							if me.classId == CDOTA_Unit_Hero_Zuus then
+								local staticF = me:GetAbility(3)
+								if staticF and staticF.level > 0 then
+									takenDmg = takenDmg + v:DamageTaken(((staticF:GetSpecialData("damage_health_pct",staticF.level)/100)*(v.health - totalDamage)),DAMAGE_MAGC,me)
+								end
+							end
+							if k.name == "ancient_apparition_ice_blast" then
+								local percent = k:GetSpecialData("kill_pct", k.level)/100
+								percent = v.maxHealth*percent
+								if (v.health - (totalDamage + takenDmg)) <= percent then
+									takenDmg = takenDmg + percent
+								end
+							end
+							if me.classId == CDOTA_Unit_Hero_Batrider then
+								local stickyM = v:FindModifier("modifier_batrider_sticky_napalm")
+								local stickyN = v:FindSpell("batrider_sticky_napalm")
+								if stickyN.level > 0 then
+									if stickyM then
+										takenDmg = takenDmg + v:DamageTaken(stickyN:GetSpecialData("damage",stickyN.level)*stickyM.stacks,DAMAGE_MAGC,me)
+										attack_modifier = v:DamageTaken(stickyN:GetSpecialData("damage",stickyN.level)*stickyM.stacks,DAMAGE_MAGC,me)
+									else
+										attack_modifier = nil
+									end
+								end
+							end
+							totalDamage = totalDamage + takenDmg
 						end
+						if damage and damage > 0 and ((v:DoesHaveModifier("modifier_"..k.name) and me:DoesHaveModifier("modifier_"..k.name) and k.cd > 0) or k.channelTime > 0 or k.abilityPhase) then sleeptick = tick + k:FindCastPoint()*2000 + k:GetChannelTime(k.level)*1000 + client.latency return end
 					end
-					if me.classId == CDOTA_Unit_Hero_Zuus then
-						local staticF = me:GetAbility(3)
-						if staticF and staticF.level > 0 then
-							takenDmg = takenDmg + v:DamageTaken(((staticF:GetSpecialData("damage_health_pct",staticF.level)/100)*(v.health - totalDamage)),DAMAGE_MAGC,me)
-						end
-					end
-					totalDamage = totalDamage + takenDmg
 				end
-				if damage and damage > 0 and ((v:DoesHaveModifier("modifier_"..k.name) and me:DoesHaveModifier("modifier_"..k.name) and k.cd > 0) or k.channelTime > 0 or k.abilityPhase) then sleeptick = tick + k:FindCastPoint()*2000 + k:GetChannelTime(k.level)*1000 + client.latency return end
 			end
 			
 			local x,y,w,h
+			local x1,y1,w1,h1
 			if math.floor(client.screenRatio*100) == 133 then
 				x,y,w,h = sPos:GetPosition(37, 24, 72, 10)
+				x1,y1,w1,h1 = sPos:GetPosition(27, 9, 11, 14)
 			elseif math.floor(client.screenRatio*100) == 166 then
 				x,y,w,h = sPos:GetPosition(37, 23, 71, 7)
+				x1,y1,w1,h1 = sPos:GetPosition(27, 8, 12, 12)
 			elseif math.floor(client.screenRatio*100) == 177 then
 				x,y,w,h = sPos:GetPosition(43, 28, 83.5, 10)
+				x1,y1,w1,h1 = sPos:GetPosition(30, 10, 13, 14)
 			elseif math.floor(client.screenRatio*100) == 160 then
 				x,y,w,h = sPos:GetPosition(37, 25, 74, 8)
+				x1,y1,w1,h1 = sPos:GetPosition(27, 9, 11, 13)
 			elseif math.floor(client.screenRatio*100) == 125 then
 				x,y,w,h = sPos:GetPosition(48, 32, 94, 10)
+				x1,y1,w1,h1 = sPos:GetPosition(31, 11, 15, 14)
 			else
 				x,y,w,h = sPos:GetPosition(43, 28, 83, 10)
+				x1,y1,w1,h1 = sPos:GetPosition(30, 10, 13, 14)
 			end
 			
 			if not showDamage[hand] then showDamage[hand] = {}
@@ -174,6 +217,9 @@ function Tick(tick)
 			if v.visible and v.alive then
 				local HPLeftPercent = hpleft/v.maxHealth
 				local hitDamage = v:DamageTaken(((me.dmgMin + me.dmgMax)/2 + me.dmgBonus),DAMAGE_PHYS,me)
+				if attack_modifier then
+					hitDamage = hitDamage + attack_modifier
+				end
 				local hits = math.ceil(hpleft/hitDamage)
 				if Animations.table[me.handle] and Animations.table[me.handle].moveTime then
 					hits = math.ceil((hpleft + ((v.healthRegen)*((Animations.table[me.handle].moveTime)*hits)))/hitDamage)
@@ -196,7 +242,7 @@ function Tick(tick)
 							for i = 1, #killSpells[hand] do
 								local ks = killSpells[hand][i]
 								if not killSpellsIcons[hand][i] then
-									killSpellsIcons[hand][i] = drawMgr:CreateRect(-x/monitor+30*monitor+(17*monitor*i),-y+15*monitor,15*monitor,16*monitor,0x000000FF) killSpellsIcons[hand][i].textureId = drawMgr:GetTextureId("NyanUI/Spellicons/"..ks) killSpellsIcons[hand][i].entity = v killSpellsIcons[hand][i].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][i].visible = true		 			
+									killSpellsIcons[hand][i] = drawMgr:CreateRect(-x/monitor+20*monitor+(17*monitor*i),-y+y1*monitor,w1*monitor,h1*monitor,0x000000FF) killSpellsIcons[hand][i].textureId = drawMgr:GetTextureId("NyanUI/Spellicons/"..ks) killSpellsIcons[hand][i].entity = v killSpellsIcons[hand][i].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][i].visible = true		 			
 								end
 							end
 						end
@@ -208,16 +254,16 @@ function Tick(tick)
 									if #killSpells[hand] == 0 then
 										yy = 15
 									end
-									killItemsIcons[hand][i] = drawMgr:CreateRect(-x/monitor+30*monitor+(17*monitor*i),-y+yy*monitor,20*monitor,16*monitor,0x000000FF) killItemsIcons[hand][i].textureId = drawMgr:GetTextureId("NyanUI/items/"..ks:gsub("item_","")) killItemsIcons[hand][i].entity = v killItemsIcons[hand][i].entityPosition = Vector(0,0,offset) killItemsIcons[hand][i].visible = true		 			
+									killItemsIcons[hand][i] = drawMgr:CreateRect(-x/monitor+20*monitor+(17*monitor*i),-y+yy*monitor,20*monitor,16*monitor,0x000000FF) killItemsIcons[hand][i].textureId = drawMgr:GetTextureId("NyanUI/items/"..ks:gsub("item_","")) killItemsIcons[hand][i].entity = v killItemsIcons[hand][i].entityPosition = Vector(0,0,offset) killItemsIcons[hand][i].visible = true		 			
 								end
 							end
 						end
 					else
 						killSpellsIcons[hand] = {}
 						if onespell[hand][3] then
-							killSpellsIcons[hand][1] = drawMgr:CreateRect(-x/monitor+30*monitor+16*monitor,-y+15*monitor,15*monitor,16*monitor,0x000000FF) killSpellsIcons[hand][1].textureId = drawMgr:GetTextureId("NyanUI/items/"..onespell[hand][1].name:gsub("item_","")) killSpellsIcons[hand][1].entity = v killSpellsIcons[hand][1].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][1].visible = true		 			
+							killSpellsIcons[hand][1] = drawMgr:CreateRect(-x/monitor+x1*monitor,-y+y1*monitor,w1*monitor,h1*monitor,0x000000FF) killSpellsIcons[hand][1].textureId = drawMgr:GetTextureId("NyanUI/items/"..onespell[hand][1].name:gsub("item_","")) killSpellsIcons[hand][1].entity = v killSpellsIcons[hand][1].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][1].visible = true		 			
 						else
-							killSpellsIcons[hand][1] = drawMgr:CreateRect(-x/monitor+30*monitor+16*monitor,-y+15*monitor,15*monitor,16*monitor,0x000000FF) killSpellsIcons[hand][1].textureId = drawMgr:GetTextureId("NyanUI/Spellicons/"..onespell[hand][1].name) killSpellsIcons[hand][1].entity = v killSpellsIcons[hand][1].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][1].visible = true		 			
+							killSpellsIcons[hand][1] = drawMgr:CreateRect(-x/monitor+x1*monitor,-y+y1*monitor,w1*monitor,h1*monitor,0x000000FF) killSpellsIcons[hand][1].textureId = drawMgr:GetTextureId("NyanUI/Spellicons/"..onespell[hand][1].name) killSpellsIcons[hand][1].entity = v killSpellsIcons[hand][1].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][1].visible = true		 			
 						end
 					end			
 				end
@@ -239,6 +285,7 @@ function GameClose()
 	killSpells = {}
 	killItemsIcons = {} 
 	killItems = {}
+	attack_modifier = nil
 	collectgarbage("collect")
 end
 
