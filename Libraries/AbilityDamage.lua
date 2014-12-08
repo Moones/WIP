@@ -1,8 +1,8 @@
-require("libs.Res")
 require("libs.ScriptConfig")
 require("libs.ScreenPosition")
 require("libs.AbilityDamage")
 require("libs.Animations")
+require("libs.Utils")
 
 local sPos
 if math.floor(client.screenRatio*100) == 133 then
@@ -19,8 +19,8 @@ else
 	sPos = ScreenPosition.new(1600, 900, client.screenRatio)
 end
 
-config = ScriptConfig.new()
-config:Load()
+-- config = ScriptConfig.new()
+-- config:Load()
 
 local showDamage = {} local killSpellsIcons = {} local killSpells = {} local sleeptick = 0 local onespell = {}
 local monitor = client.screenSize.x/1600
@@ -44,8 +44,7 @@ function Tick(tick)
 			
 			for h,k in ipairs(abilities) do
 				local damage = AbilityDamage.GetDamage(k)
-				--print(k.name, i)
-				if k.level > 0 and k:CanBeCasted() and damage and damage > 0 then
+				if k.level > 0 and (k:CanBeCasted() or k.abilityPhase) and damage and damage > 0 then
 					local dmgType = k.dmgType
 					local type
 					if dmgType == 1 then
@@ -55,10 +54,13 @@ function Tick(tick)
 					elseif dmgType == 4 then
 						type = DAMAGE_PURE
 					end
-					--print(k.dmgType)
-					--print(v:DamageTaken(damage,type,me),k.name)
-					local takenDmg = math.ceil(v:DamageTaken(damage,type,me) - ((v.healthRegen)*(k:FindCastPoint() + k:GetChannelTime(k.level) + client.latency/1000)))
-					--print(k.name,math.ceil(v:DamageTaken(damage,type,me) - ((v.healthRegen)*(k:FindCastPoint() + k:GetChannelTime(k.level) + client.latency/1000))))
+					if k.name == "lina_laguna_blade" and me:AghanimState() then type = DAMAGE_PURE end	
+					local takenDmg
+					if v.health ~= v.maxHealth then
+						takenDmg = math.ceil(v:DamageTaken(damage,type,me) - ((v.healthRegen)*(k:FindCastPoint() + k:GetChannelTime(k.level) + client.latency/1000)))
+					else
+						takenDmg = math.ceil(v:DamageTaken(damage,type,me))
+					end
 					if (v.health - takenDmg) <= 0 then
 						if not onespell[hand] or onespell[hand][2] > h then
 							onespell[hand] = {k, h}
@@ -73,7 +75,7 @@ function Tick(tick)
 					end
 					totalDamage = totalDamage + takenDmg
 				end
-				if damage and damage > 0 and ((v:DoesHaveModifier("modifier_"..k.name) and me:DoesHaveModifier("modifier_"..k.name) and k.cd > 0) or k.channelTime > 0) then sleeptick = tick + k:FindCastPoint()*2000 + k:GetChannelTime(k.level)*1000 + client.latency break end
+				if damage and damage > 0 and ((v:DoesHaveModifier("modifier_"..k.name) and me:DoesHaveModifier("modifier_"..k.name) and k.cd > 0) or k.channelTime > 0 or k.abilityPhase) then sleeptick = tick + k:FindCastPoint()*2000 + k:GetChannelTime(k.level)*1000 + client.latency return end
 			end
 			
 			local x,y,w,h
@@ -97,13 +99,12 @@ function Tick(tick)
 			end
 		
 			local hpleft = math.max(v.health - totalDamage, 0)
-			--print(totalDamage)
 			if v.visible and v.alive then
 				local HPLeftPercent = hpleft/v.maxHealth
 				local hitDamage = v:DamageTaken(((me.dmgMin + me.dmgMax)/2 + me.dmgBonus),DAMAGE_PHYS,me)
 				local hits = math.ceil(hpleft/hitDamage)
 				if Animations.table[me.handle] and Animations.table[me.handle].moveTime then
-					hits = math.ceil((hpleft + ((v.healthRegen)*((Animations.GetAttackTime(me) + Animations.table[me.handle].moveTime)*hits)))/hitDamage)
+					hits = math.ceil((hpleft + ((v.healthRegen)*((Animations.table[me.handle].moveTime)*hits)))/hitDamage)
 				end
 				if totalDamage > 0 then
 					showDamage[hand].HPLeft.visible = true showDamage[hand].HPLeft.w = w*HPLeftPercent
@@ -121,13 +122,13 @@ function Tick(tick)
 							for i = 1, #killSpells[hand] do
 								local ks = killSpells[hand][i]
 								if not killSpellsIcons[hand][i] then
-									killSpellsIcons[hand][i] = drawMgr:CreateRect(-x+30+(16*i),-y+15,15,17,0x000000FF) killSpellsIcons[hand][i].textureId = drawMgr:GetTextureId("NyanUI/Spellicons/"..ks) killSpellsIcons[hand][i].entity = v killSpellsIcons[hand][i].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][i].visible = true		 			
+									killSpellsIcons[hand][i] = drawMgr:CreateRect(-x+30+(16*i),-y+15,15,16,0x000000FF) killSpellsIcons[hand][i].textureId = drawMgr:GetTextureId("NyanUI/Spellicons/"..ks) killSpellsIcons[hand][i].entity = v killSpellsIcons[hand][i].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][i].visible = true		 			
 								end
 							end
 						end
 					else
 						killSpellsIcons[hand] = {}
-						killSpellsIcons[hand][1] = drawMgr:CreateRect(-x+30+16,-y+15,15,17,0x000000FF) killSpellsIcons[hand][1].textureId = drawMgr:GetTextureId("NyanUI/Spellicons/"..onespell[hand][1].name) killSpellsIcons[hand][1].entity = v killSpellsIcons[hand][1].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][1].visible = true		 			
+						killSpellsIcons[hand][1] = drawMgr:CreateRect(-x+30+16,-y+15,15,16,0x000000FF) killSpellsIcons[hand][1].textureId = drawMgr:GetTextureId("NyanUI/Spellicons/"..onespell[hand][1].name) killSpellsIcons[hand][1].entity = v killSpellsIcons[hand][1].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][1].visible = true		 			
 					end			
 				end
 			elseif showDamage[hand].Hits.visible then
