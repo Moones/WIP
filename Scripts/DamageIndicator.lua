@@ -1,8 +1,35 @@
-require("libs.ScriptConfig")
+--<<Shows how much damage you will deal with your spells+items and how much hits you will need to kill enemy>>
 require("libs.ScreenPosition")
 require("libs.AbilityDamage")
 require("libs.Animations")
 require("libs.Utils")
+
+--[[
+   _                    _
+ _( ) DAMAGE INDICATOR ( )_
+(_, |      __ __      / ,,_)
+   \'\    /  ^  \    /'/
+    '\'\,/\      \,/'/'
+      '\| []   [] |/'
+        (_  /^\  _)
+          \  ~  /
+          /#####\
+        /'/{^^^}\'\
+    _,/'/'  ^^^  '\'\,_
+   (_, |    BY     | ,_)
+     (_)  MOONES   (_)
+
+        Description:        
+        ------------                                 
+		 
+         - This script shows how much HP will enemy have after casting all your spells/items.
+		 - Shows how much hits will you need to kill enemy. 
+		 - If you kill enemy just from spells/items it will show you which ones you need to use.
+		 
+        Changelog:
+        ----------
+		
+]]--
 
 local sPos
 if math.floor(client.screenRatio*100) == 133 then
@@ -18,9 +45,6 @@ elseif math.floor(client.screenRatio*100) == 125 then
 else
 	sPos = ScreenPosition.new(1600, 900, client.screenRatio)
 end
-
--- config = ScriptConfig.new()
--- config:Load()
 
 local showDamage = {} local killSpellsIcons = {} local killSpells = {} local killItemsIcons = {} local killItems = {} local sleeptick = 0 local onespell = {}
 local monitor = client.screenSize.x/1600
@@ -125,7 +149,7 @@ function Tick(tick)
 			elseif math.floor(client.screenRatio*100) == 166 then
 				x,y,w,h = sPos:GetPosition(37, 23, 71, 7)
 			elseif math.floor(client.screenRatio*100) == 177 then
-				x,y,w,h = sPos:GetPosition(43, 28, 83, 10)
+				x,y,w,h = sPos:GetPosition(43, 28, 83.5, 10)
 			elseif math.floor(client.screenRatio*100) == 160 then
 				x,y,w,h = sPos:GetPosition(37, 25, 74, 8)
 			elseif math.floor(client.screenRatio*100) == 125 then
