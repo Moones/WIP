@@ -121,21 +121,21 @@ function Tick(tick)
 			
 			local x,y,w,h
 			if math.floor(client.screenRatio*100) == 133 then
-				x,y,w,h = sPos:GetPosition(37, 14, 72, 27)
+				x,y,w,h = sPos:GetPosition(37, 24, 72, 10)
 			elseif math.floor(client.screenRatio*100) == 166 then
-				x,y,w,h = sPos:GetPosition(36, 14, 70, 27)
+				x,y,w,h = sPos:GetPosition(37, 23, 71, 7)
 			elseif math.floor(client.screenRatio*100) == 177 then
-				x,y,w,h = sPos:GetPosition(43, 28, 88, 27)
+				x,y,w,h = sPos:GetPosition(43, 28, 83, 10)
 			elseif math.floor(client.screenRatio*100) == 160 then
-				x,y,w,h = sPos:GetPosition(38, 15, 74, 27)
+				x,y,w,h = sPos:GetPosition(37, 25, 74, 8)
 			elseif math.floor(client.screenRatio*100) == 125 then
-				x,y,w,h = sPos:GetPosition(48, 21, 97, 27)
+				x,y,w,h = sPos:GetPosition(48, 32, 94, 10)
 			else
-				x,y,w,h = sPos:GetPosition(42, 18, 83, 27)
+				x,y,w,h = sPos:GetPosition(43, 28, 83, 10)
 			end
 			
 			if not showDamage[hand] then showDamage[hand] = {}
-				showDamage[hand].HPLeft = drawMgr:CreateRect(-x,-y+1,0,10,0x000000FF) showDamage[hand].HPLeft.visible = false showDamage[hand].HPLeft.entity = v showDamage[hand].HPLeft.entityPosition = Vector(0,0,offset)
+				showDamage[hand].HPLeft = drawMgr:CreateRect(-x,-y+1,0,h,0x000000FF) showDamage[hand].HPLeft.visible = false showDamage[hand].HPLeft.entity = v showDamage[hand].HPLeft.entityPosition = Vector(0,0,offset)
 				showDamage[hand].Hits = drawMgr:CreateText(-x,-y+15, 0xFFFFFF99, "",F13) showDamage[hand].Hits.visible = false showDamage[hand].Hits.entity = v showDamage[hand].Hits.entityPosition = Vector(0,0,offset)					
 			end
 		
@@ -165,7 +165,7 @@ function Tick(tick)
 							for i = 1, #killSpells[hand] do
 								local ks = killSpells[hand][i]
 								if not killSpellsIcons[hand][i] then
-									killSpellsIcons[hand][i] = drawMgr:CreateRect(-x+30+(17*i),-y+15,15,16,0x000000FF) killSpellsIcons[hand][i].textureId = drawMgr:GetTextureId("NyanUI/Spellicons/"..ks) killSpellsIcons[hand][i].entity = v killSpellsIcons[hand][i].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][i].visible = true		 			
+									killSpellsIcons[hand][i] = drawMgr:CreateRect(-x/monitor+30*monitor+(17*monitor*i),-y+15*monitor,15*monitor,16*monitor,0x000000FF) killSpellsIcons[hand][i].textureId = drawMgr:GetTextureId("NyanUI/Spellicons/"..ks) killSpellsIcons[hand][i].entity = v killSpellsIcons[hand][i].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][i].visible = true		 			
 								end
 							end
 						end
@@ -177,16 +177,16 @@ function Tick(tick)
 									if #killSpells[hand] == 0 then
 										yy = 15
 									end
-									killItemsIcons[hand][i] = drawMgr:CreateRect(-x+31+(17*i),-y+yy,20,16,0x000000FF) killItemsIcons[hand][i].textureId = drawMgr:GetTextureId("NyanUI/items/"..ks:gsub("item_","")) killItemsIcons[hand][i].entity = v killItemsIcons[hand][i].entityPosition = Vector(0,0,offset) killItemsIcons[hand][i].visible = true		 			
+									killItemsIcons[hand][i] = drawMgr:CreateRect(-x/monitor+30*monitor+(17*monitor*i),-y+yy*monitor,20*monitor,16*monitor,0x000000FF) killItemsIcons[hand][i].textureId = drawMgr:GetTextureId("NyanUI/items/"..ks:gsub("item_","")) killItemsIcons[hand][i].entity = v killItemsIcons[hand][i].entityPosition = Vector(0,0,offset) killItemsIcons[hand][i].visible = true		 			
 								end
 							end
 						end
 					else
 						killSpellsIcons[hand] = {}
 						if onespell[hand][3] then
-							killSpellsIcons[hand][1] = drawMgr:CreateRect(-x+30+16,-y+15,15,16,0x000000FF) killSpellsIcons[hand][1].textureId = drawMgr:GetTextureId("NyanUI/items/"..onespell[hand][1].name:gsub("item_","")) killSpellsIcons[hand][1].entity = v killSpellsIcons[hand][1].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][1].visible = true		 			
+							killSpellsIcons[hand][1] = drawMgr:CreateRect(-x/monitor+30*monitor+16*monitor,-y+15*monitor,15*monitor,16*monitor,0x000000FF) killSpellsIcons[hand][1].textureId = drawMgr:GetTextureId("NyanUI/items/"..onespell[hand][1].name:gsub("item_","")) killSpellsIcons[hand][1].entity = v killSpellsIcons[hand][1].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][1].visible = true		 			
 						else
-							killSpellsIcons[hand][1] = drawMgr:CreateRect(-x+30+16,-y+15,15,16,0x000000FF) killSpellsIcons[hand][1].textureId = drawMgr:GetTextureId("NyanUI/Spellicons/"..onespell[hand][1].name) killSpellsIcons[hand][1].entity = v killSpellsIcons[hand][1].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][1].visible = true		 			
+							killSpellsIcons[hand][1] = drawMgr:CreateRect(-x/monitor+30*monitor+16*monitor,-y+15*monitor,15*monitor,16*monitor,0x000000FF) killSpellsIcons[hand][1].textureId = drawMgr:GetTextureId("NyanUI/Spellicons/"..onespell[hand][1].name) killSpellsIcons[hand][1].entity = v killSpellsIcons[hand][1].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][1].visible = true		 			
 						end
 					end			
 				end
