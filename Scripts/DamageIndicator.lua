@@ -173,7 +173,11 @@ function Tick(tick)
 							for i = 1, #killItems[hand] do
 								local ks = killItems[hand][i]
 								if not killItemsIcons[hand][i] then
-									killItemsIcons[hand][i] = drawMgr:CreateRect(-x+31+(17*i),-y+30,20,16,0x000000FF) killItemsIcons[hand][i].textureId = drawMgr:GetTextureId("NyanUI/items/"..ks:gsub("item_","")) killItemsIcons[hand][i].entity = v killItemsIcons[hand][i].entityPosition = Vector(0,0,offset) killItemsIcons[hand][i].visible = true		 			
+									local yy = 30
+									if #killSpells[hand] == 0 then
+										yy = 15
+									end
+									killItemsIcons[hand][i] = drawMgr:CreateRect(-x+31+(17*i),-y+yy,20,16,0x000000FF) killItemsIcons[hand][i].textureId = drawMgr:GetTextureId("NyanUI/items/"..ks:gsub("item_","")) killItemsIcons[hand][i].entity = v killItemsIcons[hand][i].entityPosition = Vector(0,0,offset) killItemsIcons[hand][i].visible = true		 			
 								end
 							end
 						end
