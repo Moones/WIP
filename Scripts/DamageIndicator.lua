@@ -1,4 +1,5 @@
 --<<Shows how much damage you will deal with your spells+items and how much hits you will need to kill enemy>>
+require("libs.ScriptConfig")
 require("libs.ScreenPosition")
 require("libs.AbilityDamage")
 require("libs.Animations")
@@ -22,9 +23,9 @@ require("libs.Utils")
         Description:        
         ------------                                 
 		 
-         - This script shows how much HP will enemy have after casting all your spells/items.
-		 - Shows how much hits will you need to kill enemy. 
-		 - If you kill enemy just from spells/items it will show you which ones you need to use.
+		- This script shows how much HP will enemy have after casting all your spells/items.
+		- Shows how much hits will you need to kill enemy. 
+		- If you kill enemy just from spells/items it will show you which ones you need to use.
 		 
         Changelog:
         ----------
@@ -45,6 +46,9 @@ elseif math.floor(client.screenRatio*100) == 125 then
 else
 	sPos = ScreenPosition.new(1600, 900, client.screenRatio)
 end
+
+-- config = ScriptConfig.new()
+-- config:Load()
 
 local showDamage = {} local killSpellsIcons = {} local killSpells = {} local killItemsIcons = {} local killItems = {} local sleeptick = 0 local onespell = {}
 local monitor = client.screenSize.x/1600
