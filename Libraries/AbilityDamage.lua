@@ -39,14 +39,14 @@ AbilityDamage.modifiersSpellList = {
 }
 
 AbilityDamage.attackModifiersList = {
-	antimage_mana_break = { damage = "mana_per_hit"; multiplier = 0.6; };
+	antimage_mana_break = { damage = "mana_per_hit"; damageMultiplier = 0.6; manaBurn = true; };
 	venomancer_poison_sting = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; startTime = 0; };
 	viper_poison_attack = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; startTime = 1; };
 	clinkz_searing_arrows = { damage = "damage_bonus"; };
 	enchantress_impetus = { distance_as_damage = "distance_damage_pct"; };
-	huskar_burning_spear = { tickDuration = "8"; };
-	bounty_hunter_jinada = { multiplier = "crit_multiplier"; cooldown = true; };
-	weaver_geminate_attack = { multiplier = 2; cooldown = true; };
+	huskar_burning_spear = { tickDuration = 8; };
+	bounty_hunter_jinada = { damageMultiplier = "crit_multiplier"; cooldown = true; };
+	weaver_geminate_attack = { damageMultiplier = 2; cooldown = true; };
 	jakiro_liquid_fire = { tickDamage = "damage"; tickInterval = 1; startTime = 0.5; tickDuration = 5; cooldown = true; };
 	spectre_desolate = { damage = "bonus_damage"; special = true; };
 	silencer_glaives_of_wisdom = { IntToDamage = "intellect_damage_pct"; special = true; };
@@ -61,7 +61,7 @@ AbilityDamage.spellList = {
 	antimage_mana_void = { damage = "mana_void_damage_per_mana"; };
 	axe_battle_hunger = { tickInterval = 1; startTime = 1; tickDuration = "duration"; tick = true; };
 	axe_culling_blade = { damage = "kill_threshold"; damageScepter = "kill_threshold_scepter"; };
-	bane_brain_sap = { damage = "fiend_grip_damage"; duration = "fiend_grip_duration"; tickInterval = "fiend_grip_tick_interval"; damageScepter = "fiend_grip_damage_scepter"; durationScepter = "fiend_grip_duration_scepter"; };
+	bane_fiends_grip = { tickDamage = "fiend_grip_damage"; tickDuration = "fiend_grip_duration"; tickInterval = "fiend_grip_tick_interval"; tickDamageScepter = "fiend_grip_damage_scepter"; tickDurationScepter = "fiend_grip_duration_scepter"; startTime = 0; tick = true; };
 	bloodseeker_blood_bath = { damage = "damage"; };
 	earthshaker_enchant_totem = { damageMultiplier = "totem_damage_percentage"; };
 	earthshaker_echo_slam = { damage = "echo_slam_echo_damage"; range = "echo_slam_echo_range"; };
@@ -125,18 +125,18 @@ AbilityDamage.spellList = {
 	doom_bringer_scorched_earth = { tickDamage = "damage_per_second"; tickDuration = "duration";  tickInterval = 1; startTime = 1; };
 	doom_bringer_lvl_death = { damage = "damage"; bonusDamage = "lvl_bonus_damage"; bonusMultiplier = "lvl_bonus_multiple"; };
 	doom_bringer_doom = { tickDamage = "damage"; tickDuration = "duration"; tickDamageScepter = "damage_scepter"; tickDurationScepter = "duration_scepter"; tickInterval = 1; startTime = 0; };
-	ancient_apparition_cold_feet = { tickDamage = "damage"; tickInterval = {0.8,0.8,0.9,0.9}; startTime = 0.8; };
-	ancient_apparition_ice_blast = { tickDuration = "frostbite_duration"; tickDamage = "dot_damage"; bonusDamagePercent = "kill_pct"; tickDurationScepter = "frostbite_duration_scepter"; startTime = 1; tickInterval = 1; };
+	ancient_apparition_cold_feet = { tickDamage = "damage"; tickInterval = {0.8,0.8,0.9,0.9}; startTime = 0.8; tick = true; tickDuration = 4; };
+	ancient_apparition_ice_blast = { tickDuration = "frostbite_duration"; tickDamage = "dot_damage"; bonusDamagePercent = "kill_pct"; tickDurationScepter = "frostbite_duration_scepter"; startTime = 1; tickInterval = 1; tick = true; };
 	spirit_breaker_charge_of_darkness = { damageSpell = "spirit_breaker_greater_bash"; damageSpellName = "damage"; };
 	spirit_breaker_nether_strike = { damage = "damage"; damageSpell = "spirit_breaker_greater_bash"; damageSpellName = "damage"; };
 	gyrocopter_rocket_barrage = { tickInterval = 1; startTime = 0; tickDuration = 3; };
 	gyrocopter_homing_missile = { maxDamageRange = "max_distance"; minBonusDamage = "min_damage"; };
 	gyrocopter_call_down = { damage = "damage_first"; bonusDamage = "damage_second"; bonusDamageScepter = "damage_second_scepter"; };
-	alchemist_unstable_concoction = { minDamage = "min_damage"; maxDamage = "max_damage"; maxTime = "brew_time"; };
-	alchemist_unstable_concoction_throw = { minDamage = "min_damage"; maxDamage = "max_damage"; maxTime = "brew_time"; };
+	alchemist_unstable_concoction = { damage = "max_damage"; };
+	alchemist_unstable_concoction_throw = { damageSpell = "alchemist_unstable_concoction"; damageSpellName = "max_damage"; };
 	invoker_cold_snap = { damage = "damage_trigger"; bonusDamage = "freeze_damage"; tickInterval = "freeze_cooldown"; tickDuration = "duration"; spellLevel = "invoker_quas"; };
 	invoker_tornado = { damage = "base_damage"; bonusDamage = "wex_damage"; spellLevel = "invoker_wex"; };
-	invoker_emp = { damage = "mana_burned"; damageMultiplier = "damage_per_mana_pct"; manaBurn = true; };
+	invoker_emp = { damage = "mana_burned"; damageMultiplier = "damage_per_mana_pct"; };
 	invoker_chaos_meteor = { tickInterval = "damage_interval"; tickDamage = "main_damage"; bonusDamage = "burn_dps"; bonusDamageMultiplier = "burn_duration"; spellLevel = "invoker_exort"; };
 	invoker_sun_strike = { damage = "damage"; spellLevel = "invoker_exort"; };
 	invoker_forge_spirit = { damage = "spirit_damage"; spellLevel = "invoker_exort"; };
@@ -218,20 +218,29 @@ AbilityDamage.itemList = {
 function AbilityDamage.CalculateDamage(ability)
 	local spell = AbilityDamage.spellList[ability.name]
 	local item = AbilityDamage.itemList[ability.name]
+	local attack_modifier = AbilityDamage.attackModifiersList[ability.name]
 	local owner = ability.owner
 	local dmg = ability:GetDamage(ability.level)
 	if spell then
 		if spell.tick then
-			local tickDuration = ((ability:GetSpecialData(""..spell.tickDuration, ability.level)) or spell.tickDuration)
-			local tickInterval = ((ability:GetSpecialData(""..spell.tickInterval, ability.level)) or spell.tickInterval)
-			local tickDamage = ((ability:GetSpecialData(""..spell.tickDamage, ability.level)) or dmg)
-			local startTime = ((ability:GetSpecialData(""..spell.startTime, ability.level)) or spell.startTime)
-			local tickCount = ability:GetSpecialData(""..spell.tickCount, ability.level)
-			local damage = ability:GetSpecialData(""..spell.damage, ability.level)
-			local bonusDamage = ability:GetSpecialData(""..spell.bonusDamage, ability.level)
+			local tickDuration = (((spell.tickDuration) and (ability:GetSpecialData(""..spell.tickDuration, ability.level))) or spell.tickDuration)
+			local tickInterval
+			if type(spell.tickInterval) == "table" then
+				tickInterval = spell.tickInterval[ability.level]
+			else
+				tickInterval = (((spell.tickInterval) and (ability:GetSpecialData(""..spell.tickInterval, ability.level))) or spell.tickInterval)
+			end
+			local tickDamage = (((spell.tickDamage) and (ability:GetSpecialData(""..spell.tickDamage, ability.level))) or dmg)
+			local startTime = (((spell.startTime) and (ability:GetSpecialData(""..spell.startTime, ability.level))) or spell.startTime)
+			local tickCount = ((spell.tickCount) and (ability:GetSpecialData(""..spell.tickCount, ability.level)))
+			local damage = ((spell.damage) and (ability:GetSpecialData(""..spell.damage, ability.level)))
+			if not damage and tickDamage ~= dmg then
+				damage = dmg
+			end
+			local bonusDamage = ((spell.bonusDamage) and (ability:GetSpecialData(""..spell.bonusDamage, ability.level)))
 			if owner:AghanimState() then
-				tickDuration = ((ability:GetSpecialData(""..spell.tickDurationScepter, ability.level)) or tickDuration)
-				tickDamage = ((ability:GetSpecialData(""..spell.tickDamageScepter, ability.level)) or tickDamage)
+				tickDuration = (((spell.tickDurationScepter) and (ability:GetSpecialData(""..spell.tickDurationScepter, ability.level))) or tickDuration)
+				tickDamage = (((spell.tickDamageScepter) and (ability:GetSpecialData(""..spell.tickDamageScepter, ability.level))) or tickDamage)
 			end
 			local finalDamage = (((tickDuration - startTime)/tickInterval) or tickCount)*tickDamage
 			if damage then
@@ -241,11 +250,20 @@ function AbilityDamage.CalculateDamage(ability)
 				finalDamage = finalDamage + bonusDamage
 			end
 			return finalDamage
+		elseif spell.manaBurn then
+			if ability.name == "antimage_mana_void" then
+				return ability:GetSpecialData(""..spell.damage,ability.level)
+			end
 		else
-			local damage = (((spell.damage) and (ability:GetSpecialData(""..spell.damage,ability.level))) or dmg or spell.damage)
-			local damageMultiplier = (((spell.damageMultiplier) and (ability:GetSpecialData(""..spell.damageMultiplier, ability.level))) or spell.damageHealthMultiplier)
-			local bonusDamage = (((spell.bonusDamage) and (ability:GetSpecialData(""..spell.bonusDamage,ability.level))) or spell.bonusDamage)
-			local bonusDamageMultiplier = (((spell.bonusDamageMultiplier) and (ability:GetSpecialData(""..spell.bonusDamageMultiplier, ability.level))) or spell.bonusDamageMultiplier)
+			local spellLevel = nil
+			if spell.spellLevel then
+				spellLevel = owner:FindSpell(spell.spellLevel).level
+			end
+			local level = spellLevel or ability.level
+			local damage = (((spell.damage) and (ability:GetSpecialData(""..spell.damage,level))) or dmg or spell.damage)
+			local damageMultiplier = (((spell.damageMultiplier) and (ability:GetSpecialData(""..spell.damageMultiplier, level))) or spell.damageMultiplier)
+			local bonusDamage = (((spell.bonusDamage) and (ability:GetSpecialData(""..spell.bonusDamage,level))) or spell.bonusDamage)
+			local bonusDamageMultiplier = (((spell.bonusDamageMultiplier) and (ability:GetSpecialData(""..spell.bonusDamageMultiplier, level))) or spell.bonusDamageMultiplier)
 			if spell.damageSpell then
 				local dmgSpell = owner:FindSpell(spell.damageSpell)
 				if damage and type(damage) == "number" then
@@ -255,9 +273,9 @@ function AbilityDamage.CalculateDamage(ability)
 				end
 			end		
 			if owner:AghanimState() then
-				damage = (((spell.damageScepter) and (ability:GetSpecialData(""..spell.damageScepter, ability.level))) or damage)
-				bonusDamage = (((spell.bonusDamageScepter) and (ability:GetSpecialData(""..spell.bonusDamageScepter, ability.level))) or bonusDamage)
-				damageMultiplier = (((spell.damageMultiplierScepter) and (ability:GetSpecialData(""..spell.damageMultiplierScepter, ability.level))) or damageMultiplier)
+				damage = (((spell.damageScepter) and (ability:GetSpecialData(""..spell.damageScepter, level))) or damage)
+				bonusDamage = (((spell.bonusDamageScepter) and (ability:GetSpecialData(""..spell.bonusDamageScepter, level))) or bonusDamage)
+				damageMultiplier = (((spell.damageMultiplierScepter) and (ability:GetSpecialData(""..spell.damageMultiplierScepter, level))) or damageMultiplier)
 			end
 			if bonusDamageMultiplier then
 				if bonusDamageMultiplier > 100 then 
@@ -268,8 +286,6 @@ function AbilityDamage.CalculateDamage(ability)
 			if damageMultiplier then
 				if damageMultiplier > 100 then 
 					damageMultiplier = damageMultiplier/100
-				elseif damageMultiplier < 1 then
-					damageMultiplier = damageMultiplier+1
 				end
 				damage = damage*damageMultiplier
 			end
@@ -278,6 +294,41 @@ function AbilityDamage.CalculateDamage(ability)
 			end
 			return damage
 		end
+	elseif attack_modifier then
+		local spellLevel = nil
+		spell = attack_modifier
+		if spell.spellLevel then
+			spellLevel = owner:FindSpell(spell.spellLevel).level
+		end
+		local level = spellLevel or ability.level
+		local damage = (((spell.damage) and (ability:GetSpecialData(""..spell.damage,level))) or dmg or spell.damage)
+		local damageMultiplier = (((spell.damageMultiplier) and (ability:GetSpecialData(""..spell.damageMultiplier, level))) or spell.damageMultiplier)
+		local bonusDamage = (((spell.bonusDamage) and (ability:GetSpecialData(""..spell.bonusDamage,level))) or spell.bonusDamage)
+		local bonusDamageMultiplier = (((spell.bonusDamageMultiplier) and (ability:GetSpecialData(""..spell.bonusDamageMultiplier, level))) or spell.bonusDamageMultiplier)
+		if spell.damageSpell then
+			local dmgSpell = owner:FindSpell(spell.damageSpell)
+			if damage and type(damage) == "number" then
+				damage = damage + (((spell.damageSpellName) and (dmgSpell:GetSpecialData(""..spell.damageSpellName,dmgSpell.level))) or dmgSpell:GetDamage(dmgSpell.level))
+			else
+				damage = (((spell.damageSpellName) and (dmgSpell:GetSpecialData(""..spell.damageSpellName,dmgSpell.level))) or dmgSpell:GetDamage(dmgSpell.level))
+			end
+		end		
+		if bonusDamageMultiplier then
+			if bonusDamageMultiplier > 100 then 
+				bonusDamageMultiplier = bonusDamageMultiplier/100
+			end
+			bonusDamage = bonusDamage*bonusDamageMultiplier
+		end
+		if damageMultiplier then
+			if damageMultiplier > 100 then 
+				damageMultiplier = damageMultiplier/100
+			end
+			damage = damage*damageMultiplier
+		end
+		if bonusDamage then
+			damage = damage + bonusDamage
+		end
+		return damage
 	elseif item then
 		local level = item.level
 		local damage
