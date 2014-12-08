@@ -2,6 +2,7 @@ require("libs.Res")
 require("libs.ScriptConfig")
 require("libs.ScreenPosition")
 require("libs.AbilityDamage")
+require("libs.Animations")
 
 local sPos
 if math.floor(client.screenRatio*100) == 133 then
@@ -41,8 +42,8 @@ function Tick(tick)
 			local totalDamage = 0
 			
 			for i,k in pairs(abilities) do
-				if k.level > 0 and k:CanBeCasted() then
-					local damage = AbilityDamage.GetDamage(k)
+				local damage = AbilityDamage.GetDamage(k)
+				if k.level > 0 and k:CanBeCasted() and damage and damage > 0 then
 					local dmgType = k.dmgType
 					local type
 					if dmgType == 1 then
@@ -54,12 +55,10 @@ function Tick(tick)
 					end
 					--print(k.dmgType)
 					--print(v:DamageTaken(damage,type,me),k.name)
-					if damage then
-						totalDamage = totalDamage + math.ceil(v:DamageTaken(damage,type,me) - ((v.healthRegen)*(k:FindCastPoint() + k:GetChannelTime(k.level) + client.latency/1000)))
-					end
+					totalDamage = totalDamage + math.ceil(v:DamageTaken(damage,type,me) - ((v.healthRegen)*(k:FindCastPoint() + k:GetChannelTime(k.level) + client.latency/1000)))
 					--print(k.name,math.ceil(v:DamageTaken(damage,type,me) - ((v.healthRegen)*(k:FindCastPoint() + k:GetChannelTime(k.level) + client.latency/1000))))
 				end
-				if k.abilityPhase or (v:DoesHaveModifier("modifier_"..k.name) and me:DoesHaveModifier("modifier_"..k.name) and k.cd > 0) or k.channelTime > 0 then sleeptick = tick + k:FindCastPoint()*2000 + k:GetChannelTime(k.level)*1000 + client.latency break end
+				if damage and damage > 0 and (k.abilityPhase or (v:DoesHaveModifier("modifier_"..k.name) and me:DoesHaveModifier("modifier_"..k.name) and k.cd > 0) or k.channelTime > 0) then sleeptick = tick + k:FindCastPoint()*2000 + k:GetChannelTime(k.level)*1000 + client.latency break end
 			end
 			
 			local x,y,w,h
@@ -86,8 +85,11 @@ function Tick(tick)
 			--print(totalDamage)
 			if v.visible and v.alive and totalDamage > 0 then
 				local HPLeftPercent = hpleft/v.maxHealth
-				local hitDamage = v:DamageTaken((me.dmgMin + me.dmgMax)/2,DAMAGE_PHYS,me)
+				local hitDamage = v:DamageTaken(((me.dmgMin + me.dmgMax)/2 + me.dmgBonus),DAMAGE_PHYS,me)
 				local hits = math.ceil(hpleft/hitDamage)
+				if Animations.table[me.handle] and Animations.table[me.handle].moveTime then
+					hits = math.ceil((hpleft + ((v.healthRegen)*((Animations.GetAttackTime(me) + Animations.table[me.handle].moveTime)*hits)))/hitDamage)
+				end
 				showDamage[hand].HPLeft.visible = true showDamage[hand].HPLeft.w = w*HPLeftPercent
 				if hits > 0 then
 					showDamage[hand].Hits.visible = true showDamage[hand].Hits.text = hits.." Hits" showDamage[hand].Hits.color = 0xFFFFFF99
