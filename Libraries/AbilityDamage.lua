@@ -82,7 +82,7 @@ AbilityDamage.spellList = {
 	storm_spirit_static_remnant = { damage = "static_remnant_damage"; };
 	sandking_epicenter = { damage = "epicenter_damage"; damageMultiplier = "epicenter_pulses";  damageMultiplierScepter = "epicenter_pulses_scepter"; };
 	tiny_toss = { damage = "toss_damage"; };
-	zuus_static_field = { damage = "damage_health_pct"; };
+	--zuus_static_field = { damage = "damage_health_pct"; };
 	zuus_thundergods_wrath = { damage = "damage"; damageScepter = "damage_scepter"; };
 	crystal_maiden_frostbite = { tickDamage = "damage"; tickDuration = "duration"; };
 	lich_chain_frost = { damage = "damage"; damageScepter = "damage_scepter"; };
@@ -269,7 +269,7 @@ function AbilityDamage.CalculateDamage(ability)
 				if damageMultiplier > 100 then 
 					damageMultiplier = damageMultiplier/100
 				elseif damageMultiplier < 1 then
-					damageMultiplier = damageMultiplier*100
+					damageMultiplier = damageMultiplier+1
 				end
 				damage = damage*damageMultiplier
 			end
