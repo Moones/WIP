@@ -31,6 +31,8 @@ require("libs.ScriptConfig")
         Changelog:
         ----------
 		
+		v0.5 - Fixed calculations for many heroes
+		
 		v0.1 - BETA Release
 		
 ]]--
@@ -53,7 +55,7 @@ end
 
 --Config
 local config = ScriptConfig.new()
-config:SetParameter("Color", 0x000000FF)
+config:SetParameter("Color", 450)
 config:Load()
 
 
