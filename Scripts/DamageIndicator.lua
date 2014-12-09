@@ -127,7 +127,7 @@ function Tick(tick)
 				
 				--Calculating damage from spells
 				for h,k in ipairs(abilities) do
-					local damage = AbilityDamage.GetDamage(k)
+					local damage = AbilityDamage.GetDamage(k,k.healthRegen)
 					if k.name == "antimage_mana_void" then
 						damage = (v.maxMana - v.mana)*damage
 					end
