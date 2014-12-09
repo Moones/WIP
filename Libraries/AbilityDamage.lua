@@ -74,7 +74,7 @@ AbilityDamage.spellList = {
 	mirana_starfall = { maxDamageRadius = "starfall_secondary_radius"; };
 	morphling_adaptive_strike = { damage = "damage_base"; maxDamage = "damage_max"; minDamage = "damage_min"; };
 	puck_dream_coil = { damage = "coil_init_damage_tooltip"; };
-	pudge_dismember = { damage = "dismember_damage"; damageScepterMultiplierStrenght = "strength_damage_scepter"; };
+	pudge_dismember = { tickDamage = "dismember_damage"; damageScepterMultiplierStrenght = "strength_damage_scepter"; tickDuration = 3; startTime = 1; tickInterval = 1; tick = true;};
 	shadow_shaman_ether_shock = { damage = "damage"; };
 	shadow_shaman_shackles = { damage = "total_damage"; };
 	shadow_shaman_mass_serpent_ward = { damage = "damage_min"; damageScepter = "damage_min_scepter"; damageMultiplier = "ward_count"; };
