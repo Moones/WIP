@@ -25,6 +25,7 @@ require("libs.Utils")
 		- This script shows how much HP will enemy have after casting all your spells/items.
 		- Shows how much hits will you need to kill enemy. 
 		- If you kill enemy just from spells/items it will show you which ones you need to use.
+		- Supports calculating of EtherealBlade damage amplification, expecting that you will cast EtherealBlade first.
 		 
         Changelog:
         ----------
