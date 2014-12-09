@@ -3,6 +3,7 @@ require("libs.ScreenPosition")
 require("libs.AbilityDamage")
 require("libs.Animations")
 require("libs.Utils")
+require("libs.ScriptConfig")
 
 --[[
    _                    _
@@ -49,6 +50,12 @@ elseif math.floor(client.screenRatio*100) == 125 then
 else
 	sPos = ScreenPosition.new(1600, 900, client.screenRatio)
 end
+
+--Config
+local config = ScriptConfig.new()
+config:SetParameter("Color", 0x5F9EA0FF)
+config:Load()
+
 
 --Variables
 local showDamage = {} local killSpellsIcons = {} local killSpells = {} local killItemsIcons = {} local killItems = {} local sleeptick = 0 local onespell = {} local attack_modifier = nil
@@ -133,9 +140,31 @@ function Tick(tick)
 					if k.name == "abaddon_aphotic_shield" then type = DAMAGE_MAGC end
 					if k.name == "axe_culling_blade" then type = DAMAGE_PURE end
 					if k.name == "alchemist_unstable_concoction_throw" then type = DAMAGE_PHYS end
+					if k.name == "centaur_stampede" then type = DAMAGE_MAGC end
 					if k.name == "lina_laguna_blade" and me:AghanimState() then type = DAMAGE_PURE end	
 					local takenDmg
-					if v.health ~= v.maxHealth then
+					
+					--Bristleback's Quill Spray stacks
+					if me.classId == CDOTA_Unit_Hero_Bristleback then
+						local quill_modif = v:FindModifier("modifier_bristleback_quill_spray")
+						local quill_spell = me:FindSpell("bristleback_quill_spray")
+						if quill_spell.level > 0 and k.name == "bristleback_quill_spray" then
+							if quill_modif then
+								damage = math.min(damage + quill_spell:GetSpecialData("quill_stack_damage",quill_spell.level)*quill_modif.stacks,400)
+							end
+						end
+					end
+					
+					--Doom's Lvl? Death
+					if k.name == "doom_bringer_lvl_death" then
+						local multiplier = k:GetSpecialData("lvl_bonus_multiple",k.level)
+						local bonusPercent = k:GetSpecialData("lvl_bonus_damage")/100
+						if (v.level/multiplier) == math.floor(v.level/multiplier) or v.level == 25 then
+							damage = damage + v.maxHealth*bonusPercent
+						end
+					end
+					
+					if v.health < v.maxHealth or (v.health - totalDamage) < v.maxHealth then
 						takenDmg = math.ceil(v:DamageTaken(damage,type,me) - ((v.healthRegen)*(k:FindCastPoint() + k:GetChannelTime(k.level) + client.latency/1000)))
 					else
 						takenDmg = math.ceil(v:DamageTaken(damage,type,me) - ((v.healthRegen)*(k:GetChannelTime(k.level))))
@@ -152,7 +181,7 @@ function Tick(tick)
 							attack_modifier = takenDmg
 						end
 					else
-						if k.level > 0 and (k:CanBeCasted() or k.abilityPhase) and damage and damage > 0 then
+						if k.level > 0 and (k:CanBeCasted() or k.abilityPhase or (me:DoesHaveModifier("modifier_"..k.name) and k.name ~= "centaur_stampede" and k.name ~= "crystal_maiden_freezing_field")) and damage and damage > 0 and (k.name ~= "bounty_hunter_jinada" or k.cd == 0) then
 							if (v.health - takenDmg) <= 0 then
 								if not onespell[hand] or (onespell[hand][2] > h or (k.name == "axe_culling_blade" and onespell[hand][1].name ~= "axe_culling_blade")) then
 									onespell[hand] = {k, h}
@@ -199,7 +228,7 @@ function Tick(tick)
 							end
 							totalDamage = totalDamage + takenDmg
 						end
-						if damage and damage > 0 and ((v:DoesHaveModifier("modifier_"..k.name) and me:DoesHaveModifier("modifier_"..k.name) and k.cd > 0) or k.channelTime > 0 or k.abilityPhase) then sleeptick = tick + k:FindCastPoint()*2000 + k:GetChannelTime(k.level)*1000 + client.latency return end
+						if damage and damage > 0 and k.name ~= "crystal_maiden_freezing_field" and ((v:DoesHaveModifier("modifier_"..k.name) and me:DoesHaveModifier("modifier_"..k.name) and k.cd > 0) or k.abilityPhase) then sleeptick = tick + k:FindCastPoint()*3000 + k:GetChannelTime(k.level)*500 + client.latency return end
 					end
 				end
 			end
@@ -229,10 +258,9 @@ function Tick(tick)
 			
 			--Drawings
 			if not showDamage[hand] then showDamage[hand] = {}
-				showDamage[hand].HPLeft = drawMgr:CreateRect(-x,-y+1,0,h,0x000000FF) showDamage[hand].HPLeft.visible = false showDamage[hand].HPLeft.entity = v showDamage[hand].HPLeft.entityPosition = Vector(0,0,offset)
+				showDamage[hand].HPLeft = drawMgr:CreateRect(-x,-y+1,0,h,config.Color) showDamage[hand].HPLeft.visible = false showDamage[hand].HPLeft.entity = v showDamage[hand].HPLeft.entityPosition = Vector(0,0,offset)
 				showDamage[hand].Hits = drawMgr:CreateText(-x,-y+15, 0xFFFFFF99, "",F13) showDamage[hand].Hits.visible = false showDamage[hand].Hits.entity = v showDamage[hand].Hits.entityPosition = Vector(0,0,offset)					
 			end
-		
 			local hpleft = math.max(v.health - totalDamage, 0)
 			if v.visible and v.alive then
 				local HPLeftPercent = hpleft/v.maxHealth
@@ -241,15 +269,15 @@ function Tick(tick)
 					hitDamage = hitDamage + attack_modifier
 				end
 				local hits = math.ceil(hpleft/hitDamage)
-				if Animations.table[me.handle] and Animations.table[me.handle].moveTime then
-					hits = math.ceil((hpleft + ((v.healthRegen)*((Animations.table[me.handle].moveTime)*hits)))/hitDamage)
-				end
 				if totalDamage > 0 then
 					showDamage[hand].HPLeft.visible = true showDamage[hand].HPLeft.w = w*HPLeftPercent
 				elseif showDamage[hand].HPLeft.visible then
 					showDamage[hand].HPLeft.visible = false
 				end
 				if hits > 0 then
+					if Animations.table[me.handle] and Animations.table[me.handle].moveTime and Animations.maxCount > 0 then
+						hits = math.ceil((hpleft + ((v.healthRegen)*((Animations.table[me.handle].moveTime)*hits)))/hitDamage)
+					end
 					killSpellsIcons[hand] = {}
 					killItemsIcons[hand] = {}
 					showDamage[hand].Hits.visible = true showDamage[hand].Hits.text = hits.." Hits" showDamage[hand].Hits.color = 0xFFFFFF99
