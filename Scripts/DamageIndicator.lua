@@ -29,7 +29,7 @@ require("libs.Utils")
         Changelog:
         ----------
 		
-		v1.0 - Release
+		v0.1 - BETA Release
 		
 ]]--
 
