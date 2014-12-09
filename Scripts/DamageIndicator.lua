@@ -85,6 +85,12 @@ function Tick(tick)
 			local ethMult = nil
 			local eth = me:FindItem("item_ethereal_blade")
 			
+			if killSpells[hand] then
+				for i,v in ipairs(killSpells[hand]) do
+					killSpells[hand][i] = nil
+				end
+			end
+			
 			killSpells[hand] = {}
 			killItems[hand] = {}
 			
