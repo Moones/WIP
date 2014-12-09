@@ -53,7 +53,7 @@ end
 
 --Config
 local config = ScriptConfig.new()
-config:SetParameter("Color", 0x5F9EA0FF)
+config:SetParameter("Color", 0x000000FF)
 config:Load()
 
 
