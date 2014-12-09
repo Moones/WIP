@@ -311,7 +311,7 @@ function Tick(tick)
 					else
 						killSpellsIcons[hand] = {}
 						if onespell[hand][3] then
-							killSpellsIcons[hand][1] = drawMgr:CreateRect(-x/monitor+x1*monitor,-y+y1*monitor,w1*monitor,h1*monitor,0x000000FF) killSpellsIcons[hand][1].textureId = drawMgr:GetTextureId("NyanUI/items/"..onespell[hand][1].name:gsub("item_","")) killSpellsIcons[hand][1].entity = v killSpellsIcons[hand][1].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][1].visible = true		 			
+							killSpellsIcons[hand][1] = drawMgr:CreateRect(-x/monitor+x1*monitor,-y+y1*monitor,w1*monitor + 7*monitor,h1*monitor,0x000000FF) killSpellsIcons[hand][1].textureId = drawMgr:GetTextureId("NyanUI/items/"..onespell[hand][1].name:gsub("item_","")) killSpellsIcons[hand][1].entity = v killSpellsIcons[hand][1].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][1].visible = true		 			
 						else
 							killSpellsIcons[hand][1] = drawMgr:CreateRect(-x/monitor+x1*monitor,-y+y1*monitor,w1*monitor,h1*monitor,0x000000FF) killSpellsIcons[hand][1].textureId = drawMgr:GetTextureId("NyanUI/Spellicons/"..onespell[hand][1].name) killSpellsIcons[hand][1].entity = v killSpellsIcons[hand][1].entityPosition = Vector(0,0,offset) killSpellsIcons[hand][1].visible = true		 			
 						end
