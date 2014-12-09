@@ -219,7 +219,7 @@ AbilityDamage.itemList = {
 	item_ethereal_blade = { damage = "blast_damage_base"; mult = "blast_agility_multiplier"; type = DAMAGE_MAGC; };
 }
 
-function AbilityDamage.CalculateDamage(ability)
+function AbilityDamage.CalculateDamage(ability, hpRegen)
 	if ability.level <= 0 then return 0 end
 	local spell = AbilityDamage.spellList[ability.name]
 	local item = AbilityDamage.itemList[ability.name]
@@ -258,6 +258,9 @@ function AbilityDamage.CalculateDamage(ability)
 			end
 			if bonusDamage then
 				finalDamage = finalDamage + bonusDamage
+			end
+			if hpRegen and tickDuration then
+				finalDamage = finalDamage - (hpRegen*tickDuration)
 			end
 			return finalDamage
 		elseif spell.manaBurn then
@@ -371,8 +374,8 @@ function AbilityDamage.CalculateDamage(ability)
 	return nil
 end
 
-function AbilityDamage.GetDamage(ability)
-	local damage = AbilityDamage.CalculateDamage(ability)
+function AbilityDamage.GetDamage(ability, hpRegen)
+	local damage = AbilityDamage.CalculateDamage(ability, hpRegen)
 	if damage then 
 		return damage 
 	end
