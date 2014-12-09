@@ -42,7 +42,7 @@ AbilityDamage.modifiersSpellList = {
 
 AbilityDamage.attackModifiersList = {
 	antimage_mana_break = { damage = "mana_per_hit"; damageMultiplier = 0.6; manaBurn = true; };
-	venomancer_poison_sting = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; startTime = 0; tick = true; };
+	--venomancer_poison_sting = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; startTime = 0; tick = true; };
 	viper_poison_attack = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; startTime = 1; };
 	clinkz_searing_arrows = { damage = "damage_bonus"; };
 	enchantress_impetus = { distance_as_damage = "distance_damage_pct"; };
