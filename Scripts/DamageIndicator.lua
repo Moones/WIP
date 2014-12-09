@@ -33,6 +33,7 @@ require("libs.Utils")
 		
 ]]--
 
+--Preparation for calculating position/size difference between resolutions
 local sPos
 if math.floor(client.screenRatio*100) == 133 then
 	sPos = ScreenPosition.new(1024, 768, client.screenRatio)
@@ -48,10 +49,12 @@ else
 	sPos = ScreenPosition.new(1600, 900, client.screenRatio)
 end
 
+--Variables
 local showDamage = {} local killSpellsIcons = {} local killSpells = {} local killItemsIcons = {} local killItems = {} local sleeptick = 0 local onespell = {} local attack_modifier = nil
 local monitor = client.screenSize.x/1600
 local F13 = drawMgr:CreateFont("F13","Tahoma",13*monitor,650*monitor)
 
+--Main function
 function Tick(tick)
 	if not PlayingGame() or client.console or tick < sleeptick then return end sleeptick = tick + 125
 	
@@ -73,11 +76,13 @@ function Tick(tick)
 			killSpells[hand] = {}
 			killItems[hand] = {}
 			
+			--We have ethereal blade so we write it down into ethMult variable
 			if eth and eth:CanBeCasted() then
 				ethMult = true
 			end
 			
 			if v.visible and v.alive then
+				--Calculating damage from items
 				for h,k in ipairs(items) do
 					local damage = AbilityDamage.GetDamage(k)
 					if k:CanBeCasted() and damage and damage > 0 then
@@ -88,6 +93,7 @@ function Tick(tick)
 						else
 							takenDmg = math.ceil(v:DamageTaken(damage,type,me))
 						end
+						--every magical damage is amplificated by EtherealBlade
 						if ethMult and type == DAMAGE_MAGC then
 							takenDmg = takenDmg*1.4
 						end
@@ -107,11 +113,13 @@ function Tick(tick)
 					end
 				end
 				
+				--Calculating damage from spells
 				for h,k in ipairs(abilities) do
 					local damage = AbilityDamage.GetDamage(k)
 					if k.name == "antimage_mana_void" then
 						damage = (v.maxMana - v.mana)*damage
 					end
+					--Recongnizing the type of damage of our spell
 					local dmgType = k.dmgType
 					local type
 					if dmgType == 1 then
@@ -131,9 +139,11 @@ function Tick(tick)
 					else
 						takenDmg = math.ceil(v:DamageTaken(damage,type,me) - ((v.healthRegen)*(k:GetChannelTime(k.level))))
 					end
+					--every magical damage is amplificated by EtherealBlade
 					if ethMult and type == DAMAGE_MAGC then
 						takenDmg = takenDmg*1.4
 					end
+					--Spell will not be registered if it is modifying hero auto attack, in that case we store its bonus damage and add it to our autoAttack damage when calculating hits.
 					if AbilityDamage.attackModifiersList[k.name] then
 						if AbilityDamage.attackModifiersList[k.name].manaBurn then
 							attack_modifier = math.ceil(v:ManaBurnDamageTaken(damage,1,type,me))
@@ -154,12 +164,17 @@ function Tick(tick)
 									onespell[hand] = nil
 								end
 							end
+							--Calculating damage bonuses for unique spells:
+							
+							--Zeus's Static Field
 							if me.classId == CDOTA_Unit_Hero_Zuus then
 								local staticF = me:GetAbility(3)
 								if staticF and staticF.level > 0 then
 									takenDmg = takenDmg + v:DamageTaken(((staticF:GetSpecialData("damage_health_pct",staticF.level)/100)*(v.health - totalDamage)),DAMAGE_MAGC,me)
 								end
 							end
+						
+							--Ancient Apparition's Ice Blast
 							if k.name == "ancient_apparition_ice_blast" then
 								local percent = k:GetSpecialData("kill_pct", k.level)/100
 								percent = v.maxHealth*percent
@@ -167,9 +182,11 @@ function Tick(tick)
 									takenDmg = takenDmg + percent
 								end
 							end
+						
+							--Batrider's Sticky Napalm stacks
 							if me.classId == CDOTA_Unit_Hero_Batrider then
 								local stickyM = v:FindModifier("modifier_batrider_sticky_napalm")
-								local stickyN = v:FindSpell("batrider_sticky_napalm")
+								local stickyN = me:FindSpell("batrider_sticky_napalm")
 								if stickyN.level > 0 then
 									if stickyM then
 										takenDmg = takenDmg + v:DamageTaken(stickyN:GetSpecialData("damage",stickyN.level)*stickyM.stacks,DAMAGE_MAGC,me)
@@ -186,6 +203,7 @@ function Tick(tick)
 				end
 			end
 			
+			--Converting position and size of our drawings into other resolutions
 			local x,y,w,h
 			local x1,y1,w1,h1
 			if math.floor(client.screenRatio*100) == 133 then
@@ -208,6 +226,7 @@ function Tick(tick)
 				x1,y1,w1,h1 = sPos:GetPosition(30, 10, 13, 14)
 			end
 			
+			--Drawings
 			if not showDamage[hand] then showDamage[hand] = {}
 				showDamage[hand].HPLeft = drawMgr:CreateRect(-x,-y+1,0,h,0x000000FF) showDamage[hand].HPLeft.visible = false showDamage[hand].HPLeft.entity = v showDamage[hand].HPLeft.entityPosition = Vector(0,0,offset)
 				showDamage[hand].Hits = drawMgr:CreateText(-x,-y+15, 0xFFFFFF99, "",F13) showDamage[hand].Hits.visible = false showDamage[hand].Hits.entity = v showDamage[hand].Hits.entityPosition = Vector(0,0,offset)					
