@@ -42,7 +42,7 @@ AbilityDamage.modifiersSpellList = {
 
 AbilityDamage.attackModifiersList = {
 	antimage_mana_break = { damage = "mana_per_hit"; damageMultiplier = 0.6; manaBurn = true; };
-	venomancer_poison_sting = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; startTime = 0; };
+	venomancer_poison_sting = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; startTime = 0; tick = true; };
 	viper_poison_attack = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; startTime = 1; };
 	clinkz_searing_arrows = { damage = "damage_bonus"; };
 	enchantress_impetus = { distance_as_damage = "distance_damage_pct"; };
@@ -97,8 +97,9 @@ AbilityDamage.spellList = {
 	beastmaster_wild_axes = { damageMultiplier = 2; };
 	queenofpain_shadow_strike = { damage = "strike_damage"; tickDamage = "duration_damage"; tickInterval = 3; startTime = 3; tickDuration = 15; };
 	queenofpain_sonic_wave = { damage = "damage"; damageScepter = "damage_scepter"; };
-	venomancer_venomous_gale = { damage = "strike_damage"; tickDuration = "duration"; tickDamage = "tick_damage"; tickInterval = "tick_interval"; startTime = 3; };
-	venomancer_poison_nova = { tickDamage = "damage"; tickDuration = "duration"; tickDamageScepter = "damage_scepter"; tickDurationScepter = "duration_scepter"; tickInterval = 1; startTime = 0; };
+	venomancer_venomous_gale = { damage = "strike_damage"; tickDuration = "duration"; tickDamage = "tick_damage"; tickInterval = "tick_interval"; startTime = 3; tick = true; };
+	venomancer_poison_nova = { tickDamage = "damage"; tickDuration = "duration"; tickDamageScepter = "damage_scepter"; tickDurationScepter = "duration_scepter"; tickInterval = 1; startTime = 0; tick = true; };
+	venomancer_plague_ward = { damage = "ward_damage_tooltip"; }; -- We register atleast one attack from ward.
 	templar_assassin_meld = { damage = "bonus_damage"; };
 	viper_viper_strike = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; startTime = 1; };
 	luna_eclipse = { damageSpell = "luna_lucent_beam"; damageMultiplier = "hit_count"; damageMultiplierScepter = "hit_count_scepter"; };
@@ -319,42 +320,80 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 		if spell.spellLevel then
 			spellLevel = owner:FindSpell(spell.spellLevel).level
 		end
-		local level = spellLevel or ability.level
-		local damage = (((spell.damage) and (ability:GetSpecialData(""..spell.damage,level))) or spell.damage or owner.dmgMin)
-		local damageMultiplier = (((spell.damageMultiplier) and (ability:GetSpecialData(""..spell.damageMultiplier, level))) or spell.damageMultiplier)
-		local bonusDamage = (((spell.bonusDamage) and (ability:GetSpecialData(""..spell.bonusDamage,level))) or spell.bonusDamage)
-		local bonusDamageMultiplier = (((spell.bonusDamageMultiplier) and (ability:GetSpecialData(""..spell.bonusDamageMultiplier, level))) or spell.bonusDamageMultiplier)
-		if spell.damageSpell then
-			local dmgSpell = owner:FindSpell(spell.damageSpell)
-			if damage and type(damage) == "number" then
-				damage = damage + (((spell.damageSpellName) and (dmgSpell:GetSpecialData(""..spell.damageSpellName,dmgSpell.level))) or dmgSpell:GetDamage(dmgSpell.level))
+		if spell.tick then
+			local tickDuration = (((spell.tickDuration) and (ability:GetSpecialData(""..spell.tickDuration, ability.level))) or spell.tickDuration)
+			local tickInterval
+			if type(spell.tickInterval) == "table" then
+				tickInterval = spell.tickInterval[ability.level]
 			else
-				damage = (((spell.damageSpellName) and (dmgSpell:GetSpecialData(""..spell.damageSpellName,dmgSpell.level))) or dmgSpell:GetDamage(dmgSpell.level))
+				tickInterval = (((spell.tickInterval) and (ability:GetSpecialData(""..spell.tickInterval, ability.level))) or spell.tickInterval)
 			end
-		end		
-		if bonusDamageMultiplier then
-			if bonusDamageMultiplier > 100 then 
-				bonusDamageMultiplier = bonusDamageMultiplier/100
+			local tickDamage = (((spell.tickDamage) and (ability:GetSpecialData(""..spell.tickDamage, ability.level))) or dmg)
+			local startTime = (((spell.startTime) and (ability:GetSpecialData(""..spell.startTime, ability.level))) or spell.startTime)
+			local tickCount = ((spell.tickCount) and (ability:GetSpecialData(""..spell.tickCount, ability.level)))
+			local damage = ((spell.damage) and (ability:GetSpecialData(""..spell.damage, ability.level)))
+			if not damage and tickDamage ~= dmg then
+				damage = dmg
 			end
-			bonusDamage = bonusDamage*bonusDamageMultiplier
-		end
-		if damageMultiplier and damageMultiplier > 0 then
-			if damageMultiplier > 100 then 
-				damageMultiplier = damageMultiplier/100
+			local bonusDamage = ((spell.bonusDamage) and (ability:GetSpecialData(""..spell.bonusDamage, ability.level)))
+			if owner:AghanimState() then
+				tickDuration = (((spell.tickDurationScepter) and (ability:GetSpecialData(""..spell.tickDurationScepter, ability.level))) or tickDuration)
+				tickDamage = (((spell.tickDamageScepter) and (ability:GetSpecialData(""..spell.tickDamageScepter, ability.level))) or tickDamage)
 			end
-			if damage == owner.dmgMin then
-				damage = (damage*damageMultiplier) - damage
-			else
-				damage = damage*damageMultiplier
+			local finalDamage
+			if tickDuration and tickInterval and startTime then
+				finalDamage = (((tickDuration - startTime)/tickInterval) or tickCount)*tickDamage
+			elseif tickCount then
+				finalDamage = tickCount*tickDamage
 			end
-		end
-		if bonusDamage then
-			damage = damage + bonusDamage
-		end
-		if not spell.cooldown or ability.cd == 0 then
-			return damage
+			if damage then
+				finalDamage = finalDamage + damage
+			end
+			if bonusDamage then
+				finalDamage = finalDamage + bonusDamage
+			end
+			if hpRegen and tickDuration then
+				finalDamage = finalDamage - (hpRegen*tickDuration)
+			end
+			return finalDamage
 		else
-			return 0
+			local level = spellLevel or ability.level
+			local damage = (((spell.damage) and (ability:GetSpecialData(""..spell.damage,level))) or spell.damage or owner.dmgMin)
+			local damageMultiplier = (((spell.damageMultiplier) and (ability:GetSpecialData(""..spell.damageMultiplier, level))) or spell.damageMultiplier)
+			local bonusDamage = (((spell.bonusDamage) and (ability:GetSpecialData(""..spell.bonusDamage,level))) or spell.bonusDamage)
+			local bonusDamageMultiplier = (((spell.bonusDamageMultiplier) and (ability:GetSpecialData(""..spell.bonusDamageMultiplier, level))) or spell.bonusDamageMultiplier)
+			if spell.damageSpell then
+				local dmgSpell = owner:FindSpell(spell.damageSpell)
+				if damage and type(damage) == "number" then
+					damage = damage + (((spell.damageSpellName) and (dmgSpell:GetSpecialData(""..spell.damageSpellName,dmgSpell.level))) or dmgSpell:GetDamage(dmgSpell.level))
+				else
+					damage = (((spell.damageSpellName) and (dmgSpell:GetSpecialData(""..spell.damageSpellName,dmgSpell.level))) or dmgSpell:GetDamage(dmgSpell.level))
+				end
+			end		
+			if bonusDamageMultiplier then
+				if bonusDamageMultiplier > 100 then 
+					bonusDamageMultiplier = bonusDamageMultiplier/100
+				end
+				bonusDamage = bonusDamage*bonusDamageMultiplier
+			end
+			if damageMultiplier and damageMultiplier > 0 then
+				if damageMultiplier > 100 then 
+					damageMultiplier = damageMultiplier/100
+				end
+				if damage == owner.dmgMin then
+					damage = (damage*damageMultiplier) - damage
+				else
+					damage = damage*damageMultiplier
+				end
+			end
+			if bonusDamage then
+				damage = damage + bonusDamage
+			end
+			if not spell.cooldown or ability.cd == 0 then
+				return damage
+			else
+				return 0
+			end
 		end
 	elseif item then
 		local level = item.level
