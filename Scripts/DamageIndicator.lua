@@ -58,6 +58,28 @@ elseif math.floor(client.screenRatio*100) == 125 then
 else
 	sPos = ScreenPosition.new(1600, 900, client.screenRatio)
 end
+--Converting position and size of our drawings into other resolutions
+local x,y,w,h
+local x1,y1,w1,h1
+if math.floor(client.screenRatio*100) == 133 then
+	x,y,w,h = sPos:GetPosition(37, 24, 72, 10)
+	x1,y1,w1,h1 = sPos:GetPosition(45, 20, 12, 14)
+elseif math.floor(client.screenRatio*100) == 166 then
+	x,y,w,h = sPos:GetPosition(37, 23, 71, 7)
+	x1,y1,w1,h1 = sPos:GetPosition(27, 8, 12, 12)
+elseif math.floor(client.screenRatio*100) == 177 then
+	x,y,w,h = sPos:GetPosition(43, 28, 83.5, 10)
+	x1,y1,w1,h1 = sPos:GetPosition(15, 25, 12, 14)
+elseif math.floor(client.screenRatio*100) == 160 then
+	x,y,w,h = sPos:GetPosition(40, 25, 74, 8)
+	x1,y1,w1,h1 = sPos:GetPosition(27, 9, 11, 13)
+elseif math.floor(client.screenRatio*100) == 125 then
+	x,y,w,h = sPos:GetPosition(48, 32, 94, 10)
+	x1,y1,w1,h1 = sPos:GetPosition(31, 11, 15, 14)
+else
+	x,y,w,h = sPos:GetPosition(43, 28, 83, 10)
+	x1,y1,w1,h1 = sPos:GetPosition(30, 10, 13, 14)
+end
 
 --Config
 local config = ScriptConfig.new()
@@ -352,28 +374,6 @@ function Tick(tick)
 						end
 					end
 				end
-				--Converting position and size of our drawings into other resolutions
-				local x,y,w,h
-				local x1,y1,w1,h1
-				if math.floor(client.screenRatio*100) == 133 then
-					x,y,w,h = sPos:GetPosition(37, 24, 72, 10)
-					x1,y1,w1,h1 = sPos:GetPosition(45, 20, 12, 14)
-				elseif math.floor(client.screenRatio*100) == 166 then
-					x,y,w,h = sPos:GetPosition(37, 23, 71, 7)
-					x1,y1,w1,h1 = sPos:GetPosition(27, 8, 12, 12)
-				elseif math.floor(client.screenRatio*100) == 177 then
-					x,y,w,h = sPos:GetPosition(43, 28, 83.5, 10)
-					x1,y1,w1,h1 = sPos:GetPosition(15, 25, 12, 14)
-				elseif math.floor(client.screenRatio*100) == 160 then
-					x,y,w,h = sPos:GetPosition(40, 25, 74, 8)
-					x1,y1,w1,h1 = sPos:GetPosition(27, 9, 11, 13)
-				elseif math.floor(client.screenRatio*100) == 125 then
-					x,y,w,h = sPos:GetPosition(48, 32, 94, 10)
-					x1,y1,w1,h1 = sPos:GetPosition(31, 11, 15, 14)
-				else
-					x,y,w,h = sPos:GetPosition(43, 28, 83, 10)
-					x1,y1,w1,h1 = sPos:GetPosition(30, 10, 13, 14)
-				end
 				
 				--Drawings
 				if not showDamage[hand] then showDamage[hand] = {}
@@ -498,6 +498,8 @@ function GameClose()
 	killItems = {}
 	damages = {}
 	attack_modifier = nil
+	x,y,w,h = nil,nil,nil,nil
+    x1,y1,w1,h1 = nil,nil,nil,nil
 	collectgarbage("collect")
 end
 
