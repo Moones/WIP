@@ -501,8 +501,6 @@ function GameClose()
 	killItems = {}
 	damages = {}
 	attack_modifier = nil
-	x,y,w,h = nil,nil,nil,nil
-	x1,y1,w1,h1 = nil,nil,nil,nil
 	collectgarbage("collect")
 end
 
