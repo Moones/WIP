@@ -62,7 +62,7 @@ config:Load()
 
 
 --Variables
-local showDamage = {} local killSpellsIcons = {} local killSpells = {} local killItemsIcons = {} local killItems = {} local sleeptick = 0 local onespell = {} local attack_modifier = nil
+local showDamage = {} local killSpellsIcons = {} local killSpells = {} local killItemsIcons = {} local killItems = {} local sleeptick = 0 local onespell = {}
 local monitor = client.screenSize.x/1600
 local F13 = drawMgr:CreateFont("F13","Tahoma",13*monitor,650*monitor)
 
@@ -82,7 +82,8 @@ function Tick(tick)
 			local abilities = me.abilities
 			local items = me.items
 			local totalDamage = 0
-			local ethMult = nil
+			local ethMult = false
+			local attack_modifier = nil
 			local eth = me:FindItem("item_ethereal_blade")
 			
 			if killSpells[hand] then
@@ -115,7 +116,7 @@ function Tick(tick)
 						if ethMult and type == DAMAGE_MAGC then
 							takenDmg = takenDmg*1.4
 						end
-						if (v.health - takenDmg) <= 0 then
+						if (v.health - takenDmg) <= 0 and (not ethMult or (v.health - (takenDmg/1.4)) <= 0) then
 							if not onespell[hand] or onespell[hand][2] > 0 then
 								onespell[hand] = {k, 0, true}
 							end
@@ -174,6 +175,11 @@ function Tick(tick)
 						end
 					end
 					
+					--Huskar's Life Break
+					if k.name == "huskar_life_break" then
+						damage = damage*v.health
+					end
+					
 					if v.health < v.maxHealth or (v.health - totalDamage) < v.maxHealth then
 						takenDmg = math.ceil(v:DamageTaken(damage,type,me) - ((v.healthRegen)*(k:FindCastPoint() + k:GetChannelTime(k.level) + client.latency/1000)))
 					else
@@ -192,7 +198,7 @@ function Tick(tick)
 						end
 					else
 						if k.level > 0 and (k:CanBeCasted() or k.abilityPhase or (me:DoesHaveModifier("modifier_"..k.name) and k.name ~= "centaur_stampede" and k.name ~= "crystal_maiden_freezing_field")) and damage and damage > 0 and (k.name ~= "bounty_hunter_jinada" or k.cd == 0) then
-							if (v.health - takenDmg) <= 0 then
+							if (v.health - takenDmg) <= 0 and (not ethMult or (v.health - (takenDmg/1.4)) <= 0) then
 								if not onespell[hand] or (onespell[hand][2] > h or (k.name == "axe_culling_blade" and onespell[hand][1].name ~= "axe_culling_blade")) then
 									onespell[hand] = {k, h}
 								end
@@ -204,6 +210,7 @@ function Tick(tick)
 									onespell[hand] = nil
 								end
 							end
+							
 							--Calculating damage bonuses for unique spells:
 							
 							--Zeus's Static Field
