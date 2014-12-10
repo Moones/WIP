@@ -31,6 +31,8 @@ require("libs.ScriptConfig")
         Changelog:
         ----------
 		
+		v0.6c - Performance fix, Fix for some heroes
+		
 		v0.6b - Fixed calculation for Meepo: Poof
 		
 		v0.5a - Added new textures, fixed for some resolutions
