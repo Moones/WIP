@@ -370,7 +370,10 @@ function Tick(tick)
 								killSpells[hand][h] = nil
 								killSpellsIcons[hand] = {}
 							end
-							if damage and damage > 0 and k.name ~= "crystal_maiden_freezing_field" and ((v:DoesHaveModifier("modifier_"..k.name) and me:DoesHaveModifier("modifier_"..k.name) and k.cd > 0) or k.abilityPhase) then sleeptick = tick + k:FindCastPoint()*3000 + k:GetChannelTime(k.level)*500 + client.latency return end
+							if damage and damage > 0 and k.name ~= "crystal_maiden_freezing_field" and 
+							((v:DoesHaveModifier("modifier_"..k.name) and me:DoesHaveModifier("modifier_"..k.name) and k.cd > 0) or k.abilityPhase) then 
+								sleeptick = tick + k:FindCastPoint()*3000 + k:GetChannelTime(k.level)*500 + client.latency return 
+							end
 						end
 					end
 				end
