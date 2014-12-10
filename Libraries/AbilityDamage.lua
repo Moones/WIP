@@ -46,7 +46,7 @@ AbilityDamage.attackModifiersList = {
 	viper_poison_attack = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; startTime = 1; };
 	clinkz_searing_arrows = { damage = "damage_bonus"; };
 	enchantress_impetus = { distance_as_damage = "distance_damage_pct"; };
-	huskar_burning_spear = { tickDuration = 8; };
+	huskar_burning_spear = { tickDuration = 8; startTime = 1; tickInterval = 1; tick = true; };
 	weaver_geminate_attack = { damageMultiplier = 2; cooldown = true; };
 	jakiro_liquid_fire = { tickDamage = "damage"; tickInterval = 1; startTime = 0.5; tickDuration = 5; cooldown = true; };
 	spectre_desolate = { damage = "bonus_damage"; special = true; };
@@ -133,7 +133,7 @@ AbilityDamage.spellList = {
 	ancient_apparition_ice_blast = { tickDuration = "frostbite_duration"; tickDamage = "dot_damage"; bonusDamagePercent = "kill_pct"; tickDurationScepter = "frostbite_duration_scepter"; startTime = 1; tickInterval = 1; tick = true; };
 	spirit_breaker_charge_of_darkness = { damageSpell = "spirit_breaker_greater_bash"; damageSpellName = "damage"; };
 	spirit_breaker_nether_strike = { damage = "damage"; damageSpell = "spirit_breaker_greater_bash"; damageSpellName = "damage"; };
-	gyrocopter_rocket_barrage = { tickInterval = 1; startTime = 0; tickDuration = 3; tick = true; };
+	gyrocopter_rocket_barrage = { tickInterval = 0.1; startTime = 0.1; tickDuration = 3; tick = true; };
 	gyrocopter_homing_missile = { maxDamageRange = "max_distance"; minBonusDamage = "min_damage"; };
 	gyrocopter_call_down = { damage = "damage_first"; bonusDamage = "damage_second"; bonusDamageScepter = "damage_second_scepter"; };
 	alchemist_unstable_concoction = { damage = "max_damage"; };
