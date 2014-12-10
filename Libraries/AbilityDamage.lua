@@ -54,7 +54,7 @@ AbilityDamage.attackModifiersList = {
 	obsidian_destroyer_arcane_orb = { manaPercentDamage = "mana_pool_damage_pct"; special = true; };
 	--brewmaster_drunken_brawler = { damageMultiplier = "crit_multiplier"; };
 	tusk_walrus_punch = { damageMultiplier = "crit_multiplier"; cooldown = true; };
-	kunkka_tidebringer = { damage = "damage_bonus"; };
+	kunkka_tidebringer = { damageBonus = "damage_bonus"; };
 }
 
 --Spells not listed here returns damage from LuaEntityAbility:GetDamage(ability.level)
@@ -133,30 +133,30 @@ AbilityDamage.spellList = {
 	ancient_apparition_ice_blast = { tickDuration = "frostbite_duration"; tickDamage = "dot_damage"; bonusDamagePercent = "kill_pct"; tickDurationScepter = "frostbite_duration_scepter"; startTime = 1; tickInterval = 1; tick = true; };
 	spirit_breaker_charge_of_darkness = { damageSpell = "spirit_breaker_greater_bash"; damageSpellName = "damage"; };
 	spirit_breaker_nether_strike = { damage = "damage"; damageSpell = "spirit_breaker_greater_bash"; damageSpellName = "damage"; };
-	gyrocopter_rocket_barrage = { tickInterval = 1; startTime = 0; tickDuration = 3; };
+	gyrocopter_rocket_barrage = { tickInterval = 1; startTime = 0; tickDuration = 3; tick = true; };
 	gyrocopter_homing_missile = { maxDamageRange = "max_distance"; minBonusDamage = "min_damage"; };
 	gyrocopter_call_down = { damage = "damage_first"; bonusDamage = "damage_second"; bonusDamageScepter = "damage_second_scepter"; };
 	alchemist_unstable_concoction = { damage = "max_damage"; };
 	alchemist_unstable_concoction_throw = { damageSpell = "alchemist_unstable_concoction"; damageSpellName = "max_damage"; };
-	invoker_cold_snap = { damage = "damage_trigger"; bonusDamage = "freeze_damage"; tickInterval = "freeze_cooldown"; tickDuration = "duration"; spellLevel = "invoker_quas"; };
+	invoker_cold_snap = { damage = "damage_trigger"; bonusDamage = "freeze_damage"; tickInterval = "freeze_cooldown"; tickDuration = "duration"; spellLevel = "invoker_quas"; tick = true; };
 	invoker_tornado = { damage = "base_damage"; bonusDamage = "wex_damage"; spellLevel = "invoker_wex"; };
 	invoker_emp = { damage = "mana_burned"; damageMultiplier = "damage_per_mana_pct"; };
-	invoker_chaos_meteor = { tickInterval = "damage_interval"; tickDamage = "main_damage"; bonusDamage = "burn_dps"; bonusDamageMultiplier = "burn_duration"; spellLevel = "invoker_exort"; };
+	invoker_chaos_meteor = { tickInterval = "damage_interval"; tickDamage = "main_damage"; bonusDamage = "burn_dps"; bonusDamageMultiplier = "burn_duration"; spellLevel = "invoker_exort"; tick = true; };
 	invoker_sun_strike = { damage = "damage"; spellLevel = "invoker_exort"; };
 	invoker_forge_spirit = { damage = "spirit_damage"; spellLevel = "invoker_exort"; };
-	invoker_ice_wall = { tickDuration = "duration"; tickDamage = "damage_per_second"; tickInterval = 1; startTime = 1; damagespellLevel = "invoker_exort"; durationspellLevel = "invoker_quas"; };
+	invoker_ice_wall = { tickDuration = "duration"; tickDamage = "damage_per_second"; tickInterval = 1; startTime = 1; damagespellLevel = "invoker_exort"; durationspellLevel = "invoker_quas"; tick = true; };
 	invoker_deafening_blast = { damage = "damage"; AbilityDamage = "invoker_exort"; };
-	silencer_curse_of_the_silent = { tickDamage = "health_damage"; tickDuration = "tooltip_duration"; tickInterval = 1; startTime = 1; };
+	silencer_curse_of_the_silent = { tickDamage = "health_damage"; tickDuration = "tooltip_duration"; tickInterval = 1; startTime = 1; tick = true; };
 	silencer_last_word = { damage = "damage"; };
-	silencer_global_silence = { spellName = "silencer_curse_of_the_silent"; tickDamage = "health_damage"; tickDuration = "tooltip_duration"; tickInterval = 1; startTime = 1; };
+	silencer_global_silence = { spellName = "silencer_curse_of_the_silent"; tickDamage = "health_damage"; tickDuration = "tooltip_duration"; tickInterval = 1; startTime = 1; tick = true; };
 	obsidian_destroyer_sanity_eclipse = { damageMultiplier = "damage_multiplier"; differenceTreshold = "int_threshold"; damageMultiplierScepter = "damage_multiplier_scepter"; };
 	lycan_summon_wolves = { damage = "wolf_damage"; damageMultiplier = 2; };
 	brewmaster_thunder_clap = { damage = "damage"; };
 	chaos_knight_chaos_bolt = { minDamage = "damage_min"; maxDamage = "damage_max"; };
 	chaos_knight_reality_rift = { damage = "bonus_damage"; };
 	meepo_poof = { damageMultiplier = 2; };
-	treant_leech_seed = { tickDamage = "leech_damage"; tickInterval = "damage_interval"; startTime = "damage_interval"; tickDuration = "duration"; };
-	ogre_magi_ignite = { tickDamage = "burn_damage"; tickDuration = "duration"; tickInterval = 1; startTime = 1; };
+	treant_leech_seed = { tickDamage = "leech_damage"; tickInterval = "damage_interval"; startTime = "damage_interval"; tickDuration = "duration"; tick = true;};
+	ogre_magi_ignite = { tickDamage = "burn_damage"; tickDuration = "duration"; tickInterval = 1; startTime = 1; tick = true; };
 	undying_decay = { damage = "decay_damage"; bonusDamage = 76; };
 	undying_soul_rip = { damagePerUnit = "damage_per_unit"; maxUnits = "max_units"; range = "radius"; };
 	rubick_fade_bolt = { damage = "damage"; };
@@ -164,7 +164,7 @@ AbilityDamage.spellList = {
 	disruptor_static_storm = { tickDuration = "duration"; tickDamage = "damage_max"; tickDurationScepter = "duration_scepter"; tickDamageScepter = {280,350,420}; tickInterval = 1; startTime = 0.25; tick = true; };
 	nyx_assassin_mana_burn = { damage = "float_multiplier"; manaBurn = true; };
 	nyx_assassin_vendetta = { damage = "bonus_damage"; modifier = true; };
-	keeper_of_the_light_illuminate = { tickDamage = "damage_per_second"; tickDuration = "max_channel_time"; tickInterval = 1; startTime = 1; };
+	keeper_of_the_light_illuminate = { tickDamage = "damage_per_second"; tickDuration = "max_channel_time"; tickInterval = 1; startTime = 1; tick = true; };
 	visage_soul_assumption = { damage = "soul_base_damage"; bonusDamage = "soul_charge_damage"; charges = true; chargesModifier = "modifier_visage_soul_assumption"; };
 	wisp_spirits = { damage = "hero_damage"; damageMultiplier = 5; };
 	slark_dark_pact = { damage = "total_damage"; };
@@ -197,7 +197,7 @@ AbilityDamage.spellList = {
 	legion_commander_duel = { duration = "duration"; };
 	ember_spirit_searing_chains = { damage = "total_damage_tooltip"; };
 	ember_spirit_sleight_of_fist = { bonusDamage = "bonus_hero_damage"; heroDamage = true; };
-	ember_spirit_flame_guard = { tickDamage = "damage_per_second"; tickDuration = "duration"; tickInterval = 1; startTime = 0.2; };
+	ember_spirit_flame_guard = { tickDamage = "damage_per_second"; tickDuration = "duration"; tickInterval = 1; startTime = 0.2; tick = true; };
 	ember_spirit_fire_remnant = { damage = "damage"; };
 	earth_spirit_boulder_smash = { damage = "rock_damage"; };
 	earth_spirit_rolling_boulder = { damage = "rock_damage"; };
