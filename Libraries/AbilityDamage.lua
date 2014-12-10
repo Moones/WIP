@@ -138,14 +138,14 @@ AbilityDamage.spellList = {
 	gyrocopter_call_down = { damage = "damage_first"; bonusDamage = "damage_second"; bonusDamageScepter = "damage_second_scepter"; };
 	alchemist_unstable_concoction = { damage = "max_damage"; };
 	alchemist_unstable_concoction_throw = { damageSpell = "alchemist_unstable_concoction"; damageSpellName = "max_damage"; };
-	invoker_cold_snap = { damage = "damage_trigger"; bonusDamage = "freeze_damage"; tickInterval = "freeze_cooldown"; tickDuration = "duration"; spellLevel = "invoker_quas"; tick = true; };
+	invoker_cold_snap = { damage = "damage_trigger"; tickDamage = "freeze_damage"; tickInterval = "freeze_cooldown"; tickDuration = "duration"; startTime = 0; spellLevel = "invoker_quas"; tick = true; };
 	invoker_tornado = { damage = "base_damage"; bonusDamage = "wex_damage"; spellLevel = "invoker_wex"; };
-	invoker_emp = { damage = "mana_burned"; damageMultiplier = "damage_per_mana_pct"; };
-	invoker_chaos_meteor = { tickInterval = "damage_interval"; tickDamage = "main_damage"; bonusDamage = "burn_dps"; bonusDamageMultiplier = "burn_duration"; spellLevel = "invoker_exort"; tick = true; };
+	invoker_emp = { damage = "mana_burned"; damageMultiplier = 0.5; spellLevel = "invoker_wex"; manaBurn = true; };
+	invoker_chaos_meteor = { tickInterval = "damage_interval"; tickDuration = 2.1; tickDamage = "main_damage"; bonusDamage = "burn_dps"; startTime = 0; bonusDamageMultiplier = 3; spellLevel = "invoker_exort"; tick = true; };
 	invoker_sun_strike = { damage = "damage"; spellLevel = "invoker_exort"; };
 	invoker_forge_spirit = { damage = "spirit_damage"; spellLevel = "invoker_exort"; };
-	invoker_ice_wall = { tickDuration = "duration"; tickDamage = "damage_per_second"; tickInterval = 1; startTime = 1; damagespellLevel = "invoker_exort"; durationspellLevel = "invoker_quas"; tick = true; };
-	invoker_deafening_blast = { damage = "damage"; AbilityDamage = "invoker_exort"; };
+	invoker_ice_wall = { tickDuration = "duration"; tickDamage = "damage_per_second"; tickInterval = 1; startTime = 1; spellLevel = "invoker_exort"; durationspellLevel = "invoker_quas"; tick = true; };
+	invoker_deafening_blast = { damage = "damage"; spellLevel = "invoker_exort"; };
 	silencer_curse_of_the_silent = { tickDamage = "health_damage"; tickDuration = "tooltip_duration"; tickInterval = 1; startTime = 1; tick = true; };
 	silencer_last_word = { damage = "damage"; };
 	silencer_global_silence = { spellName = "silencer_curse_of_the_silent"; tickDamage = "health_damage"; tickDuration = "tooltip_duration"; tickInterval = 1; startTime = 1; tick = true; };
@@ -229,26 +229,38 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 	local dmg = ability:GetDamage(ability.level)
 	if spell then
 		if spell.tick then
-			local tickDuration = (((spell.tickDuration) and (ability:GetSpecialData(""..spell.tickDuration, ability.level))) or spell.tickDuration)
+			local spellLevel = nil
+			if spell.spellLevel then
+				spellLevel = owner:FindSpell(spell.spellLevel).level
+			end
+			local level = spellLevel or ability.level
+			local tickDuration
+			if type(spell.tickDuration) == "table" then
+				tickDuration = spell.tickDuration[level]
+			elseif spell.durationspellLevel then
+				tickDuration = ability:GetSpecialData(""..spell.tickDuration, owner:FindSpell(spell.durationspellLevel).level)
+			else
+				tickDuration = (((spell.tickDuration) and (ability:GetSpecialData(""..spell.tickDuration, level))) or spell.tickDuration)
+			end
 			local tickInterval
 			if type(spell.tickInterval) == "table" then
-				tickInterval = spell.tickInterval[ability.level]
+				tickInterval = spell.tickInterval[level]
 			else
-				tickInterval = (((spell.tickInterval) and (ability:GetSpecialData(""..spell.tickInterval, ability.level))) or spell.tickInterval)
+				tickInterval = (((spell.tickInterval) and (ability:GetSpecialData(""..spell.tickInterval, level))) or spell.tickInterval)
 			end
-			local tickDamage = (((spell.tickDamage) and (ability:GetSpecialData(""..spell.tickDamage, ability.level))) or dmg)
-			local startTime = (((spell.startTime) and (ability:GetSpecialData(""..spell.startTime, ability.level))) or spell.startTime)
-			local tickCount = ((spell.tickCount) and (ability:GetSpecialData(""..spell.tickCount, ability.level)))
-			local damage = ((spell.damage) and (ability:GetSpecialData(""..spell.damage, ability.level)))
+			local tickDamage = (((spell.tickDamage) and (ability:GetSpecialData(""..spell.tickDamage, level))) or dmg)
+			local startTime = (((spell.startTime) and (ability:GetSpecialData(""..spell.startTime, level))) or spell.startTime)
+			local tickCount = ((spell.tickCount) and (ability:GetSpecialData(""..spell.tickCount, level)))
+			local damage = ((spell.damage) and (ability:GetSpecialData(""..spell.damage, level)))
 			if not damage and tickDamage ~= dmg then
 				damage = dmg
 			end
-			local bonusDamage = ((spell.bonusDamage) and (ability:GetSpecialData(""..spell.bonusDamage, ability.level)))
+			local bonusDamage = ((spell.bonusDamage) and (ability:GetSpecialData(""..spell.bonusDamage, level)))
 			if owner:AghanimState() then
-				tickDuration = (((spell.tickDurationScepter) and (ability:GetSpecialData(""..spell.tickDurationScepter, ability.level))) or tickDuration)
-				tickDamage = (((spell.tickDamageScepter) and (ability:GetSpecialData(""..spell.tickDamageScepter, ability.level))) or tickDamage)
+				tickDuration = (((spell.tickDurationScepter) and (ability:GetSpecialData(""..spell.tickDurationScepter, level))) or tickDuration)
+				tickDamage = (((spell.tickDamageScepter) and (ability:GetSpecialData(""..spell.tickDamageScepter, level))) or tickDamage)
 			end
-			local finalDamage
+			local finalDamage = 0
 			if tickDuration and tickInterval and startTime then
 				finalDamage = (((tickDuration - startTime)/tickInterval) or tickCount)*tickDamage
 			elseif tickCount then
@@ -263,10 +275,13 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			if hpRegen and tickDuration then
 				finalDamage = finalDamage - (hpRegen*tickDuration)
 			end
+			--print(ability.name, finalDamage)
 			return finalDamage
 		elseif spell.manaBurn then
 			if ability.name == "antimage_mana_void" then
 				return ability:GetSpecialData(""..spell.damage,ability.level)
+			elseif ability.name == "invoker_emp" then
+				return ability:GetSpecialData(""..spell.damage,owner:FindSpell(spell.spellLevel).level)
 			end
 		else
 			local spellLevel = nil
@@ -332,6 +347,7 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			local startTime = (((spell.startTime) and (ability:GetSpecialData(""..spell.startTime, ability.level))) or spell.startTime)
 			local tickCount = ((spell.tickCount) and (ability:GetSpecialData(""..spell.tickCount, ability.level)))
 			local damage = ((spell.damage) and (ability:GetSpecialData(""..spell.damage, ability.level)))
+			local bonusDamageMultiplier = (((spell.bonusDamageMultiplier) and (ability:GetSpecialData(""..spell.bonusDamageMultiplier, level))) or spell.bonusDamageMultiplier)
 			if not damage and tickDamage ~= dmg then
 				damage = dmg
 			end
@@ -348,6 +364,12 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			end
 			if damage then
 				finalDamage = finalDamage + damage
+			end
+			if bonusDamageMultiplier then
+				if bonusDamageMultiplier > 100 then 
+					bonusDamageMultiplier = bonusDamageMultiplier/100
+				end
+				bonusDamage = bonusDamage*bonusDamageMultiplier
 			end
 			if bonusDamage then
 				finalDamage = finalDamage + bonusDamage
@@ -404,7 +426,12 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			damage = (((item.damage) and (ability:GetSpecialData(""..item.damage))))
 		end
 		if ability.name == "item_ethereal_blade" then
-			damage = damage + (((item.mult) and (ability:GetSpecialData(""..item.mult))))*owner.agilityTotal
+			local atr = owner.primaryAttribute
+			if atr == LuaEntityHero.ATTRIBUTE_STRENGTH then atr = owner.strengthTotal
+			elseif atr == LuaEntityHero.ATTRIBUTE_AGILITY then atr = owner.agilityTotal
+			elseif atr == LuaEntityHero.ATTRIBUTE_INTELLIGENCE then atr = owner.intellectTotal
+			end
+			damage = damage + (((item.mult) and (ability:GetSpecialData(""..item.mult))))*atr
 		end
 		return damage
 	elseif dmg then
