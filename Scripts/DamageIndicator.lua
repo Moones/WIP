@@ -292,10 +292,19 @@ function Tick(tick)
 							damage = damage*v.health
 						end
 						
+						--Necrophos's Reapers Scythe
+						if k.name == "necrolyte_reapers_scythe" then	
+							damage = damage*(v.maxHealth - v.health)
+						end
+						
 						--every magical damage is amplificated by EtherealBlade
 						if ethMult and type == DAMAGE_MAGC then
 							damage = damage*1.4
-							--print(damage)
+						end
+						
+						--Enchantress's Impetus
+						if k.name = "enchantress_impetus" then
+							damage = damage * GetDistance2D(me,v)
 						end
 						
 						if v.health < v.maxHealth or (v.health - totalDamage) < v.maxHealth then
