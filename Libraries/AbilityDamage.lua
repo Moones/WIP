@@ -45,7 +45,7 @@ AbilityDamage.attackModifiersList = {
 	--venomancer_poison_sting = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; startTime = 0; tick = true; };
 	viper_poison_attack = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; startTime = 1; };
 	clinkz_searing_arrows = { damage = "damage_bonus"; };
-	enchantress_impetus = { distance_as_damage = "distance_damage_pct"; };
+	enchantress_impetus = { damage = "distance_damage_pct"; };
 	huskar_burning_spear = { tickDuration = 8; startTime = 1; tickInterval = 1; tick = true; };
 	weaver_geminate_attack = { damageMultiplier = 2; cooldown = true; };
 	jakiro_liquid_fire = { tickDamage = "damage"; tickInterval = 1; startTime = 0.5; tickDuration = 5; cooldown = true; };
@@ -79,7 +79,7 @@ AbilityDamage.spellList = {
 	shadow_shaman_shackles = { damage = "total_damage"; };
 	shadow_shaman_mass_serpent_ward = { damage = "damage_min"; damageScepter = "damage_min_scepter"; damageMultiplier = "ward_count"; };
 	razor_plasma_field = { minDamage = "damage_min"; maxDamage = "damage_max"; range = "radius"; };
-	skeleton_king_hellfire_blast = { tickDuration = "blast_dot_duration"; tickDamage = "blast_dot_damage"; };
+	skeleton_king_hellfire_blast = { tickDuration = "blast_dot_duration"; tickDamage = "blast_dot_damage"; tick = true; };
 	storm_spirit_static_remnant = { damage = "static_remnant_damage"; };
 	sandking_epicenter = { damage = "epicenter_damage"; damageMultiplier = "epicenter_pulses";  damageMultiplierScepter = "epicenter_pulses_scepter"; };
 	tiny_toss = { damage = "toss_damage"; };
@@ -92,7 +92,7 @@ AbilityDamage.spellList = {
 	riki_backstab = { damage = "damage_multiplier"; };
 	enigma_malefice = { damage = "damage"; damageMultiplier = 3; };
 	necrolyte_reapers_scythe = { damage = "damage_per_health"; damageScepter = "damage_per_health_scepter"; };
-	warlock_shadow_word = { tickDuration = "duration"; tickInterval = "tick_interval"; startTime = 1; };
+	warlock_shadow_word = { tickDuration = "duration"; tickInterval = "tick_interval"; startTime = 1; tick = true; };
 	beastmaster_primal_roar = { damage = "damage"; };
 	beastmaster_wild_axes = { damageMultiplier = 2; };
 	queenofpain_shadow_strike = { damage = "strike_damage"; tickDamage = "duration_damage"; tickInterval = 3; startTime = 3; tickDuration = 15; };
@@ -107,11 +107,11 @@ AbilityDamage.spellList = {
 	rattletrap_battery_assault = { tickDuration = "duration"; tickInterval = "interval"; startTime = 0; tick = true; };
 	rattletrap_hookshot = { damage = "damage"; };
 	leshrac_diabolic_edict = { tickDuration = 8; tickInterval = 0.25; startTime = 0; };
-	leshrac_pulse_nova = { tickDamage = "damage"; tickDamageScepter = "damage_scepter"; tickInterval = 1; startTime = 0; };
+	leshrac_pulse_nova = { tickDamage = "damage"; tickDamageScepter = "damage_scepter"; tickInterval = 1; startTime = 0; tick = true; };
 	furion_wrath_of_nature = { damage = "damage"; damageScepter = "damage_scepter"; };
 	life_stealer_infest = { damage = "damage"; };
 	dark_seer_vacuum = { damage = "damage"; };
-	dark_seer_ion_shell = { tickDamage = "damage_per_second"; tickDuration = "duration"; tickInterval = 1; startTime = 0.1; };
+	dark_seer_ion_shell = { tickDamage = "damage_per_second"; tickDuration = "duration"; tickInterval = 1; startTime = 0.1; tick = true; };
 	dark_seer_wall_of_replica = { damage = "damage"; };
 	omniknight_purification = { damage = "heal"; };
 	huskar_life_break = { damage = "health_damage"; damageScepter = "health_damage_scepter"; };
@@ -119,14 +119,14 @@ AbilityDamage.spellList = {
 	bounty_hunter_shuriken_toss = { damage = "bonus_damage"; };
 	bounty_hunter_wind_walk = { bonusDamage = "bonus_damage"; heroDamage = true; };
 	weaver_shukuchi = { damage = "damage"; };
-	jakiro_dual_breath = { tickDamage = "burn_damage"; tickDuration = "tooltip_duration"; tickInterval = 0.5; startTime = 0.5; tickDuration = 5; };
+	jakiro_dual_breath = { tickDamage = "burn_damage"; tickDuration = "tooltip_duration"; tickInterval = 0.5; startTime = 0.5; tickDuration = 5; tick = true; };
 	jakiro_ice_path = { damage = "damage"; };
-	jakiro_macropyre = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; tickDamageScepter = "damage_scepter"; tickDurationScepter = "duration_scepter"; startTime = 0.5; };
+	jakiro_macropyre = { tickDamage = "damage"; tickDuration = "duration"; tickInterval = 1; tickDamageScepter = "damage_scepter"; tickDurationScepter = "duration_scepter"; startTime = 0.5; tick = true;  };
 	batrider_flamebreak = { damage = "damage"; };
 	batrider_sticky_napalm = { damage = "damage"; };
 	chen_test_of_faith = { maxDamage = "damage_max"; minDamage = "damage_min"; };
 	spectre_spectral_dagger = { damage = "damage"; };
-	doom_bringer_scorched_earth = { tickDamage = "damage_per_second"; tickDuration = "duration";  tickInterval = 1; startTime = 1; };
+	doom_bringer_scorched_earth = { tickDamage = "damage_per_second"; tickDuration = "duration";  tickInterval = 1; startTime = 1; tick = true; };
 	doom_bringer_lvl_death = { damage = "damage"; };
 	doom_bringer_doom = { tickDamage = "damage"; tickDuration = "duration"; tickDamageScepter = "damage_scepter"; tickDurationScepter = "duration_scepter"; tickInterval = 1; startTime = 0; tick = true; };
 	ancient_apparition_cold_feet = { tickDamage = "damage"; tickInterval = {0.8,0.8,0.9,0.9}; startTime = 0.8; tick = true; tickDuration = 4; };
