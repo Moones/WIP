@@ -303,7 +303,7 @@ function Tick(tick)
 						end
 						
 						--Enchantress's Impetus
-						if k.name = "enchantress_impetus" then
+						if k.name == "enchantress_impetus" then
 							damage = damage * GetDistance2D(me,v)
 						end
 						
