@@ -104,17 +104,8 @@ function Main(tick)
 	local ID = me.classId if ID ~= myId then Close() end
 	local player = entityList:GetMyPlayer()
 
-	if HUD:IsChecked(6) then
-		active = true
-	else
-		active = false
-	end
-	
-	if HUD:IsChecked(7) then
-		orchidfirst = true
-	else
-		orchidfirst = false
-	end
+	active = HUD:IsChecked(6)
+	orchidfirst = HUD:IsChecked(7)
 	
 	if active then
 		local Spiderlings = entityList:GetEntities({classId=CDOTA_Unit_Broodmother_Spiderling, controllable=true, team=me.team, alive=true})
