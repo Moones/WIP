@@ -1,4 +1,5 @@
 require("libs.Utils")
+require("libs.Animations")
 --[[
                              ___
                             ( ((
@@ -194,7 +195,7 @@ AbilityDamage.spellList = {
 	elder_titan_ancestral_spirit = { damage = "pass_damage"; };
 	elder_titan_earth_splitter = { damageHealthMultiplier = "damage_pct"; };
 	legion_commander_overwhelming_odds = { damage = "damage"; bonusDamageUnit = "damage_per_unit"; bonusDamageHero = "damage_per_hero"; };
-	legion_commander_duel = { duration = "duration"; };
+	legion_commander_duel = { duration = "duration"; heroDamage = true; };
 	ember_spirit_searing_chains = { damage = "total_damage_tooltip"; };
 	ember_spirit_sleight_of_fist = { bonusDamage = "bonus_hero_damage"; heroDamage = true; };
 	ember_spirit_flame_guard = { tickDamage = "damage_per_second"; tickDuration = "duration"; tickInterval = 1; startTime = 0.2; tick = true; };
@@ -291,10 +292,14 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			local level = spellLevel or ability.level
 			local damage = (((spell.damage) and (ability:GetSpecialData(""..spell.damage,level))) or dmg or spell.damage)
 			if spell.heroDamage then
-				damage = owner.dmgMin
+				damage = owner.dmgMin+owner.dmgBonus
 			end
 			if ability.name == "centaur_stampede" then
 				damage = owner.strengthTotal*ability:GetSpecialData(""..spell.damageStrenghtMultiplier,level)
+			end
+			if ability.name == "legion_commander_duel" then
+				local attackTime = (Animations.getBackswingTime(owner)+Animations.GetAttackTime(owner)) + client.latency/1000
+				damage = damage*math.floor(ability:GetSpecialData("duration",level)/attackTime)
 			end
 			local damageMultiplier = (((spell.damageMultiplier) and (ability:GetSpecialData(""..spell.damageMultiplier, level))) or spell.damageMultiplier)
 			local bonusDamage = (((spell.bonusDamage) and (ability:GetSpecialData(""..spell.bonusDamage,level))) or spell.bonusDamage)
