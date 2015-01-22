@@ -94,8 +94,7 @@ local F13 = drawMgr:CreateFont("F13","Tahoma",13*monitor,650*monitor)
 
 --Main function
 function Tick(tick)
-	if not PlayingGame() or client.console or tick < sleeptick then return end sleeptick = tick + 200
-	
+	if not PlayingGame() or client.console or tick < sleeptick or Animations.maxCount < 1 then return end sleeptick = tick + 200
 	local me = entityList:GetMyHero()
 	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO, team = me:GetEnemyTeam()})	
 	local abilities = me.abilities
@@ -235,8 +234,8 @@ function Tick(tick)
 				--Calculating damage from spells
 				for h,k in ipairs(abilities) do
 					if k.level > 0 then
-						if not damages[k.handle] or damages[k.handle][2] < k.level then
-							damages[k.handle] = { AbilityDamage.GetDamage(k,v.healthRegen), k.level }
+						if not damages[k.handle] or damages[k.handle][2] < k.level or damages[k.handle][3] ~= me.dmgMin+me.dmgBonus then
+							damages[k.handle] = { AbilityDamage.GetDamage(k,v.healthRegen), k.level, me.dmgMin+me.dmgBonus }
 						end
 						local damage = damages[k.handle][1]
 						--Damage dependent on enemy mana
@@ -264,7 +263,8 @@ function Tick(tick)
 						if k.name == "axe_culling_blade" then type = DAMAGE_PURE end
 						if k.name == "alchemist_unstable_concoction_throw" then type = DAMAGE_PHYS end
 						if k.name == "centaur_stampede" then type = DAMAGE_MAGC end
-						if k.name == "lina_laguna_blade" and me:AghanimState() then type = DAMAGE_PURE end	
+						if k.name == "lina_laguna_blade" and me:AghanimState() then type = DAMAGE_PURE end
+						if k.name == "legion_commander_duel" then type = DAMAGE_PHYS end
 						local takenDmg
 						
 						--Bristleback's Quill Spray stacks
