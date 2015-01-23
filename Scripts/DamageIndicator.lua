@@ -234,8 +234,8 @@ function Tick(tick)
 				--Calculating damage from spells
 				for h,k in ipairs(abilities) do
 					if k.level > 0 then
-						if not damages[k.handle] or damages[k.handle][2] < k.level or damages[k.handle][3] ~= me.dmgMin+me.dmgBonus then
-							damages[k.handle] = { AbilityDamage.GetDamage(k,v.healthRegen), k.level, me.dmgMin+me.dmgBonus }
+						if not damages[k.handle] or damages[k.handle][2] < k.level or damages[k.handle][3] ~= me.dmgMin+me.dmgBonus or damages[k.handle][4] ~= me.attackSpeed then
+							damages[k.handle] = { AbilityDamage.GetDamage(k,v.healthRegen), k.level, me.dmgMin+me.dmgBonus, me.attackSpeed }
 						end
 						local damage = damages[k.handle][1]
 						--Damage dependent on enemy mana
