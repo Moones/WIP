@@ -18,7 +18,7 @@ require("libs.HeroInfo")
               weeeeeeeeeeeeeeeew/////////////.                     
                weeeeeeeeeeeeeeeew////////////.                     
                weeeeeeeeeeeeeeeew///////////.                      
-                weeeeeeeeeeeeeeew//////////.                        
+                weeeeeeeeeeeeeeew//////////.                       
                  weeeeeeeeeeeeeew////////..                        
                  weeeeeeeeeeeeeeew//////.                          
                   wweeeeeeeeeeeeew/////.                           
@@ -35,7 +35,7 @@ require("libs.HeroInfo")
         |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^       |    *    *     **    
         +-------------------------------------------------+    *   **      **   
                                                                             *       
-        =+=+=+=+=+=+=+=+= VERSION 1.0.2 =+=+=+=+=+=+=+=+=+=
+        =+=+=+=+=+=+=+=+= VERSION 1.0.2.1 =+=+=+=+=+=+=+=+=
 	 
         Description:
         ------------
@@ -88,21 +88,22 @@ require("libs.HeroInfo")
         Changelog:
         ----------
 		
+			 - 27. 1.  2015 - Version 1.0.2.1 Fixed for Metamorphosis and Elder dragon form
+		
              - 21. 11. 2014 - Version 1.0.2 Fixed bug with tick count.
 		
              - 21. 11. 2014 - Version 1.0.1 Now CanMove returning false when hero is casting an ability.
-	 
+	
              - 21. 11. 2014 - Version 1.0 First Release
 ]]--
 
-Animations = {} 
+Animations = {}
 
 Animations.table = {}
 Animations.attacksTable = {}
 Animations.startTime = nil
 Animations.count = 0
 Animations.maxCount = 0
-Animations.sleep = 0
 Animations.entities = {}
 
 function Animations.trackingTick(tick)
@@ -111,55 +112,56 @@ function Animations.trackingTick(tick)
 	elseif (client.gameTime < 0 and Animations.startTime > 0) then Animations.startTime = client.gameTime Animations.maxCount = 0 Animations.table = {}
 	elseif (client.gameTime - Animations.startTime) >= 1 then Animations.startTime = nil Animations.maxCount = Animations.count Animations.count = 0
 	else Animations.count = Animations.count + 1 end
-	local creeps, siege, towers, heroes, spirits, wards, wolves
-	if tick > Animations.sleep and Animations.maxCount > 0 then
-		Animations.entities = {}
-		Animations.sleep = 2000
-		creeps = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane,alive=true,visible=true})
-		siege = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Siege,alive=true,visible=true})
-		towers = entityList:GetEntities({classId=CDOTA_BaseNPC_Tower,alive=true,visible=true})
-		heroes = entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true})
-		spirits = entityList:GetEntities({classId=CDOTA_BaseNPC_Invoker_Forged_Spirit,alive=true,visible=true})
-		wards = entityList:GetEntities({classId=CDOTA_BaseNPC_Venomancer_PlagueWard,alive=true,visible=true})
-		wolves = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Neutral,alive=true,visible=true})	
-		for _, entity in pairs(creeps) do 
-			if entity.spawned and entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
-				Animations.entities[#Animations.entities + 1] = entity
-			end
-		end
-		for _, entity in pairs(siege) do
-			if entity.spawned and entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
-				Animations.entities[#Animations.entities + 1] = entity
-			end	
-		end
-		for _, entity in pairs(towers) do
-			if entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
-				Animations.entities[#Animations.entities + 1] = entity
-			end	
-		end
-		for _, entity in pairs(heroes) do
-			if entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
-				Animations.entities[#Animations.entities + 1] = entity
-			end
-		end
-		for _, entity in pairs(spirits) do
-			if entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
-				Animations.entities[#Animations.entities + 1] = entity
-			end	
-		end
-		for _, entity in pairs(wolves) do
-			if entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
-				Animations.entities[#Animations.entities + 1] = entity
-			end	
-		end
-		for _, entity in pairs(wards) do
-			if entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
-				Animations.entities[#Animations.entities + 1] = entity
-			end	
+	Animations.entities = {}
+	local creeps = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane,alive=true,visible=true})
+	local siege = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Siege,alive=true,visible=true})
+	local towers = entityList:GetEntities({classId=CDOTA_BaseNPC_Tower,alive=true,visible=true})
+	local heroes = entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true})
+	local spirits = entityList:GetEntities({classId=CDOTA_BaseNPC_Invoker_Forged_Spirit,alive=true,visible=true})
+	local wards = entityList:GetEntities({classId=CDOTA_BaseNPC_Venomancer_PlagueWard,alive=true,visible=true})
+	local wolves = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Neutral,alive=true,visible=true})	
+	for _, entity in pairs(creeps) do 
+		if entity.spawned and entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
+			Animations.entities[#Animations.entities + 1] = entity
 		end
 	end
+	for _, entity in pairs(siege) do
+		if entity.spawned and entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
+			Animations.entities[#Animations.entities + 1] = entity
+		end	
+	end
+	for _, entity in pairs(towers) do
+		if entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
+			Animations.entities[#Animations.entities + 1] = entity
+		end	
+	end
+	for _, entity in pairs(heroes) do
+		if entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
+			Animations.entities[#Animations.entities + 1] = entity
+		end
+	end
+	for _, entity in pairs(spirits) do
+		if entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
+			Animations.entities[#Animations.entities + 1] = entity
+		end	
+	end
+	for _, entity in pairs(wolves) do
+		if entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() then
+			Animations.entities[#Animations.entities + 1] = entity
+		end	
+	end
+	for _, entity in pairs(wards) do
+		if entity.alive and not entity:IsInvul() and not entity:IsAttackImmune() and not entity.ancient then
+			Animations.entities[#Animations.entities + 1] = entity
+		end	
+	end
+	local bear = entityList:GetEntities({classId=CDOTA_Unit_SpiritBear,visible=true,alive=true})[1]
+	if bear then
+		Animations.entities[#Animations.entities + 1] = bear
+	end
+	
 	for i,v in ipairs(Animations.entities) do
-		if (v.hero and not v:IsIllusion()) or not v.hero then
+		if not v.hero or not v:IsIllusion() then
 			if not Animations.table[v.handle] then
 				Animations.table[v.handle] = {}
 			end
@@ -218,6 +220,7 @@ function Animations.trackingTick(tick)
 			local hero = HeroInfo(v)
 			if hero and heroInfo[v.name] then
 				hero:Update()
+				
 				Animations.table[v.handle].attackTime = hero.attackPoint - ((client.latency/1000)/(1 + (1 - 1/Animations.maxCount))) + (1/Animations.maxCount)*3*(1 + (1 - 1/Animations.maxCount))
 				Animations.table[v.handle].moveTime = (hero.attackRate) - (client.latency/1000) - (1/Animations.maxCount)*3
 				
@@ -234,15 +237,19 @@ function Animations.trackingTick(tick)
 				for k,z in ipairs(projs) do
 					if GetDistance2D(z.position, v.position) < 127 and not Animations.table[v.handle].canmove then
 						Animations.table[v.handle].canmove = true
-						Animations.table[v.handle].endTime = client.gameTime + (hero.attackBackswing) - (client.latency/1000) - (1/Animations.maxCount)*3
+						-- if v.name == "npc_dota_hero_dragon_knight" then	
+							-- print("Asd")
+							Animations.table[v.handle].endTime = client.gameTime + Animations.table[v.handle].moveTime - Animations.table[v.handle].attackTime
+						-- else
+							-- Animations.table[v.handle].endTime = client.gameTime + (hero.attackBackswing) - (client.latency/1000) - (1/Animations.maxCount)*3
+						-- end
 					end
 				end
 				if Animations.table[v.handle].endTime and Animations.table[v.handle].endTime <= client.gameTime then
 					Animations.table[v.handle].startTime = nil
-					Animations.table[v.handle].canmoveTime = nil 
+					Animations.table[v.handle].canmoveTime = nil
 					Animations.table[v.handle].endTime = nil
 					Animations.table[v.handle].canmove = false
-					return
 				end
 				if Animations.table[v.handle].startTime then
 					Animations.table[v.handle].duration = client.gameTime - Animations.table[v.handle].startTime + 1/Animations.maxCount + client.latency/1000
@@ -252,13 +259,12 @@ function Animations.trackingTick(tick)
 				end
 			end
 		end
-	end 
+	end
 end
 
 function Animations.trackLoad()
 	Animations.count = 0
 	Animations.maxCount = 0
-	Animations.entities = {}
 end
 
 function Animations.getCount()
@@ -281,6 +287,10 @@ function Animations.isAttacking(hero)
 	return hero.activity == LuaEntityNPC.ACTIVITY_ATTACK or hero.activity == LuaEntityNPC.ACTIVITY_ATTACK1 or hero.activity == LuaEntityNPC.ACTIVITY_ATTACK2 or hero.activity == LuaEntityNPC.ACTIVITY_CRIT
 end
 
+function Animations.isCriting(hero)
+	return hero.activity == LuaEntityNPC.ACTIVITY_CRIT
+end
+
 function Animations.CanMove(hero)
 	if Animations.table[hero.handle] then return Animations.table[hero.handle].canmove end
 end
@@ -290,6 +300,13 @@ function Animations.GetAttackTime(hero)
 	end
 	return 0
 end
+
+function Animations.getBackswingTime(hero)
+	if hero and Animations.table[hero.handle] and Animations.table[hero.handle].attackTime and Animations.table[hero.handle].moveTime then return Animations.table[hero.handle].moveTime - Animations.table[hero.handle].attackTime elseif HeroInfo(hero) and HeroInfo(hero).attackPoint and HeroInfo(hero).attackRate then return (HeroInfo(hero).attackRate - (client.latency/1000) - (1/Animations.maxCount)*3) - (HeroInfo(hero).attackPoint - ((client.latency/1000)/(1 + (1 - 1/Animations.maxCount))) + (1/Animations.maxCount)*3*(1 + (1 - 1/Animations.maxCount)))
+	end
+	return 0 
+end
+
 
 class 'HeroInfo'
 
@@ -311,8 +328,8 @@ function HeroInfo:Update()
 end
 
 function HeroInfo:GetAttackSpeed()
-	if self.entity.attackSpeed > 500 then
-		return 500
+	if self.entity.attackSpeed > 600 then
+		return 600
 	end
 	return self.entity.attackSpeed
 end
