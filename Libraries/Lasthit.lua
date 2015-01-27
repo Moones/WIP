@@ -57,26 +57,36 @@ function Lasthit.GetLasthit(hero)
 		end
 		local sortedTable = { }
 		for creepHandle, creepClass in pairs(Lasthit.creepTable) do	table.insert(sortedTable, creepClass) end
-		table.sort(sortedTable, function(a,b) return a.creepEntity.health < b.creepEntity.health end)		
+		table.sort(sortedTable, function(a,b) return a.creepEntity.health > b.creepEntity.health end)		
 		for creepHandle, creepClass in pairs(sortedTable) do	
-			if creepClass.creepEntity.team ~= hero.team and GetDistance2D(hero, creepClass.creepEntity) < Lasthit.AttackRange(hero)*2 then
-				local Dmg = (GetDamage(hero,creepClass) + hero.dmgMax)/2				
+			if creepClass.creepEntity.team ~= hero.team and GetDistance2D(hero, creepClass.creepEntity) < math.max(Lasthit.AttackRange(hero)*2,600) then
+				local Dmg = GetDamage(hero,creepClass)			
 				if not Lasthit.table[hero.handle] then
 					Lasthit.table[hero.handle] = {}
 				end
 				Lasthit.table[hero.handle].time = creepClass:GetTimeToHealth(Dmg)
+				Lasthit.table[hero.handle].timeDouble = creepClass:GetTimeToHealth(Dmg*2)
 				Lasthit.table[hero.handle].timeToDie = creepClass:GetTimeToHealth(0)
-				local myattackTime = (client.gameTime + Animations.GetAttackTime(hero) + client.latency/1000 + (1/Animations.maxCount)*3 + hero:GetTurnTime(creepClass.creepEntity) + (math.max((GetDistance2D(hero, creepClass.creepEntity) - 50 - Lasthit.AttackRange(hero)), 0)/hero.movespeed))
+				Lasthit.table[hero.handle].double = false
+				local myattackTime = (client.gameTime + Animations.GetAttackTime(hero) + hero:GetTurnTime(creepClass.creepEntity) + (math.max((GetDistance2D(hero, creepClass.creepEntity) - 50-Lasthit.AttackRange(hero)), 0)/hero.movespeed))
 				if heroInfo[hero.name].projectileSpeed then
 					myattackTime = myattackTime + ((GetDistance2D(hero, creepClass.creepEntity)-math.max((GetDistance2D(hero, creepClass.creepEntity) - 50 - Lasthit.AttackRange(hero)), 0))/heroInfo[hero.name].projectileSpeed)
 				end			
 				-- if Lasthit.table[hero.handle].time then
 					-- print(Lasthit.table[hero.handle].time, myattackTime - client.gameTime) end
 				if hero.team ~= creepClass.creepEntity.team then
-					if ((Lasthit.table[hero.handle].timeToDie and Lasthit.table[hero.handle].timeToDie > myattackTime) or not Lasthit.table[hero.handle].timeToDie) and (Dmg >= creepClass.creepEntity.health or (Lasthit.table[hero.handle].time and Lasthit.table[hero.handle].time <= myattackTime)) then
+					if (Dmg >= creepClass.creepEntity.health or (Lasthit.table[hero.handle].time and Lasthit.table[hero.handle].time <= myattackTime)) then
 						if not Lasthit.table[hero.handle].creep or not Lasthit.table[hero.handle].creep.alive or not Lasthit.table[hero.handle].creep.visible then
 							Lasthit.table[hero.handle].creep = creepClass.creepEntity
 							Lasthit.table[hero.handle].class = creepClass
+							Lasthit.table[hero.handle].double = false
+						end
+					end
+					if (Lasthit.table[hero.handle].timeDouble and Lasthit.table[hero.handle].timeDouble > (myattackTime + Animations.GetAttackTime(hero) + Animations.getBackswingTime(hero)*2)) then
+						if not Lasthit.table[hero.handle].creep or not Lasthit.table[hero.handle].creep.alive or not Lasthit.table[hero.handle].creep.visible then
+							Lasthit.table[hero.handle].creep = creepClass.creepEntity
+							Lasthit.table[hero.handle].class = creepClass
+							Lasthit.table[hero.handle].double = true
 						end
 					end
 				end
@@ -87,16 +97,25 @@ end
  
 function StopAttack(hero)
 	if SleepCheck("attack") and hero and Lasthit.table[hero.handle].creep and Lasthit.table[hero.handle].creep.alive then
-		local Dmg = (GetDamage(hero,Lasthit.table[hero.handle].class) + (hero.dmgMin + hero.dmgMax)/2)/2
-		--Lasthit.table[hero.handle].time = Lasthit.table[hero.handle].class:GetTimeToHealth(Dmg)
+		local Dmg = GetDamage(hero,Lasthit.table[hero.handle].class)
+		local time = Lasthit.table[hero.handle].class:GetTimeToHealth(Dmg)
+		local timeDouble = Lasthit.table[hero.handle].class:GetTimeToHealth(Dmg*2)
 		Lasthit.table[hero.handle].timeToDie = Lasthit.table[hero.handle].class:GetTimeToHealth(0)
-		local myattackTime = (client.gameTime + Animations.GetAttackTime(hero))
+		local myattackTime = (client.gameTime + Animations.getAttackDuration(hero))
 		if heroInfo[hero.name].projectileSpeed then
 			myattackTime = myattackTime + ((GetDistance2D(hero, Lasthit.table[hero.handle].creep)-math.max((GetDistance2D(hero, Lasthit.table[hero.handle].creep) - 50 - Lasthit.AttackRange(hero)), 0))/heroInfo[hero.name].projectileSpeed)
 		end
-		if (not Lasthit.table[hero.handle].timeToDie or Lasthit.table[hero.handle].timeToDie > myattackTime) and (((Lasthit.table[hero.handle].time and Lasthit.table[hero.handle].time > myattackTime) and (Lasthit.table[hero.handle].creep.health > Dmg)) or (not Lasthit.table[hero.handle].time and Lasthit.table[hero.handle].creep.health > Dmg)) then
+		if Lasthit.table[hero.handle].double and (Lasthit.table[hero.handle].timeDouble and Lasthit.table[hero.handle].timeDouble < (myattackTime + Animations.GetAttackTime(hero) + Animations.getBackswingTime(hero)*2)) then
+			hero:Stop()
+			Lasthit.table[hero.handle].creep = nil
+			Lasthit.table[hero.handle].class = nil
+			Sleep((myattackTime - client.gameTime)*500, "attack")
+		elseif ((((Lasthit.table[hero.handle].time and Lasthit.table[hero.handle].time > myattackTime) and (Lasthit.table[hero.handle].creep.health > Dmg)))) then
 			--print((Lasthit.table[hero.handle].time and Lasthit.table[hero.handle].time > myattackTime),(not Lasthit.table[hero.handle].time and Lasthit.table[hero.handle].creep.health > Dmg2))
 			hero:Stop()
+			--print(Lasthit.table[hero.handle].double)
+			Lasthit.table[hero.handle].creep = nil
+			Lasthit.table[hero.handle].class = nil
 			Sleep((myattackTime - client.gameTime)*500, "attack")
 		end
 	end
@@ -232,7 +251,8 @@ function GetDamage(hero,target,crit)
 			dmg = dmg+tidebringer:GetSpecialData("damage_bonus", tidebringer.level)
 		end
 	end
-	dmg = (math.floor(dmg * Lasthit.armorTypeModifiers["Hero"][target.armorType] * (1 - target.creepEntity.dmgResist)))		
+	dmg = target.creepEntity:DamageTaken(dmg,DAMAGE_PHYS,hero)
+	--dmg = (math.floor(dmg * Lasthit.armorTypeModifiers["Hero"][target.armorType] * (1 - target.creepEntity.dmgResist)))		
 	return dmg
 end 
 
@@ -301,16 +321,19 @@ function Creep:GetTimeToHealth(health)
 		for k, v in pairs(self.futureAttackTicks) do table.insert(sortedTable, v) end
 		table.sort(sortedTable, function(a,b) return a[2] < b[2] end)		
 		local totalDamage = 0
-		for i = 1, Animations.maxCount do
+		--print(numItems)
+		-- for i = 1, numItems do
 			for _, nextAttackTickTable in pairs(sortedTable) do					
 				if nextAttackTickTable[1].creepEntity.alive and self.creepEntity.alive and client.gameTime <= nextAttackTickTable[2] then
-					totalDamage = totalDamage + (math.floor((nextAttackTickTable[1].creepEntity.dmgMin + nextAttackTickTable[1].creepEntity.dmgBonus) * Lasthit.armorTypeModifiers[nextAttackTickTable[1].attackType][self.armorType] * (1 - self.creepEntity.dmgResist)))						
+					--totalDamage = totalDamage + (math.floor((nextAttackTickTable[1].creepEntity.dmgMin + nextAttackTickTable[1].creepEntity.dmgBonus) * Lasthit.armorTypeModifiers[nextAttackTickTable[1].attackType][self.armorType] * (1 - self.creepEntity.dmgResist)))						
+					totalDamage = totalDamage + math.floor(self.creepEntity:DamageTaken((nextAttackTickTable[1].creepEntity.dmgMin + nextAttackTickTable[1].creepEntity.dmgBonus),DAMAGE_PHYS,nextAttackTickTable[1].creepEntity))
+					
 					if (self.creepEntity.health - totalDamage) <= health then	
-						return nextAttackTickTable[2]*i + nextAttackTickTable[4]/i
+						return nextAttackTickTable[2]
 					end
 				end
 			end 
-		end
+		-- end
 	end
 	return nil
 end
@@ -342,28 +365,24 @@ function Creep:MapDamageSources()
 		for k,z in ipairs(entityList:GetProjectiles({target=self.creepEntity})) do
 			if z.source == creepClass.creepEntity then
 				local nextAttackTick = (((Animations.table[z.source.handle] and Animations.table[z.source.handle].moveTime) and (Animations.table[z.source.handle].moveTime)) or ((heroInfo[z.source.name].attackBackswing / (1 + (z.source.attackSpeed - 100) / 100)) - (1/Animations.maxCount)*3)) - Animations.getAttackDuration(creepClass.creepEntity)
-				local timeToDamageHit = ((GetDistance2D(z.position, self.creepEntity))/z.speed)
-				local timeTofutureDamageHit = (((creepClass.projectileSpeed) and (((GetDistance2D(creepClass.creepEntity, self.creepEntity))/creepClass.projectileSpeed))) or 0) + ((Animations.GetAttackTime(creepClass.creepEntity)) or ((heroInfo[creepClass.creepEntity.name].attackPoint / (1 + (creepClass.creepEntity.attackSpeed - 100) / 100))))	
+				local timeToDamageHit = ((GetDistance2D(z.position, self.creepEntity)-50)/z.speed)
+				local timeTofutureDamageHit = (((creepClass.projectileSpeed) and (((GetDistance2D(creepClass.creepEntity, self.creepEntity)-50)/creepClass.projectileSpeed))) or 0) + ((Animations.GetAttackTime(creepClass.creepEntity)) or ((heroInfo[creepClass.creepEntity.name].attackPoint / (1 + (creepClass.creepEntity.attackSpeed - 100) / 100))))	
 				local futureAttackTick = (((Animations.table[creepClass.creepEntity.handle] and Animations.table[creepClass.creepEntity.handle].moveTime) and (Animations.table[creepClass.creepEntity.handle].moveTime)) or (Animations.GetEndTime(creepClass.creepEntity)))
-				if not self.nextAttackTicks[creepClass.creepEntity.handle] or self.nextAttackTicks[creepClass.creepEntity.handle][2] < client.gameTime then
-					self.nextAttackTicks[z.source.handle] = {creepClass, timeToDamageHit + client.gameTime, nextAttackTick + client.gameTime, nextAttackTick, self}	
-				end
-				if not self.futureAttackTicks[creepClass.creepEntity.handle] or self.futureAttackTicks[creepClass.creepEntity.handle][2] < client.gameTime then
-					self.futureAttackTicks[z.source.handle] = {creepClass, timeToDamageHit + timeTofutureDamageHit + (Animations.table[creepClass.creepEntity.handle].startTime or client.gameTime) + nextAttackTick, nextAttackTick + futureAttackTick + client.gameTime, nextAttackTick + futureAttackTick, self}
-				end
+				self.nextAttackTicks[z.source.handle] = {creepClass, timeToDamageHit + client.latency, nextAttackTick + client.gameTime, nextAttackTick, self}	
+				self.futureAttackTicks[z.source.handle] = {creepClass, timeToDamageHit + timeTofutureDamageHit + (Animations.table[creepClass.creepEntity.handle].startTime or client.gameTime) + nextAttackTick, nextAttackTick + futureAttackTick + client.gameTime, nextAttackTick + futureAttackTick, self}
 			end
 		end
 		if self.creepEntity.team ~= creepClass.creepEntity.team and creepClass.creepEntity.alive and Animations.table[creepClass.creepEntity.handle] then
-			local timeToDamageHit = 0
+			local timeToDamageHit = 0 
 			local nextAttackTick = 0
-			if GetDistance2D(creepClass.creepEntity.position, self.creepEntity) < creepClass.creepEntity.attackRange and (math.max(math.abs(FindAngleR(creepClass.creepEntity) - math.rad(FindAngleBetween(creepClass.creepEntity, self.creepEntity))), 0)) <= 0.0109 and Animations.isAttacking(creepClass.creepEntity) and not Animations.CanMove(creepClass.creepEntity) then
+			if GetDistance2D(creepClass.creepEntity.position, self.creepEntity) < creepClass.creepEntity.attackRange+25 and (math.max(math.abs(FindAngleR(creepClass.creepEntity) - math.rad(FindAngleBetween(creepClass.creepEntity, self.creepEntity))), 0)) <= 0.015 and Animations.isAttacking(creepClass.creepEntity) and not Animations.CanMove(creepClass.creepEntity) then
 				if Animations.getAttackDuration(creepClass.creepEntity) and Animations.getAttackDuration(creepClass.creepEntity) > 0 and Animations.getAttackDuration(creepClass.creepEntity) <= Animations.GetAttackTime(creepClass.creepEntity) then
 					nextAttackTick = (((Animations.table[creepClass.creepEntity.handle] and Animations.table[creepClass.creepEntity.handle].moveTime) and (Animations.table[creepClass.creepEntity.handle].moveTime)) or (Animations.GetEndTime(creepClass.creepEntity))) - Animations.getAttackDuration(creepClass.creepEntity)
-					timeToDamageHit = (((creepClass.projectileSpeed) and (((GetDistance2D(creepClass.creepEntity, self.creepEntity))/creepClass.projectileSpeed))) or 0) + ((Animations.GetAttackTime(creepClass.creepEntity)) or ((heroInfo[creepClass.creepEntity.name].attackPoint / (1 + (creepClass.creepEntity.attackSpeed - 100) / 100))) - Animations.getAttackDuration(creepClass.creepEntity))
-					local timeTofutureDamageHit = (((creepClass.projectileSpeed) and (((GetDistance2D(creepClass.creepEntity, self.creepEntity))/creepClass.projectileSpeed))) or 0) + ((Animations.GetAttackTime(creepClass.creepEntity)) or ((heroInfo[creepClass.creepEntity.name].attackPoint / (1 + (creepClass.creepEntity.attackSpeed - 100) / 100))))	
+					timeToDamageHit = (((creepClass.projectileSpeed) and (((GetDistance2D(creepClass.creepEntity, self.creepEntity)-50)/creepClass.projectileSpeed))) or 0) + ((Animations.GetAttackTime(creepClass.creepEntity)) or ((heroInfo[creepClass.creepEntity.name].attackPoint / (1 + (creepClass.creepEntity.attackSpeed - 100) / 100))) - Animations.getAttackDuration(creepClass.creepEntity))
+					local timeTofutureDamageHit = (((creepClass.projectileSpeed) and (((GetDistance2D(creepClass.creepEntity, self.creepEntity)-50)/creepClass.projectileSpeed))) or 0) + ((Animations.GetAttackTime(creepClass.creepEntity)) or ((heroInfo[creepClass.creepEntity.name].attackPoint / (1 + (creepClass.creepEntity.attackSpeed - 100) / 100))))	
 					local futureAttackTick = (((Animations.table[creepClass.creepEntity.handle] and Animations.table[creepClass.creepEntity.handle].moveTime) and (Animations.table[creepClass.creepEntity.handle].moveTime)) or (Animations.GetEndTime(creepClass.creepEntity)))
 					if not self.nextAttackTicks[creepClass.creepEntity.handle] or self.nextAttackTicks[creepClass.creepEntity.handle][2] < client.gameTime then
-						self.nextAttackTicks[creepClass.creepEntity.handle] = {creepClass, timeToDamageHit, nextAttackTick + (Animations.table[creepClass.creepEntity.handle].startTime or client.gameTime), nextAttackTick, self}		
+						self.nextAttackTicks[creepClass.creepEntity.handle] = {creepClass, timeToDamageHit  + client.latency, nextAttackTick + (Animations.table[creepClass.creepEntity.handle].startTime or client.gameTime), nextAttackTick, self}		
 					end
 					if not self.futureAttackTicks[creepClass.creepEntity.handle] or self.futureAttackTicks[creepClass.creepEntity.handle][2] < client.gameTime then	
 						self.futureAttackTicks[creepClass.creepEntity.handle] = {creepClass, timeToDamageHit + timeTofutureDamageHit + nextAttackTick + (Animations.table[creepClass.creepEntity.handle].startTime or client.gameTime), nextAttackTick + futureAttackTick + (Animations.table[creepClass.creepEntity.handle].startTime or client.gameTime), nextAttackTick + futureAttackTick, self}		
