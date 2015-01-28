@@ -3,7 +3,7 @@ require("libs.Utils")
 require("libs.SideMessage")
 require("libs.HeroInfo")
 require("libs.EasyHUD")
-require("libs.Animations")
+require("libs.AnimationsWIP")
 require("libs.Lasthit")
 
 local config = ScriptConfig.new()
@@ -172,7 +172,7 @@ function Main(tick)
 						stop = tick + 100
 					end
 					if tick > attack then
-						print(Lasthit.table[me.handle].time)
+						--print(Lasthit.table[me.handle].time)
 						Hit(me)
 						attack = tick + 100
 					end
