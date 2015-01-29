@@ -452,3 +452,23 @@ function AbilityDamage.GetDamage(ability, hpRegen)
 	end
 	return nil
 end
+
+function AbilityDamage.GetDmgType(spell)
+	--Recongnizing the type of damage of our spell
+	local dmgType = spell.dmgType
+	local type
+	if dmgType == 1 then
+		type = DAMAGE_PHYS
+	elseif dmgType == 2 then
+		type = DAMAGE_MAGC
+	elseif dmgType == 4 then
+		type = DAMAGE_PURE
+	end
+	if spell.name == "abaddon_aphotic_shield" then type = DAMAGE_MAGC end
+	if spell.name == "meepo_poof" then type = DAMAGE_MAGC end
+	if spell.name == "axe_culling_blade" then type = DAMAGE_PURE end
+	if spell.name == "alchemist_unstable_concoction_throw" then type = DAMAGE_PHYS end
+	if spell.name == "centaur_stampede" then type = DAMAGE_MAGC end
+	if spell.name == "lina_laguna_blade" and me:AghanimState() then type = DAMAGE_PURE end
+	if spell.name == "legion_commander_duel" then type = DAMAGE_PHYS end
+end
