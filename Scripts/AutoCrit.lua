@@ -2,6 +2,8 @@
 
 require("libs.Animations")
 require("libs.Utils")
+require("libs.TargetFind")
+
 local attack = 0
 local move = 0
 local haveCrited = false
