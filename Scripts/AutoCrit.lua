@@ -67,6 +67,8 @@ function Tick(tick)
 			me:Move(client.mousePosition)
 			move = client.gameTime + 0.05
 		end
+	else
+		haveCrited = false victim = nil start = false
 	end
 end
 
