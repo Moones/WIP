@@ -241,17 +241,17 @@ function Tick( tick )
 				toggle = true
 			end
 			if not armState and SleepCheck() and not me:IsInvisible() then
-				if not me:IsStunned() and not armState and SleepCheck() and Animations.isAttacking(me) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 and GetDistance2D(me,v) < me.attackRange+100 then
+				if not me:IsStunned() and not armState and SleepCheck() and Animations.isAttacking(me) and (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 and GetDistance2D(me,v) < me.attackRange+50 then
 					me:SafeCastItem("item_armlet")
 					Sleep(ARMLET_DELAY) break
 				end
 				for i,z in ipairs(v.abilities) do
-					if not me:IsStunned() and not armState and SleepCheck() and z.abilityPhase and distance <= z.castRange+100 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 then
+					if not me:IsStunned() and not armState and SleepCheck() and z.abilityPhase and distance <= z.castRange+50 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 then
 						me:SafeCastItem("item_armlet")
 						Sleep(ARMLET_DELAY) break
 					end
 				end	
-				if not me:IsStunned() and not armState and SleepCheck() and (distance <= (250) or (Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 and distance < v.attackRange+100)) then
+				if not me:IsStunned() and not armState and SleepCheck() and (distance <= (250) or (Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 and distance < v.attackRange+50)) then
 					me:SafeCastItem("item_armlet")
 					Sleep(ARMLET_DELAY)
 				end
