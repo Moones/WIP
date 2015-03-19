@@ -113,7 +113,7 @@ function Tick( tick )
 	end
 	
 	local armlet = me:FindItem("item_armlet")
-	if not armlet or not armlet:CanBeCasted() or not active then incoming_damage = 0 incoming_projectiles = {} toggle = false return end
+	if not armlet or not active then incoming_damage = 0 incoming_projectiles = {} toggle = false return end
 	
 	local armState = me:DoesHaveModifier("modifier_item_armlet_unholy_strength")
 	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true,team=me:GetEnemyTeam()})
@@ -133,6 +133,22 @@ function Tick( tick )
 	if not me:IsStunned() and player.orderId == Player.ORDER_ATTACKENTITY and player.target and not me:IsInvisible() and player.target.hero and not armState and SleepCheck() and GetDistance2D(player.target,me) < me.attackRange+25 then
 		me:SafeCastItem("item_armlet")
 		Sleep(ARMLET_DELAY)
+	end
+	
+	if not me:IsStunned() and SleepCheck() and not me:IsInvisible() and (toggle or me.health < 475 or me.health < incoming_damage) and (incoming_damage <= 0 or me.health < incoming_damage) then
+		local delay = ARMLET_DELAY*2
+		if incoming_damage <= 0 then
+			delay = delay*1.50
+		end
+		if armState then
+			me:SafeCastItem("item_armlet")
+			me:SafeCastItem("item_armlet")
+			Sleep(delay)
+		else
+			me:SafeCastItem("item_armlet")
+			Sleep(delay)
+		end
+		toggle = false
 	end
 	
 	for k,z in ipairs(projectile) do
@@ -241,22 +257,6 @@ function Tick( tick )
 				end
 			end
 		end
-	end
-	
-	if not me:IsStunned() and SleepCheck() and not me:IsInvisible() and (toggle or me.health < minhp or me.health < incoming_damage) and (incoming_damage <= 0 or me.health < incoming_damage) then
-		local delay = ARMLET_DELAY*2
-		if incoming_damage <= 0 then
-			delay = delay*1.50
-		end
-		if armState then
-			me:SafeCastItem("item_armlet")
-			me:SafeCastItem("item_armlet")
-			Sleep(delay)
-		else
-			me:SafeCastItem("item_armlet")
-			Sleep(delay)
-		end
-		toggle = false
 	end
 end
 
