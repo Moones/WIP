@@ -174,7 +174,7 @@ function GetDamage(hero,target,crit)
 			if hero.classId == CDOTA_Unit_Hero_Clinkz then		
 				local searinga = hero:GetAbility(2)			
 				if searinga.level > 0 then
-					dmg = dmg + searina:GetSpecialData("bonus_damage",searinga.level)
+					dmg = dmg + searinga:GetSpecialData("bonus_damage",searinga.level)
 				end
 			end
 		end
