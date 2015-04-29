@@ -111,62 +111,76 @@ function Main(tick)
 					Sleep(125, "firstmove")
 				end
 			elseif tick > blocksleep then
-				for creepHandle, creep in ipairs(entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane,alive=true,visible=true,team=me.team})) do	
+				--local creeps = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane,alive=true,visible=true,team=me.team})
+				local creeps = entityList:GetEntities(function (ent) return ent.classId == CDOTA_BaseNPC_Creep_Lane and ent.alive == true and ent.visible == true and ent.spawned == true and ent.team == me.team and GetDistance2D(me,ent) < 250 end)
+				local count = 1
+				closestCreep2 = nil
+				closestCreep = nil
+				for creepHandle, creep in ipairs(creeps) do	
 					if creep.spawned and creep.health > 0 then
 						if starttime == 0.48 and GetDistance2D(creep, startingpoint) < 150 then
 							Sleep(5000 + client.latency/1000 + ((me.movespeed/creep.movespeed)/(creep.movespeed/me.movespeed)), "stop")
 							print("Detected RTZ block failure!")
 						end
-						if GetDistance2D(me,creep) < 700 then
-							local alfa, move, p
-							if not closestCreep or (GetDistance2D(creep,endingpoint) - 50) < GetDistance2D(closestCreep,endingpoint) or GetDistance2D(me,closestCreep) > 700 then
+						if GetDistance2D(me,creep) < 500 then
+							if not closestCreep2 then 
+								closestCreep2 = {} 
+								closestCreep2.position = creep.position
+								closestCreep2.rotR = creep.rotR
+								closestCreep2.movespeed = creep.movespeed
+							else
+								count = count + 1
+								closestCreep2.position = closestCreep2.position + creep.position
+								closestCreep2.rotR = closestCreep2.rotR + creep.rotR
+							end
+							if not closestCreep or (GetDistance2D(creep,endingpoint) - 50) < GetDistance2D(closestCreep,endingpoint) or GetDistance2D(me,closestCreep) > 500 then
 								closestCreep = creep
 							end
-							if closestCreep and GetDistance2D(me,closestCreep) <= 700 then
-								if not closestCreep2 or (closestCreep2.handle == closestCreep.handle and closestCreep2.handle ~= creep.handle) or (GetDistance2D(creep,endingpoint) < GetDistance2D(closestCreep2,endingpoint) and (GetDistance2D(closestCreep2,endingpoint)) > GetDistance2D(closestCreep,endingpoint)) or GetDistance2D(me,closestCreep2) > 700 then
-									closestCreep2 = creep
-								end 
-								if closestCreep2 and GetDistance2D(me,closestCreep2) <= 700 then
-									alfa = closestCreep.rotR
-									move = Vector(me.position.x + me.movespeed * math.cos(me.rotR), me.position.y + me.movespeed * math.sin(me.rotR), me.position.y)
-									p = Vector(closestCreep.position.x + closestCreep.movespeed * (me.movespeed/closestCreep.movespeed) * math.cos(alfa), closestCreep.position.y + closestCreep.movespeed * (closestCreep.movespeed/me.movespeed) * math.sin(alfa), closestCreep.position.z)
-									local alfa2 = closestCreep2.rotR
-									local p2 = Vector(closestCreep2.position.x + closestCreep2.movespeed * (me.movespeed/closestCreep2.movespeed) * math.cos(alfa2), closestCreep2.position.y + closestCreep2.movespeed * (me.movespeed/closestCreep2.movespeed) * math.sin(alfa2), closestCreep2.position.z)
-									if not eff[1] then
-										eff[1] = Effect(closestCreep.position,"range_display")
-										eff[1]:SetVector(1, Vector(100,0,0) )
-										eff[1]:SetVector(0, closestCreep.position )
-									else
-										eff[1]:SetVector(0, closestCreep.position )
-									end
-									if not eff[2] then
-										eff[2] = Effect(closestCreep2.position,"range_display")
-										eff[2]:SetVector(1, Vector(50,0,0) )
-										eff[2]:SetVector(0, closestCreep2.position )
-									else
-										eff[2]:SetVector(0, closestCreep2.position )
-									end
-									if SleepCheck("block") then
-										if count < 12 then
-											count = count + 1
-										else
-											count = 0
-										end
-										if count < 6 and (GetDistance2D(p,p2) < 100 or (GetDistance2D(closestCreep,endingpoint) + 50) < GetDistance2D(me,endingpoint) and (GetDistance2D(closestCreep2,endingpoint) - 50) > GetDistance2D(me,endingpoint)) and GetDistance2D(p,endingpoint)+50 < GetDistance2D(me,endingpoint) then
-											me:Move(p)
-										elseif GetDistance2D(p2,endingpoint)+50 < GetDistance2D(me,endingpoint) then
-											me:Move(p2)
-										end
-									end
-									if GetDistance2D(endingpoint,me) < enddistance and (GetDistance2D(closestCreep2,endingpoint) - 50) > GetDistance2D(closestCreep,endingpoint) and (GetDistance2D(creep,endingpoint) - 50) > GetDistance2D(closestCreep,endingpoint) and (GetDistance2D(closestCreep,endingpoint) - 50) > GetDistance2D(me,endingpoint) and SleepCheck("stop") then
-										me:Stop()
-										--Sleep(GetDistance2D(closestCreep,me)/closestCreep.movespeed, "block")
-										Sleep((GetDistance2D(move,closestCreep2)/closestCreep2.movespeed)*(closestCreep2.movespeed/me.movespeed) + (GetDistance2D(move,closestCreep)/closestCreep.movespeed)*(closestCreep.movespeed/me.movespeed) + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, p))) - 0.69, 0)/(heroInfo[me.name].turnRate*(1/0.03))), "stop")
-									end
-									if blocksleep <= tick then
-										blocksleep = tick + (me.movespeed/2)*(me.movespeed/closestCreep.movespeed) + GetDistance2D(me, p)/me.movespeed + client.latency/1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, p))) - 0.69, 0)/(heroInfo[me.name].turnRate*(1/0.03)))
-									end
-								end
+						end
+					end
+				end
+				if closestCreep2 then
+					closestCreep2.position = (closestCreep2.position + closestCreep.position)/(#creeps + 1)
+					closestCreep2.rotR = closestCreep2.rotR/#creeps
+					if not eff[2] then
+						eff[2] = Effect(closestCreep2.position,"range_display")
+						eff[2]:SetVector(1, Vector(50,0,0) )
+						eff[2]:SetVector(0, closestCreep2.position )
+					else
+						eff[2]:SetVector(0, closestCreep2.position )
+					end
+					if GetDistance2D(me,closestCreep2.position) <= 700 then
+						local alfa, move, p
+						alfa = closestCreep.rotR
+						move = Vector(me.position.x + me.movespeed * math.cos(me.rotR), me.position.y + me.movespeed * math.sin(me.rotR), me.position.y)
+						p = Vector(closestCreep.position.x + closestCreep.movespeed * (me.movespeed/closestCreep.movespeed) * math.cos(alfa), closestCreep.position.y + closestCreep.movespeed * (closestCreep.movespeed/me.movespeed) * math.sin(alfa), closestCreep.position.z)
+						local alfa2 = closestCreep2.rotR
+						local p2 = Vector(closestCreep2.position.x + (closestCreep2.movespeed*3) * (me.movespeed/closestCreep2.movespeed) * math.cos(alfa2), closestCreep2.position.y + (closestCreep2.movespeed*3) * (me.movespeed/closestCreep2.movespeed) * math.sin(alfa2), closestCreep2.position.z)
+						if not eff[1] then
+							eff[1] = Effect(closestCreep.position,"range_display")
+							eff[1]:SetVector(1, Vector(100,0,0) )
+							eff[1]:SetVector(0, closestCreep.position )
+						else
+							eff[1]:SetVector(0, closestCreep.position )
+						end
+						if blocksleep <= tick then
+							blocksleep = tick + (me.movespeed/3 * (me.movespeed/closestCreep.movespeed))
+						end
+						if GetDistance2D(endingpoint,me) < enddistance and GetDistance2D(closestCreep2.position,endingpoint) >= GetDistance2D(closestCreep,endingpoint) and (GetDistance2D(closestCreep,endingpoint) - 25) > GetDistance2D(me,endingpoint) and SleepCheck("stop") then
+							me:Stop()
+							--Sleep(GetDistance2D(closestCreep,me)/closestCreep.movespeed, "block")
+							Sleep(me.movespeed/2 * (closestCreep.movespeed/me.movespeed), "stop")
+						end
+						if SleepCheck("block") then
+							-- if count < 12 then
+								-- count = count + 1
+							-- else
+								-- count = 0
+							-- end
+							-- if count < 6 and (GetDistance2D(p,p2) < 100 or (GetDistance2D(closestCreep,endingpoint) + 50) < GetDistance2D(me,endingpoint) and (GetDistance2D(closestCreep2.position,endingpoint) - 50) > GetDistance2D(me,endingpoint)) and GetDistance2D(p,endingpoint)+50 < GetDistance2D(me,endingpoint) then
+								-- me:Move(p)
+							if GetDistance2D(p2,endingpoint)+50 < GetDistance2D(me,endingpoint) then
+								me:Move(p2)
 							end
 						end
 					end
