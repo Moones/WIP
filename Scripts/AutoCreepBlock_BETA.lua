@@ -112,7 +112,7 @@ function Main(tick)
 				end
 			elseif tick > blocksleep then
 				--local creeps = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane,alive=true,visible=true,team=me.team})
-				local creeps = entityList:GetEntities(function (ent) return ent.classId == CDOTA_BaseNPC_Creep_Lane and ent.alive == true and ent.visible == true and ent.spawned == true and ent.team == me.team and GetDistance2D(me,ent) < 250 end)
+				local creeps = entityList:GetEntities(function (ent) return ent.classId == CDOTA_BaseNPC_Creep_Lane and ent.alive == true and ent.visible == true and ent.spawned == true and ent.team == me.team and GetDistance2D(me,ent) < 350 end)
 				local count = 1
 				closestCreep2 = nil
 				closestCreep = nil
