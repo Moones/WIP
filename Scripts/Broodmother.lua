@@ -132,7 +132,7 @@ function Main(tick)
 				SelectBack(prev)
 				Sleep(500, "chase")
 			end
-			if not svictim.visible then
+			if svictim and not svictim.visible then
 				if not fogtime then
 					fogtime = client.gameTime
 				elseif (client.gameTime - fogtime) >= 10 then
